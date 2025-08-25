@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  // NOTE: Update this to include the paths to all files that contain Nativewind classes.
   content: [
     "./App.tsx",
     "./components/**/*.{js,jsx,ts,tsx}",
@@ -10,8 +9,10 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        inter: ["Inter"],
-        inter_bold: ["InterBold"],
+        inter: ["Inter"], // Regular
+        "inter-bold": ["InterBold"], // Bold
+        "inter-extrabold": ["InterExtraBold"], // ExtraBold
+        "inter-medium": ["InterMedium"], // Medium
       },
     },
   },
