@@ -1,34 +1,54 @@
 import { useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
-const tags = [
-  { id: 1, name: "Gia đình" },
-  { id: 2, name: "Công việc" },
-  { id: 3, name: "Học tập" },
-];
+type Option = {
+  id: number | string;
+  name: string;
+};
 
-export default function TagSelector({ onChange }: { onChange: (ids: number[]) => void }) {
-  const [selected, setSelected] = useState<number[]>([]);
+type Props = {
+  options: Option[];
+  multiSelect?: boolean;
+  onChange: (selected: (number | string)[] | (number | string | null)) => void;
+};
 
-  const toggleTag = (id: number) => {
-    const newSelected = selected.includes(id)
-      ? selected.filter((t) => t !== id)
-      : [...selected, id];
-    setSelected(newSelected);
-    onChange(newSelected);
+export default function GenericSelector({ options, multiSelect = false, onChange }: Props) {
+  const [selected, setSelected] = useState<(number | string)[] | (number | string | null)>(
+    multiSelect ? [] : null
+  );
+
+  const toggleSelect = (id: number | string) => {
+    if (multiSelect) {
+      // chọn nhiều
+      const current = selected as (number | string)[];
+      const newSelected = current.includes(id)
+        ? current.filter((x) => x !== id)
+        : [...current, id];
+      setSelected(newSelected);
+      onChange(newSelected);
+    } else {
+      // chọn 1
+      const current = selected as number | string | null;
+      const newSelected = current === id ? null : id;
+      setSelected(newSelected);
+      onChange(newSelected);
+    }
   };
+
+  const isSelected = (id: number | string) =>
+    multiSelect ? (selected as (number | string)[]).includes(id) : selected === id;
 
   return (
     <View className="flex-row flex-wrap gap-2">
-      {tags.map((tag) => (
+      {options.map((opt) => (
         <TouchableOpacity
-          key={tag.id}
+          key={opt.id}
           className={`px-4 py-2 rounded-full ${
-            selected.includes(tag.id) ? "bg-purple-500" : "bg-gray-300"
+            isSelected(opt.id) ? "bg-purple-500" : "bg-gray-300"
           }`}
-          onPress={() => toggleTag(tag.id)}
+          onPress={() => toggleSelect(opt.id)}
         >
-          <Text className="text-white">{tag.name}</Text>
+          <Text className="text-white">{opt.name}</Text>
         </TouchableOpacity>
       ))}
     </View>

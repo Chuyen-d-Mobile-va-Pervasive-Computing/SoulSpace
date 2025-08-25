@@ -17,7 +17,7 @@ const cards = [
   {
     title: "GAD-7 – Đánh giá mức độ lo âu",
     desc: "Thường xuyên lo lắng, bồn chồn ...",
-    image: require("@/assets/images/pss.png"),
+    image: require("@/assets/images/gad.png"),
   },
   {
     title: "PSS – Đo mức độ căng thẳng",

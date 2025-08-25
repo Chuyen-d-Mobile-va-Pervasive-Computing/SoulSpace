@@ -9,6 +9,7 @@ import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-nativ
 export default function DiaryScreen() {
   const [emotion, setEmotion] = useState<number | null>(null);
   const [tags, setTags] = useState<number[]>([]);
+  const [thoughts, setThoughts] = useState<string>("");
 
   return (
     <View className="flex-1 bg-[#020659]">
@@ -34,6 +35,8 @@ export default function DiaryScreen() {
               Viết lên suy nghĩ của bạn
             </Text>
             <TextInput
+              value={thoughts}
+              onChangeText={setThoughts}
               className="bg-white/30 border border-white p-4 rounded-xl text-white text-base min-h-[120px]"
               placeholder="Bạn đang nghĩ gì..."
               placeholderTextColor="#BBBBBB"
@@ -46,7 +49,16 @@ export default function DiaryScreen() {
           <View className="space-y-2">
             <Text className="text-white text-base font-medium">Tags (Tùy chọn)</Text>
             <View className="flex-row flex-wrap gap-2 mt-2">
-              <TagSelector onChange={setTags} />
+              <TagSelector
+                options={[
+                  { id: 1, name: "Gia đình" },
+                  { id: 2, name: "Công việc" },
+                  { id: 3, name: "Học tập" },
+                ]}
+                multiSelect={true}
+                onChange={(ids) => console.log("Tags:", ids)}
+
+              />
             </View>
           </View>
 
@@ -63,7 +75,12 @@ export default function DiaryScreen() {
 
           {/* Button */}
           <TouchableOpacity
-            className="bg-[rgba(111,4,217,0.3)] border border-[#6f04d9] rounded-xl h-12 items-center justify-center"
+            disabled={!thoughts || !emotion}
+            className={`${
+              !thoughts || !emotion
+                ? "bg-gray-400 border-none"
+                : "bg-[rgba(111,4,217,0.3)] border border-[#6f04d9]"
+            } rounded-xl h-12 items-center justify-center`}
             onPress={() => router.push("/(tabs)/home")}
           >
             <Text className="text-white text-base font-bold">LƯU BÀI VIẾT</Text>

@@ -21,7 +21,7 @@ export default function TestInfoScreen() {
               : testType?.includes("PHQ-9")
               ? require("@/assets/images/phq.png")
               : testType?.includes("GAD")
-              ? require("@/assets/images/pss.png")
+              ? require("@/assets/images/gad.png")
               : require("@/assets/images/pss.png")
           }
         />

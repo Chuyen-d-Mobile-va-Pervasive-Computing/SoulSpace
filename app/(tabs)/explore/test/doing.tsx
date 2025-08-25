@@ -3,84 +3,125 @@ import { router } from "expo-router";
 import React, { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
+type Question = {
+  question: string;
+  options: string[];
+};
+
+type QuestionCardProps = {
+  index: number;
+  question: string;
+  options: string[];
+  value: number | null;           // đáp án đã chọn cho câu hỏi này
+  onSelect: (val: number) => void;
+};
+
+const QuestionCard: React.FC<QuestionCardProps> = ({
+  index,
+  question,
+  options,
+  value,
+  onSelect,
+}) => {
+  return (
+    <View className="rounded-lg overflow-hidden bg-white/20 mb-5">
+      {/* Header */}
+      <View className="p-3 bg-white/30">
+        <Text className="text-[#ccc] text-sm font-medium text-center">
+          Câu hỏi {index + 1}/7
+        </Text>
+        <Text className="text-white text-base font-medium text-center">
+          {question}
+        </Text>
+      </View>
+
+      {/* Options */}
+      {options.map((item, i) => (
+        <Pressable
+          key={i}
+          onPress={() => onSelect(i)}
+          className="flex-row justify-between items-center h-12 px-3 border-t border-white/20"
+        >
+          <Text className="text-white text-base font-medium">{item}</Text>
+          <View
+            className={`w-6 h-6 rounded-full border-2 ${
+              value === i ? "border-[#6f04d9] bg-[#6f04d9]/60" : "border-white"
+            }`}
+          />
+        </Pressable>
+      ))}
+    </View>
+  );
+};
+
 export default function TestDoingScreen() {
-  const [selected, setSelected] = useState<number | null>(null);
+  const questions: Question[] = [
+    {
+      question:
+        "Bạn thường cảm thấy tràn đầy năng lượng khi tham gia các hoạt động cùng nhiều người?",
+      options: ["Có", "Không", "Đôi khi", "Chưa chắc"],
+    },
+    {
+      question:
+        "Bạn ưu tiên dữ liệu thực tế hơn là trực giác khi ra quyết định?",
+      options: ["Có", "Không", "Đôi khi", "Chưa chắc"],
+    },
+  ];
+
+  // mỗi câu hỏi có 1 ô trong mảng answers (null nếu chưa chọn)
+  const [answers, setAnswers] = useState<(number | null)[]>(
+    Array(questions.length).fill(null)
+  );
+
+  const handleSelect = (qIndex: number, val: number) => {
+    setAnswers((prev) => {
+      const next = [...prev];
+      next[qIndex] = val;
+      return next;
+    });
+  };
+
+  const allAnswered = answers.every((a) => a !== null);
 
   return (
     <View className="flex-1 bg-[#020659]">
       {/* Header */}
-      <Heading title="" showBack={true} onBackPress={() => router.back()} />
+      <Heading title="" showBack onBackPress={() => router.back()} />
 
       {/* Body */}
-      <ScrollView 
-        className="flex-1 mt-4 px-3 py-8 gap-5"
-        contentContainerStyle={{ paddingBottom: 20 }}
+      <ScrollView
+        className="flex-1 mt-4 px-3 py-8"
+        contentContainerStyle={{ paddingBottom: 24 }}
+        showsVerticalScrollIndicator={false}
       >
-        {/* 🔹 Mô tả */}
+        {/* Mô tả */}
         <Text className="text-white text-base font-medium text-center mb-5">
-          Bài trắc nghiệm MBTI (Myers–Briggs Type Indicator) dựa trên lý thuyết phân loại tính cách
-          của Carl Jung và được phát triển bởi Isabel Briggs Myers và Katharine Cook Briggs. Bài
-          test giúp xác định kiểu tính cách của bạn dựa trên 4 nhóm đặc điểm chính, từ đó hiểu rõ
-          hơn về cách bạn suy nghĩ, cảm nhận và tương tác với thế giới
+          Bài trắc nghiệm MBTI giúp xác định kiểu tính cách dựa trên 4 nhóm đặc
+          điểm, từ đó hiểu cách bạn suy nghĩ, cảm nhận và tương tác với thế
+          giới.
         </Text>
 
-        {/* 🔹 Card câu hỏi */}
-        <View className="rounded-lg overflow-hidden bg-white/20 mb-5">
-          {/* Header câu hỏi */}
-          <View className="p-3 bg-white/30">
-            <Text className="text-[#ccc] text-sm font-medium text-center">Câu hỏi 1/7</Text>
-            <Text className="text-white text-base font-medium text-center">
-              aaaaaaaaaaaaaaaaaaaaa
-            </Text>
-          </View>
+        {/* Danh sách câu hỏi */}
+        {questions.map((q, idx) => (
+          <QuestionCard
+            key={idx}
+            index={idx}
+            question={q.question}
+            options={q.options}
+            value={answers[idx]}
+            onSelect={(val) => handleSelect(idx, val)}
+          />
+        ))}
 
-          {/* Lựa chọn */}
-          {["Có", "Không", "Đôi khi", "Chưa chắc"].map((item, index) => (
-            <Pressable
-              key={index}
-              onPress={() => setSelected(index)}
-              className="flex-row justify-between items-center h-12 px-3 border-t border-white/20"
-            >
-              <Text className="text-white text-base font-medium">{item}</Text>
-              <View
-                className={`w-6 h-6 rounded-full border-2 ${
-                  selected === index ? "border-[#6f04d9] bg-[#6f04d9]/60" : "border-white"
-                }`}
-              />
-            </Pressable>
-          ))}
-        </View>
-
-                <View className="rounded-lg overflow-hidden bg-white/20 mb-5">
-          {/* Header câu hỏi */}
-          <View className="p-3 bg-white/30">
-            <Text className="text-[#ccc] text-sm font-medium text-center">Câu hỏi 1/7</Text>
-            <Text className="text-white text-base font-medium text-center">
-              aaaaaaaaaaaaaaaaaaaaa
-            </Text>
-          </View>
-
-          {/* Lựa chọn */}
-          {["Có", "Không", "Đôi khi", "Chưa chắc"].map((item, index) => (
-            <Pressable
-              key={index}
-              onPress={() => setSelected(index)}
-              className="flex-row justify-between items-center h-12 px-3 border-t border-white/20"
-            >
-              <Text className="text-white text-base font-medium">{item}</Text>
-              <View
-                className={`w-6 h-6 rounded-full border-2 ${
-                  selected === index ? "border-[#6f04d9] bg-[#6f04d9]/60" : "border-white"
-                }`}
-              />
-            </Pressable>
-          ))}
-        </View>
-    
         {/* Footer Buttons */}
         <View className="pb-6">
-          <Pressable 
-            className="h-12 items-center justify-center rounded-lg border border-[#6f04d9] bg-[#6f04d9]/40"
+          <Pressable
+            disabled={!allAnswered}
+            className={`h-12 items-center justify-center rounded-lg ${
+              !allAnswered
+                ? "bg-gray-500"
+                : "border border-[#6f04d9] bg-[#6f04d9]/40"
+            }`}
             onPress={() => router.push("/(tabs)/explore/test/done")}
           >
             <Text className="text-white font-bold text-base">Làm xong</Text>
