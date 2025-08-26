@@ -9,7 +9,7 @@ export default function CommentScreen() {
 
     return (
         <View className="flex-1 bg-[#020659]">
-            <Heading title="Posts" showBack onBackPress={() => router.back()} />
+            <Heading title="Posts" showBack={true} onBackPress={() => router.back()} />
             {/* Body */}
             <View className="flex-1 px-4 mt-4">
                 {/* Post */}

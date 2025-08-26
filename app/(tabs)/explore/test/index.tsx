@@ -10,7 +10,8 @@ export default function TestInfoScreen() {
     <View className="flex-1 bg-[#020659]">
       <Heading title="Thông tin bài test" showBack onBackPress={() => router.back()} />
 
-      <ScrollView className="flex-1 px-3 py-8 gap-5" contentContainerStyle={{ paddingBottom: 20 }}>
+      <ScrollView className="flex-1 px-3 py-8 gap-5" contentContainerStyle={{flexGrow: 1, paddingBottom: 20 }}>
+        <View className="flex-1 justify-between">
         {/* Ảnh minh họa */}
         <Image
           className="w-full h-[280px] rounded-lg"
@@ -48,16 +49,17 @@ export default function TestInfoScreen() {
               : "Bài trắc nghiệm MBTI (Myers–Briggs Type Indicator) dựa trên lý thuyết phân loại tính cách..."}
           </Text>
         </View>
+        {/* Button */}
+        <View className="px-3 pb-6">
+          <TouchableOpacity
+            className="bg-[rgba(111,4,217,0.3)] border border-[#6f04d9] rounded-lg h-12 items-center justify-center mt-6"
+            onPress={() => router.push({ pathname: "/(tabs)/explore/test/doing", params: { testType } })}
+          >
+            <Text className="text-white text-base font-bold">Bắt đầu</Text>
+          </TouchableOpacity>
+        </View>
+        </View>
       </ScrollView>
-      {/* Button */}
-      <View className="px-3 pb-6">
-        <TouchableOpacity
-          className="bg-[rgba(111,4,217,0.3)] border border-[#6f04d9] rounded-lg h-12 items-center justify-center mt-6"
-          onPress={() => router.push({ pathname: "/(tabs)/explore/test/doing", params: { testType } })}
-        >
-          <Text className="text-white text-base font-bold">Bắt đầu</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }
