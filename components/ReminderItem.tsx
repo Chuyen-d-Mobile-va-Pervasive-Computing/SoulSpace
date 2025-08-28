@@ -23,9 +23,9 @@ export default function ReminderItem({ title, time, initialOn = false }: Reminde
         {/* Nút toggle bên phải */}
         <TouchableOpacity onPress={() => setIsOn(!isOn)}>
           {isOn ? (
-            <ToggleRight size={36} color="#FFFFFF" />
-          ) : (
             <ToggleLeft size={36} color="#BBBBBB" />
+          ) : (
+            <ToggleRight size={36} color="#FFFFFF" />
           )}
         </TouchableOpacity>
       </View>

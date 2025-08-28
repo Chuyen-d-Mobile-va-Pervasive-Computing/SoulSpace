@@ -2,6 +2,7 @@ import { router } from "expo-router";
 import { X } from "lucide-react-native";
 import * as React from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
+import * as Progress from "react-native-progress";
 
 export default function TestDoneScreen() {
   return (
@@ -29,7 +30,12 @@ export default function TestDoneScreen() {
 
             {/* Progress */}
             <View className="w-full items-center gap-2">
-              <View className="h-[10px] w-full rounded-lg bg-white/30 border border-white" />
+              <Progress.Bar
+                progress={5/20}
+                width={350}
+                color="white"
+                borderRadius={10}
+              />              
               <View className="flex-row justify-between w-full">
                 <Text className="text-xs text-white">Bình thường (0-10)</Text>
                 <Text className="text-xs text-white">Có triệu chứng</Text>

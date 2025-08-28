@@ -17,7 +17,7 @@ const latestJournal: LatestJournal = {
 
 export default function HomeScreen() {
   const openDiary = () => {
-    router.push("/(tabs)/diary");
+    router.push("/(tabs)/home/diary");
   };
   const openCommunity = () => {
     router.push("/(tabs)/community");
@@ -53,14 +53,17 @@ export default function HomeScreen() {
         <View>
           <View className="flex-row justify-between w-full p-5 rounded-xl">
             {/* Trồng cây */}
-            <View className="w-[100px] p-2 items-center justify-center border border-[#5cb338] rounded-lg bg-[rgba(92,179,56,0.3)]">
+            <TouchableOpacity 
+              className="w-[100px] p-2 items-center justify-center border border-[#5cb338] rounded-lg bg-[rgba(92,179,56,0.3)]"
+              onPress={() => router.push("/(tabs)/home/plant")}
+            >
               <View className="flex-1 items-center justify-center">
                 <Sprout size={24} color="#5cb338" />
                 <Text className="text-center font-extrabold text-[14px] text-[#5cb338]">
                   Plant
                 </Text>
               </View>
-            </View>
+            </TouchableOpacity>
 
             {/* Nhắc nhở */}
             <TouchableOpacity 
@@ -76,14 +79,17 @@ export default function HomeScreen() {
             </TouchableOpacity>
 
             {/* Minigame */}
-            <View className="w-[100px] h-[100px] p-2 items-center justify-center border border-[#e6a117] rounded-lg bg-[rgba(230,161,23,0.3)]">
+            <TouchableOpacity 
+              className="w-[100px] h-[100px] p-2 items-center justify-center border border-[#e6a117] rounded-lg bg-[rgba(230,161,23,0.3)]"
+              onPress={() => router.push("/(tabs)/home/minigame")}
+            >
               <View className="flex-1 items-center justify-center">
                 <Gamepad2 size={24} color="#e6a117" />
                 <Text className="text-center font-extrabold text-[14px] text-[#e6a117]">
                   Minigame
                 </Text>
               </View>
-            </View>
+            </TouchableOpacity>
           </View>
         </View>
         {/* Analytic */}

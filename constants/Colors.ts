@@ -24,7 +24,7 @@ export const Colors = {
 
     // Text
     text: "#FFFFFF",
-    textInactive: "#CCCCCC",
+    textInactive: "gray",
     textActive: "#FFFFFF",
 
     // Background

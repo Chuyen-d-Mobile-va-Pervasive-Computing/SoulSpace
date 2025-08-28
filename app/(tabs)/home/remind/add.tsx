@@ -10,11 +10,29 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 export default function AddScreen() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [name, setName] = useState("");
   const [time, setTime] = useState("");
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date: Date) => {
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    setSelectedTime(`${hours}:${minutes}`);
+    hideDatePicker();
+  };
 
   const handleCancel = () => {
     setShowConfirm(true);
@@ -45,20 +63,26 @@ export default function AddScreen() {
           {/* Thời gian nhắc nhở */}
           <TouchableOpacity
             className="w-full h-14 rounded-xl border border-white/20 bg-white/10 px-4 justify-center mb-4"
-            // onPress={() => router.push("/(tabs)/explore/result/tests")}
+            onPress={showDatePicker}
           >
             <View className="flex-row items-center justify-between">
-              <Text className="text-white font-bold text-base">
-                Time
-              </Text>
+              <Text className="text-white font-bold text-base">Time</Text>
               <View className="flex-row items-center">
                 <Text className="text-[#BBBBBB] font-medium text-sm mr-1">
-                  Select time
+                  {selectedTime ? selectedTime : "Select time"}
                 </Text>
                 <ChevronRight width={20} height={20} color="#BBBBBB" />
               </View>
             </View>
           </TouchableOpacity>
+
+          {/* DateTime Picker */}
+          <DateTimePickerModal
+            isVisible={isDatePickerVisible}
+            mode="datetime"
+            onConfirm={handleConfirm}
+            onCancel={hideDatePicker}
+          />
 
           {/* Card: Custom reminder */}
           <View className="rounded-2xl border border-white/20 bg-white/10 p-4 space-y-6 gap-4">

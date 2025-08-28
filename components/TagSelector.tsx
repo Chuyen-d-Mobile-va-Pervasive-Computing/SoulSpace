@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity } from "react-native";
 
 type Option = {
   id: number | string;
@@ -12,14 +12,17 @@ type Props = {
   onChange: (selected: (number | string)[] | (number | string | null)) => void;
 };
 
-export default function GenericSelector({ options, multiSelect = false, onChange }: Props) {
-  const [selected, setSelected] = useState<(number | string)[] | (number | string | null)>(
-    multiSelect ? [] : null
-  );
+export default function GenericSelector({
+  options,
+  multiSelect = false,
+  onChange,
+}: Props) {
+  const [selected, setSelected] = useState<
+    (number | string)[] | (number | string | null)
+  >(multiSelect ? [] : null);
 
   const toggleSelect = (id: number | string) => {
     if (multiSelect) {
-      // chọn nhiều
       const current = selected as (number | string)[];
       const newSelected = current.includes(id)
         ? current.filter((x) => x !== id)
@@ -27,7 +30,6 @@ export default function GenericSelector({ options, multiSelect = false, onChange
       setSelected(newSelected);
       onChange(newSelected);
     } else {
-      // chọn 1
       const current = selected as number | string | null;
       const newSelected = current === id ? null : id;
       setSelected(newSelected);
@@ -36,10 +38,16 @@ export default function GenericSelector({ options, multiSelect = false, onChange
   };
 
   const isSelected = (id: number | string) =>
-    multiSelect ? (selected as (number | string)[]).includes(id) : selected === id;
+    multiSelect
+      ? (selected as (number | string)[]).includes(id)
+      : selected === id;
 
   return (
-    <View className="flex-row flex-wrap gap-2">
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={{ flexDirection: "row", gap: 8 }}
+    >
       {options.map((opt) => (
         <TouchableOpacity
           key={opt.id}
@@ -51,6 +59,6 @@ export default function GenericSelector({ options, multiSelect = false, onChange
           <Text className="text-white">{opt.name}</Text>
         </TouchableOpacity>
       ))}
-    </View>
+    </ScrollView>
   );
 }

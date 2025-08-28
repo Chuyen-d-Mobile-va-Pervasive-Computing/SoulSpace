@@ -53,6 +53,7 @@ export default function TabLayout() {
                 backgroundColor: "rgba(111, 4, 217, 0.4)",
                 alignItems: "center",
                 justifyContent: "center",
+                marginTop: 10
               }}
             >
               <PencilLine color={color} size={size} />

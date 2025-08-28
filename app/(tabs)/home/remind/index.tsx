@@ -7,7 +7,7 @@ import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 export default function RemindScreen() {
   return (
     <View className="flex-1 bg-[#020659]">
-      <Heading title="Nhắc nhở" showBack={true} onBackPress={() => router.back()} />
+      <Heading title="Remind" showBack={true} onBackPress={() => router.back()} />
 
       <ScrollView
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
@@ -29,7 +29,7 @@ export default function RemindScreen() {
             onPress={() => router.push("/(tabs)/home/remind/add")}
           >
             <View className="h-12 bg-[#6f04d94d] border border-[#6f04d9] rounded-lg justify-center items-center">
-              <Text className="text-sm font-bold text-white text-right">Thêm lời nhắc khác</Text>
+              <Text className="text-sm font-bold text-white text-right">Add new reminder</Text>
             </View>
           </TouchableOpacity>
         </View>

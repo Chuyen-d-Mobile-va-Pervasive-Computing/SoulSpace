@@ -28,16 +28,6 @@ export default function CommunityScreen() {
 
       {/* Body */}
       <View className="flex-1 px-4 mt-4">
-        {/* Filter */}
-        <TouchableOpacity
-          className="flex-row justify-end items-center mb-4"
-          onPress={() => setFilterVisible(true)}
-        >
-          <Text className="text-white font-bold text-xs mr-2">Filter</Text>
-          <SlidersHorizontal width={20} height={20} color="white" />
-        </TouchableOpacity>
-
-        {/* Posts */}
         <ScrollView
           contentContainerStyle={{
             paddingBottom: 120, // tránh đè nút Add
@@ -45,6 +35,14 @@ export default function CommunityScreen() {
           }}
           showsVerticalScrollIndicator={false}
         >
+          {/* Filter */}
+          <TouchableOpacity
+            className="flex-row justify-end items-center mb-4"
+            onPress={() => setFilterVisible(true)}
+          >
+            <Text className="text-white font-bold text-xs mr-2">Filter</Text>
+            <SlidersHorizontal width={20} height={20} color="white" />
+          </TouchableOpacity>
           {/* Post */}
           <TouchableOpacity
             activeOpacity={0.8}
