@@ -8,7 +8,7 @@ export default function TestInfoScreen() {
 
   return (
     <View className="flex-1 bg-[#020659]">
-      <Heading title="Thông tin bài test" showBack onBackPress={() => router.back()} />
+      <Heading title="Test Info" showBack onBackPress={() => router.back()} />
 
       <ScrollView className="flex-1 px-3 py-8 gap-5" contentContainerStyle={{flexGrow: 1, paddingBottom: 20 }}>
         <View className="flex-1 justify-between">
@@ -55,7 +55,7 @@ export default function TestInfoScreen() {
             className="bg-[rgba(111,4,217,0.3)] border border-[#6f04d9] rounded-lg h-12 items-center justify-center mt-6"
             onPress={() => router.push({ pathname: "/(tabs)/explore/test/doing", params: { testType } })}
           >
-            <Text className="text-white text-base font-bold">Bắt đầu</Text>
+            <Text className="text-white text-base font-bold">Start</Text>
           </TouchableOpacity>
         </View>
         </View>

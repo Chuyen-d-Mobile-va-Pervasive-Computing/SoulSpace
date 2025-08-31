@@ -96,7 +96,7 @@ export default function AddScreen() {
                 Reminder Name
               </Text>
               <TextInput
-                className="h-12 w-full rounded-xl border border-white/20 bg-white/15 px-3 text-white"
+                className="h-14 w-full rounded-xl border border-white/20 bg-white/15 px-3 text-white"
                 placeholder="Input reminder name..."
                 placeholderTextColor="#ccc"
                 maxLength={30}

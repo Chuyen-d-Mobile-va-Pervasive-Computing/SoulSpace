@@ -10,7 +10,7 @@ type HeadingProps = {
 
 const Heading: React.FC<HeadingProps> = ({ title, showBack = true, onBackPress }) => {
   return (
-    <View className="w-full flex-row items-center p-4 border-b border-[#6f04d9] bg-[#6f04d9]/30">
+    <View className="w-full flex-row items-center p-4 bg-[#020659] mt-4">
       {showBack && (
         <TouchableOpacity className="mr-4" onPress={onBackPress}>
           <ArrowLeft color="#fff" size={24} />

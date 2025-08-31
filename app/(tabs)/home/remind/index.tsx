@@ -14,7 +14,7 @@ export default function RemindScreen() {
         className="flex-1 px-4 pt-2"
       >
         <View className="flex-1 justify-between">
-          <View className="w-full px-2 py-8 gap-5">
+          <View className="w-full px-2 py-2 gap-5">
             <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() => router.push("/(tabs)/home/remind/update")}

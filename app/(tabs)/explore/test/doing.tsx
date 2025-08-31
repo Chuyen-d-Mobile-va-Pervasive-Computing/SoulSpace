@@ -124,7 +124,7 @@ export default function TestDoingScreen() {
             }`}
             onPress={() => router.push("/(tabs)/explore/test/done")}
           >
-            <Text className="text-white font-bold text-base">Làm xong</Text>
+            <Text className="text-white font-bold text-base">Complete</Text>
           </Pressable>
         </View>
       </ScrollView>

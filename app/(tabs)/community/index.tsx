@@ -24,7 +24,7 @@ export default function CommunityScreen() {
   return (
     <View className="flex-1 bg-[#020659]">
       {/* Heading */}
-      <Heading title="Cộng đồng" showBack onBackPress={() => router.back()} />
+      <Heading title="Forum" showBack onBackPress={() => router.back()} />
 
       {/* Body */}
       <View className="flex-1 px-4 mt-4">

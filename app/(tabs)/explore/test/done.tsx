@@ -22,7 +22,7 @@ export default function TestDoneScreen() {
           <View className="px-2 items-center gap-5">
             {/* Title */}
             <Text className="text-white text-center text-[25px] font-medium">
-              Kết quả của bạn
+              Result
             </Text>
 
             {/* Score */}
@@ -37,21 +37,21 @@ export default function TestDoneScreen() {
                 borderRadius={10}
               />              
               <View className="flex-row justify-between w-full">
-                <Text className="text-xs text-white">Bình thường (0-10)</Text>
-                <Text className="text-xs text-white">Có triệu chứng</Text>
-                <Text className="text-xs text-white">Nghiêm trọng</Text>
+                <Text className="text-xs text-white">Normal (0-10)</Text>
+                <Text className="text-xs text-white">Symptom</Text>
+                <Text className="text-xs text-white">Serious</Text>
               </View>
             </View>
 
             {/* Description */}
             <Text className="text-white text-sm w-full">
-              Câu trả lời của bạn cho thấy
+              Your answer shows
             </Text>
 
             {/* Question Card */}
             <View className="w-full rounded-lg bg-white/30 p-5 gap-2">
               <Text className="text-white text-[15px] font-bold text-center">
-                Các bước tiếp theo
+                The next steps
               </Text>
               <Text className="text-white text-[15px] font-medium text-left">
                 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa

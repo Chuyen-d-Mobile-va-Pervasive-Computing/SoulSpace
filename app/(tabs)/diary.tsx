@@ -14,17 +14,17 @@ export default function DiaryScreen() {
   return (
     <View className="flex-1 bg-[#020659]">
       {/* Heading */}
-      <Heading title="Nhật ký của tôi" />
+      <Heading title="Diary" />
       {/* Body */}
       <ScrollView 
-        className="flex-1 mt-4 px-4 py-4"
+        className="flex-1 mt-4 px-4 py-0"
         contentContainerStyle={{ paddingBottom: 40 }}
       >
         <View className="flex-col gap-y-6">
           {/* Emotion */}
           <View>
             <Text className="text-white text-base font-medium">
-              Hôm nay bạn thế nào?
+              How are you today?
             </Text>
             <EmotionPicker onSelect={setEmotion} />
           </View>
@@ -32,13 +32,13 @@ export default function DiaryScreen() {
           {/* Viết suy nghĩ */}
           <View className="space-y-2">
             <Text className="text-white text-base font-medium">
-              Viết lên suy nghĩ của bạn
+              Write down your thought
             </Text>
             <TextInput
               value={thoughts}
               onChangeText={setThoughts}
               className="bg-white/30 border border-white p-4 rounded-xl text-white text-base min-h-[120px]"
-              placeholder="Bạn đang nghĩ gì..."
+              placeholder="What are you thinking..."
               placeholderTextColor="#BBBBBB"
               multiline
               textAlignVertical="top"
@@ -47,13 +47,13 @@ export default function DiaryScreen() {
 
           {/* Tags */}
           <View className="space-y-2">
-            <Text className="text-white text-base font-medium">Tags (Tùy chọn)</Text>
+            <Text className="text-white text-base font-medium">Tags (Optional)</Text>
             <View className="flex-row flex-wrap gap-2 mt-2">
               <TagSelector
                 options={[
-                  { id: 1, name: "Gia đình" },
-                  { id: 2, name: "Công việc" },
-                  { id: 3, name: "Học tập" },
+                  { id: 1, name: "Family" },
+                  { id: 2, name: "Work" },
+                  { id: 3, name: "Study" },
                 ]}
                 multiSelect={true}
                 onChange={(ids) => console.log("Tags:", ids)}
@@ -65,11 +65,11 @@ export default function DiaryScreen() {
           {/* Ghi âm */}
           <View className="space-y-2">
             <Text className="text-white text-base font-medium">
-              Nói lên suy nghĩ (Tùy chọn)
+              Speak your mind (Optional)
             </Text>
             <View className="bg-white/30 border border-white h-[120px] p-3 rounded-lg flex-col items-center justify-center gap-2">
               <Mic className="w-9 h-9" width={36} height={36} color="#aaa" />
-              <Text className="text-gray-400 text-sm">Nhấn để ghi âm</Text>
+              <Text className="text-gray-400 text-sm">Press to record</Text>
             </View>
           </View>
 
@@ -83,7 +83,7 @@ export default function DiaryScreen() {
             } rounded-xl h-12 items-center justify-center`}
             onPress={() => router.push("/(tabs)/home")}
           >
-            <Text className="text-white text-base font-bold">LƯU BÀI VIẾT</Text>
+            <Text className="text-white text-base font-bold">SAVE</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

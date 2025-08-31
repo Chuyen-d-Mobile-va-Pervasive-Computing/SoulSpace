@@ -34,27 +34,27 @@ export default function HomeScreen() {
       className="flex-1"
     >
       <View className="flex-1">
-        {/* Heading */}
-        <View>
-          <View className="w-full items-center px-4 mt-8">
-            <View className="w-full h-[60px] flex-row items-center justify-between rounded-2xl border border-[#6f04d9] bg-[#6f04d94d] p-2">
-              {/* User Info */}
-              <View className="flex-row items-center gap-2">
-                <View className="px-2">
-                  <Text className="text-[12px] text-white">
-                    Tuesday, 1st January
-                  </Text>
-                  <Text className="text-[14px] font-bold text-white">
-                    user01234567
-                  </Text>
-                </View>
-              </View>
-              <Bell width={28} height={28} color="white" />
-            </View>
-          </View>
-        </View>
         {/* Body */}
         <ScrollView contentContainerStyle={{ paddingBottom: 40 }} className="flex-1 px-4 pt-2">
+          {/* Heading */}
+          <View>
+            <View className="w-full items-center px-2 mt-8">
+              <View className="w-full h-[60px] flex-row items-center justify-between rounded-2xl border border-[#6f04d9] bg-[#6f04d94d] p-2">
+                {/* User Info */}
+                <View className="flex-row items-center gap-2">
+                  <View className="px-2">
+                    <Text className="text-[12px] text-white">
+                      Tuesday, 1st January
+                    </Text>
+                    <Text className="text-[14px] font-bold text-white">
+                      user01234567
+                    </Text>
+                  </View>
+                </View>
+                <Bell width={28} height={28} color="white" />
+              </View>
+            </View>
+          </View>
           {/* Emotion */}
           <EmotionDisplay emotionLabel={latestJournal.emotion_label} />
           <View>

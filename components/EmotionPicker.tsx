@@ -13,16 +13,16 @@ import SadIcon from "@/assets/images/sad.svg";
 import WorriedIcon from "@/assets/images/worried.svg";
 
 const emotions = [
-  { id: 1, name: "Vui vẻ", icon: HappyIcon },
-  { id: 2, name: "Buồn", icon: SadIcon },
-  { id: 3, name: "Tức giận", icon: AngryIcon },
-  { id: 4, name: "Bực bội", icon: AnnoyIcon },
-  { id: 5, name: "Điềm tĩnh", icon: CalmIcon },
-  { id: 6, name: "Thư giãn", icon: ChillIcon },
-  { id: 7, name: "Bối rối", icon: ConfusedIcon },
-  { id: 8, name: "Xấu hổ", icon: EmbarrassedIcon },
-  { id: 9, name: "Hào hứng", icon: ExcitedIcon },
-  { id: 10, name: "Lo lắng", icon: WorriedIcon }
+  { id: 1, name: "Happy", icon: HappyIcon },
+  { id: 2, name: "Sad", icon: SadIcon },
+  { id: 3, name: "Angry", icon: AngryIcon },
+  { id: 4, name: "Annoy", icon: AnnoyIcon },
+  { id: 5, name: "Calm", icon: CalmIcon },
+  { id: 6, name: "Chill", icon: ChillIcon },
+  { id: 7, name: "Confused", icon: ConfusedIcon },
+  { id: 8, name: "Embarrassed", icon: EmbarrassedIcon },
+  { id: 9, name: "Excited", icon: ExcitedIcon },
+  { id: 10, name: "Worried", icon: WorriedIcon }
 ];
 
 export default function EmotionPicker({ onSelect }: { onSelect: (id: number) => void }) {

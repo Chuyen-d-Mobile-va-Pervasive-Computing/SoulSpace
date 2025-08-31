@@ -6,7 +6,7 @@ export default function DetailScreen() {
   return (
     <View className="flex-1 bg-[#020659]">
       <Heading
-        title="Thông tin chi tiết"
+        title="Details"
         showBack={true}
         onBackPress={() => router.back()}
       />

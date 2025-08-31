@@ -11,7 +11,7 @@ export default function TestResultTypeScreen() {
       {/* Body */}
       <ScrollView className="flex-1 px-4" contentContainerStyle={{ paddingBottom: 20 }}>
         {/* Test Result */}
-        <View className="py-3 px-1">
+        <View className="py-3 px-1 gap-4">
           <TouchableOpacity
             className="w-full h-14 rounded-xl border border-white bg-white/15 px-3 justify-center"
             onPress={() => router.push("/(tabs)/explore/result/tests")}

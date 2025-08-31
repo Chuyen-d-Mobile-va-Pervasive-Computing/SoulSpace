@@ -30,7 +30,7 @@ export default function ExploreScreen() {
   return (
     <View className="flex-1 bg-[#020659]">
       {/* Header */}
-      <Heading title="Khám phá" showBack={true} />
+      <Heading title="Explore" showBack={true} />
 
       {/* Body */}
       <ScrollView className="flex-1 px-4" contentContainerStyle={{ paddingBottom: 20 }}>
@@ -42,7 +42,7 @@ export default function ExploreScreen() {
           >
             <View className="flex-row items-center justify-between">
               <Text className="text-white font-bold text-base">
-                Các bài kiểm tra đã thực hiện
+                Tests Performed
               </Text>
               <ChevronRight width={24} height={24} color="white" />
             </View>
@@ -75,7 +75,7 @@ export default function ExploreScreen() {
               className="bg-[rgba(111,4,217,0.6)] rounded-lg py-3 items-center mt-2"
             >
               <Text className="text-white font-semibold text-sm">
-                Thực hiện bảng câu hỏi
+                Do the questionnaire
               </Text>
             </TouchableOpacity>
           </View>
