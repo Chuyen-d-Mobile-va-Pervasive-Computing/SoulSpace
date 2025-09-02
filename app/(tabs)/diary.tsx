@@ -78,7 +78,7 @@ export default function DiaryScreen() {
             disabled={!thoughts || !emotion}
             className={`${
               !thoughts || !emotion
-                ? "bg-gray-400 border-none"
+                ? "bg-[#A894C1]"
                 : "bg-[rgba(111,4,217,0.3)] border border-[#6f04d9]"
             } rounded-xl h-12 items-center justify-center`}
             onPress={() => router.push("/(tabs)/home")}

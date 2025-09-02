@@ -52,7 +52,7 @@ export default function GenericSelector({
         <TouchableOpacity
           key={opt.id}
           className={`px-4 py-2 rounded-full ${
-            isSelected(opt.id) ? "bg-purple-500" : "bg-gray-300"
+            isSelected(opt.id) ? "bg-purple-500" : "bg-[#A894C1]"
           }`}
           onPress={() => toggleSelect(opt.id)}
         >

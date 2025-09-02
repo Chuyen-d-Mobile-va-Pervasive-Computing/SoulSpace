@@ -119,7 +119,7 @@ export default function TestDoingScreen() {
             disabled={!allAnswered}
             className={`h-12 items-center justify-center rounded-lg ${
               !allAnswered
-                ? "bg-gray-500"
+                ? "bg-[#A894C1]"
                 : "border border-[#6f04d9] bg-[#6f04d9]/40"
             }`}
             onPress={() => router.push("/(tabs)/explore/test/done")}

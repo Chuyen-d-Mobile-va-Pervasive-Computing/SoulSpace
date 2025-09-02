@@ -69,7 +69,7 @@ export default function WeekMonthYearSelector({ mode, onChange }: Props) {
   return (
     <View className="w-full items-center mb-4">
       {mode === "week" && (
-        <View className="w-[210px] h-[48px] flex-row items-center bg-[#5204BF]/30 rounded-lg px-2">
+        <View className="w-[230px] h-[48px] flex-row items-center bg-[#5204BF]/30 rounded-lg px-2">
           <CalendarDays size={18} color="white" style={{ marginRight: 6 }} />
           {/* Picker */}
           <Picker
@@ -86,7 +86,7 @@ export default function WeekMonthYearSelector({ mode, onChange }: Props) {
       )}
 
       {mode === "month" && (
-        <View className="w-[200px] h-[48px] flex-row items-center bg-[#5204BF]/30 rounded-lg px-2">
+        <View className="w-[210px] h-[48px] flex-row items-center bg-[#5204BF]/30 rounded-lg px-2">
           <CalendarDays size={18} color="white" style={{ marginRight: 6 }} />
           {/* Picker */}
           <Picker

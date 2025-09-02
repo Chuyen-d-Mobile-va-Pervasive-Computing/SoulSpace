@@ -81,15 +81,22 @@ export default function LoginScreen() {
       </TouchableOpacity>
 
       {/* Forgot password */}
-      <Text className="text-center text-[#cdaded] mt-5 underline-none font-inter">
-        Forgot password?
-      </Text>
+      <TouchableOpacity
+        onPress={() => router.push("/(auth)/forgot-pw")}
+      >
+        <Text className="text-center text-[#cdaded] mt-5 underline-none font-inter">
+          Forgot password?
+        </Text>
+      </TouchableOpacity>
 
       {/* Sign up */}
-      <View className="flex-row justify-center mt-3">
+      <TouchableOpacity 
+        className="flex-row justify-center mt-3"
+        onPress={() => router.push("/(auth)/signup")}
+      >
         <Text className="text-white font-inter">New to SoulSpace? </Text>
         <Text className="text-[#cdaded] font-inter_bold">SIGNUP</Text>
-      </View>
+      </TouchableOpacity>
     </LinearGradient>
   );
 }

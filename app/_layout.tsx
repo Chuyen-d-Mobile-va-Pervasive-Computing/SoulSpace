@@ -50,6 +50,10 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen name="(auth)/login" />
+        <Stack.Screen name="(auth)/signup" />
+        <Stack.Screen name="(auth)/forgot-pw/index" />
+        <Stack.Screen name="(auth)/forgot-pw/confirm-otp" />
+        <Stack.Screen name="(auth)/forgot-pw/new-pw" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="+not-found" />
       </Stack>
