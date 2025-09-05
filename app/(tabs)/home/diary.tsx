@@ -72,16 +72,30 @@ export default function DiaryListScreen() {
                 onRequestClose={() => setFilterVisible(false)}
             >
                 <View className="flex-1 bg-black/50 items-center justify-center">
-                    <View className="w-80 bg-white p-6 rounded-2xl">
-                        <Text className="text-lg font-bold mb-4">Sort</Text>
-                        <TagSelector
-                            options={[
-                            { id: "recent", name: "Recent" },
-                            { id: "older", name: "Older" },
-                            ]}
-                            multiSelect={false}
-                            onChange={(ids) => console.log("Sort by:", ids)}
-                        />
+                    <View className="w-[300px] bg-white p-6 rounded-2xl gap-4">
+                        <>
+                            <Text className="text-base font-bold">Sort</Text>
+                            <TagSelector
+                                options={[
+                                { id: "recent", name: "Recent" },
+                                { id: "older", name: "Older" },
+                                ]}
+                                multiSelect={false}
+                                onChange={(ids) => console.log("Sort by:", ids)}
+                            />
+                        </>
+                        <>
+                            <Text className="text-base font-bold">Tags</Text>
+                            <TagSelector
+                                options={[
+                                { id: "1", name: "Family" },
+                                { id: "2", name: "Work" },
+                                { id: "3", name: "Study" },
+                                ]}
+                                multiSelect={false}
+                                onChange={(ids) => console.log("Sort by:", ids)}
+                            />
+                        </>
                         <Pressable
                           className="mt-4 bg-[#6F04D9] py-2 rounded-xl"
                           onPress={() => setFilterVisible(false)}
