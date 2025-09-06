@@ -5,6 +5,7 @@ import React from 'react';
 import { HapticTab } from '@/components/HapticTab';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
+import { LinearGradient } from 'expo-linear-gradient';
 import { View } from 'react-native';
 
 export default function TabLayout() {
@@ -43,20 +44,21 @@ export default function TabLayout() {
         options={{
           tabBarLabel: () => null, // Ẩn chữ Diary
           tabBarIcon: ({ color, size }) => (
-            <View
-              style={{
-                width: 54,
-                height: 40,
-                borderRadius: 20,
-                borderWidth: 2,
-                borderColor: "#6F04D9",
-                backgroundColor: "rgba(111, 4, 217, 0.4)",
-                alignItems: "center",
-                justifyContent: "center",
-                marginTop: 10
-              }}
-            >
-              <PencilLine color={color} size={size} />
+            <View style={{ marginTop: 10 }}>
+              <LinearGradient
+                colors={["#8736D9", "#5204BF"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{
+                  width: 54,
+                  height: 40,
+                  borderRadius: 20,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <PencilLine color={color} size={size} />
+              </LinearGradient>
             </View>
           ),
         }}

@@ -1,5 +1,6 @@
 import Heading from "@/components/Heading";
 import TagSelector from "@/components/TagSelector";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import {
   Heart,
@@ -79,10 +80,17 @@ export default function CommunityScreen() {
 
       {/* Floating Add Button */}
       <TouchableOpacity
-        className="absolute bottom-6 right-6 w-16 h-16 rounded-full bg-[#6F04D9]/30 border border-[#6F04D9] shadow-lg items-center justify-center"
+        className="absolute bottom-6 right-6 w-16 h-16 shadow-lg"
         onPress={() => router.push("/(tabs)/community/add")}
       >
-        <Plus width={24} height={24} color="white" />
+        <LinearGradient
+          colors={["#8736D9", "#5204BF"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          className="p-4 items-center w-full rounded-full overflow-hidden"
+        >
+          <Plus width={24} height={24} color="white" />
+        </LinearGradient>
       </TouchableOpacity>
 
       {/* Filter Modal */}

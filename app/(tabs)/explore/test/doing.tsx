@@ -1,4 +1,5 @@
 import Heading from "@/components/Heading";
+import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
@@ -45,7 +46,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           <Text className="text-white text-base font-medium">{item}</Text>
           <View
             className={`w-6 h-6 rounded-full border-2 ${
-              value === i ? "border-[#6f04d9] bg-[#6f04d9]/60" : "border-white"
+              value === i ? "border-[#6f04d9] bg-[#6f04d9]" : "border-white"
             }`}
           />
         </Pressable>
@@ -117,14 +118,17 @@ export default function TestDoingScreen() {
         <View className="pb-6">
           <Pressable
             disabled={!allAnswered}
-            className={`h-12 items-center justify-center rounded-lg ${
-              !allAnswered
-                ? "bg-[#A894C1]"
-                : "border border-[#6f04d9] bg-[#6f04d9]/40"
-            }`}
+            className={`${!allAnswered? "opacity-40": ""}`}
             onPress={() => router.push("/(tabs)/explore/test/done")}
           >
-            <Text className="text-white font-bold text-base">Complete</Text>
+            <LinearGradient
+              colors={["#8736D9", "#5204BF"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              className="py-3 items-center w-full rounded-2xl overflow-hidden"
+            >
+              <Text className="text-white font-bold text-base">Complete</Text>
+            </LinearGradient>
           </Pressable>
         </View>
       </ScrollView>

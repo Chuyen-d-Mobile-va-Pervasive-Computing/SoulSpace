@@ -1,4 +1,5 @@
 import Heading from "@/components/Heading";
+import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
@@ -38,10 +39,17 @@ export default function ChangePassword() {
                 />
                 <TouchableOpacity
                     disabled={!oldpw || !newpw || !confirmpw}
-                    className={`${!oldpw || !newpw || !confirmpw ? "bg-[#A894C1]" : "bg-[rgba(111,4,217,0.3)] border border-[#6f04d9]"} rounded-xl h-12 items-center justify-center`}
+                    className={`${!oldpw || !newpw || !confirmpw ? "opacity-40" : ""}`}
                     onPress={() => router.push("/(tabs)/settings")}
                 >
-                    <Text className="text-white text-base font-bold">SAVE</Text>
+                    <LinearGradient
+                        colors={["#8736D9", "#5204BF"]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        className="py-3 items-center w-full rounded-2xl overflow-hidden"
+                    >
+                        <Text className="text-white text-base font-bold">SAVE</Text>
+                    </LinearGradient>
                 </TouchableOpacity>
             </View>
         </View>

@@ -1,5 +1,6 @@
 import Heading from "@/components/Heading";
 import ReminderItem from "@/components/ReminderItem";
+import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -28,9 +29,14 @@ export default function RemindScreen() {
             className="px-2"
             onPress={() => router.push("/(tabs)/home/remind/add")}
           >
-            <View className="h-12 bg-[#6f04d94d] border border-[#6f04d9] rounded-lg justify-center items-center">
+            <LinearGradient
+              colors={["#8736D9", "#5204BF"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              className="py-3 items-center w-full rounded-2xl overflow-hidden"
+            >
               <Text className="text-sm font-bold text-white text-right">Add new reminder</Text>
-            </View>
+            </LinearGradient>
           </TouchableOpacity>
         </View>
       </ScrollView>

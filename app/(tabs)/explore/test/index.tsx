@@ -1,4 +1,5 @@
 import Heading from "@/components/Heading";
+import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import React from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -52,10 +53,16 @@ export default function TestInfoScreen() {
         {/* Button */}
         <View className="px-3 pb-6">
           <TouchableOpacity
-            className="bg-[rgba(111,4,217,0.3)] border border-[#6f04d9] rounded-lg h-12 items-center justify-center mt-6"
             onPress={() => router.push({ pathname: "/(tabs)/explore/test/doing", params: { testType } })}
           >
-            <Text className="text-white text-base font-bold">Start</Text>
+            <LinearGradient
+              colors={["#8736D9", "#5204BF"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              className="py-3 items-center w-full rounded-2xl overflow-hidden"
+            >
+              <Text className="text-white text-base font-bold">Start</Text>
+            </LinearGradient>
           </TouchableOpacity>
         </View>
         </View>

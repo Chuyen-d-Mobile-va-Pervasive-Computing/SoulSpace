@@ -9,7 +9,7 @@ type Option = {
 type Props = {
   options: Option[];
   multiSelect?: boolean;
-  onChange: (selected: (number | string)[] | (number | string | null)) => void;
+  onChange: (id: number | string, selected: Option[] | Option | null) => void;
 };
 
 export default function GenericSelector({
@@ -17,30 +17,34 @@ export default function GenericSelector({
   multiSelect = false,
   onChange,
 }: Props) {
-  const [selected, setSelected] = useState<
-    (number | string)[] | (number | string | null)
-  >(multiSelect ? [] : null);
+  const [selected, setSelected] = useState<Option[] | Option | null>(
+    multiSelect ? [] : null
+  );
 
   const toggleSelect = (id: number | string) => {
+    const opt = options.find((o) => o.id === id)!;
+
     if (multiSelect) {
-      const current = selected as (number | string)[];
-      const newSelected = current.includes(id)
-        ? current.filter((x) => x !== id)
-        : [...current, id];
+      const current = selected as Option[];
+      const exists = current.find((x) => x.id === id);
+      const newSelected = exists
+        ? current.filter((x) => x.id !== id)
+        : [...current, opt];
+
       setSelected(newSelected);
-      onChange(newSelected);
+      onChange(id, newSelected);
     } else {
-      const current = selected as number | string | null;
-      const newSelected = current === id ? null : id;
+      const current = selected as Option | null;
+      const newSelected = current?.id === id ? null : opt;
       setSelected(newSelected);
-      onChange(newSelected);
+      onChange(id, newSelected);
     }
   };
 
   const isSelected = (id: number | string) =>
     multiSelect
-      ? (selected as (number | string)[]).includes(id)
-      : selected === id;
+      ? (selected as Option[]).some((s) => s.id === id)
+      : (selected as Option | null)?.id === id;
 
   return (
     <ScrollView

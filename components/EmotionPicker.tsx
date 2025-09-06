@@ -25,28 +25,27 @@ const emotions = [
   { id: 10, name: "Worried", icon: WorriedIcon }
 ];
 
-export default function EmotionPicker({ onSelect }: { onSelect: (id: number) => void }) {
+export default function EmotionPicker({
+  onSelect,
+}: {
+  onSelect: (emotion: { id: number; name: string; icon: any }) => void;
+}) {
   const [selected, setSelected] = useState<number | null>(null);
 
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      className="mt-3"
-      contentContainerStyle={{ paddingRight: 16 }}
-    >
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-3">
       {emotions.map((emotion) => {
         const Icon = emotion.icon;
         const isActive = selected === emotion.id;
         return (
           <TouchableOpacity
             key={emotion.id}
-            className={`w-auto h-auto rounded-xl items-center justify-center mx-1 p-3 ${
+            className={`mx-1 p-3 rounded-xl items-center justify-center ${
               isActive ? "bg-purple-300" : "bg-gray-100"
             }`}
             onPress={() => {
               setSelected(emotion.id);
-              onSelect(emotion.id);
+              onSelect(emotion); // trả về object
             }}
           >
             <Icon width={32} height={32} />
