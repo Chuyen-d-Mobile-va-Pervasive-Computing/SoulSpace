@@ -1,21 +1,13 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Eye, EyeOff, Gift } from "lucide-react-native";
+import { Gift } from "lucide-react-native";
 import { useState } from "react";
-import {
-    Pressable,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function NewPasswordScreen() {
     const router = useRouter();
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [password, setPassword] = useState("");
-    const [confirmpw, setConfirmPw] = useState("");
+    const [new_password, setNewPassword] = useState("");
+    // const [confirmpw, setConfirmPw] = useState("");
 
     const handleSignUp = () => {
         router.replace("/(auth)/login");
@@ -40,23 +32,16 @@ export default function NewPasswordScreen() {
             {/* Password */}
             <View className="h-14 flex-row items-center bg-white/10 rounded-2xl px-5 mb-6 border border-[#5204BF]/40">
                 <TextInput
+                    value={new_password}
                     placeholder="New Password"
                     placeholderTextColor="#cdaded"
-                    onChangeText={setPassword}
-                    secureTextEntry={!showPassword}
+                    onChangeText={setNewPassword}
                     className="flex-1 text-white py-3 font-inter"
                 />
-                <Pressable onPress={() => setShowPassword(!showPassword)}>
-                {showPassword ? (
-                    <Eye size={22} color="#cdaded" />
-                ) : (
-                    <EyeOff size={22} color="#cdaded" />
-                )}
-                </Pressable>
             </View>
 
             {/* Confirm Password */}
-            <View className="h-14 flex-row items-center bg-white/10 rounded-2xl px-5 mb-6 border border-[#5204BF]/40">
+            {/* <View className="h-14 flex-row items-center bg-white/10 rounded-2xl px-5 mb-6 border border-[#5204BF]/40">
                 <TextInput
                     placeholder="Confirm Password"
                     placeholderTextColor="#cdaded"
@@ -71,13 +56,13 @@ export default function NewPasswordScreen() {
                     <EyeOff size={22} color="#cdaded" />
                 )}
                 </Pressable>
-            </View>
+            </View> */}
 
             {/* Sign Up */}
             <TouchableOpacity
-                disabled={!password || !confirmpw}
+                disabled={!new_password}
                 onPress={handleSignUp}
-                className={`${!password || !confirmpw ? "opacity-40" : ""}`}
+                className={`${!new_password ? "opacity-40" : ""}`}
             >
                 <LinearGradient
                     colors={["#8736D9", "#5204BF"]}

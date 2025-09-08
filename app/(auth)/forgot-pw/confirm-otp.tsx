@@ -37,13 +37,13 @@ export default function ConfirmOTPScreen() {
         }
     };
 
-    // Check đủ 4 số 
+    // Check đủ 6 số 
     const isOtpComplete = otp.every((digit) => digit !== "");
 
     return (
         <LinearGradient
             colors={["#010440", "#020659"]}
-            className="flex-1 justify-center px-6"
+            className="flex-1 justify-center px-4"
         >
             {/* Logo */}
             <View className="items-center mb-8">
@@ -60,24 +60,24 @@ export default function ConfirmOTPScreen() {
 
             <View className="mb-6 px-4">
                 <Text className="text-white text-[11px] text-center leading-5">
-                    Enter 4-digit verification code sent to your email
+                    Enter 6-digit verification code sent to your email
                 </Text>
             </View>
 
             {/* OTP Input */}
-            <View className="flex-row justify-center space-x-4 mb-10 gap-4">
-                {[0, 1, 2, 3].map((i) => (
-                <TextInput
+            <View className="flex-row justify-center space-x-6 gap-2 mb-10">
+                {[0, 1, 2, 3, 4, 5].map((i) => (
+                    <TextInput
                     key={i}
                     ref={(el) => {
-                    if (el) inputRefs.current[i] = el;
+                        if (el) inputRefs.current[i] = el;
                     }}
                     maxLength={1}
                     keyboardType="number-pad"
                     onChangeText={(text) => handleChange(text, i)}
                     onKeyPress={(e) => handleKeyPress(e, i)}
-                    className="w-20 h-20 rounded-md border border-[#9badca] text-center text-3xl text-white font-bold"
-                />
+                    className="w-[52px] h-[56px] rounded-md border border-[#9badca] text-center text-base text-white font-bold"
+                    />
                 ))}
             </View>
 

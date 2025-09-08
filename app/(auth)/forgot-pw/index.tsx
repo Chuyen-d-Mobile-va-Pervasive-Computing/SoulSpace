@@ -7,9 +7,11 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { useState } from "react";
 
 export default function ForgotPasswordScreen() {
     const router = useRouter();
+    const [email, setEmail] = useState("");
 
     return (
         <LinearGradient
@@ -28,12 +30,14 @@ export default function ForgotPasswordScreen() {
         </View>
 
         <View className="mb-6 px-4">
-            <Text className="text-white text-[10px] text-center">Enter email for verification, we will send 4-digit verification code to this email</Text>
+            <Text className="text-white text-[10px] text-center">Enter email for verification, we will send 6-digit verification code to this email</Text>
         </View>
 
         {/* Email */}
         <View className="mb-4">
             <TextInput
+                value={email}
+                onChangeText={setEmail}
                 placeholder="Email"
                 placeholderTextColor="#cdaded"
                 className="w-full h-14 bg-white/10 text-white rounded-2xl px-5 py-3 border border-[#5204BF]/40 font-inter"
@@ -41,14 +45,15 @@ export default function ForgotPasswordScreen() {
         </View>
 
         <TouchableOpacity
+            disabled={!email}
             onPress={() => router.push("/(auth)/forgot-pw/confirm-otp")}
-            className="w-full rounded-2xl overflow-hidden shadow-xl"
+            className={`${!email ? "opacity-40" : ""}`}
         >
             <LinearGradient
                 colors={["#8736D9", "#5204BF"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                className="py-4 items-center"
+                className="py-4 items-center w-full rounded-2xl overflow-hidden"
             >
             <Text className="text-white font-bold text-lg tracking-wide">
                 Continue

@@ -5,9 +5,9 @@ import { useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function ChangePassword() {
-    const [oldpw, setOldPw] = useState("");
-    const [newpw, setNewPw] = useState("");
-    const [confirmpw, setConfirmPw] = useState("");
+    const [old_password, setOldPassword] = useState("");
+    const [new_password, setNewPassword] = useState("");
+    const [confirm_password, setConfirmPassword] = useState("");
 
     return (
         <View className="flex-1 bg-[#020659]">
@@ -16,30 +16,30 @@ export default function ChangePassword() {
                 {/* Old Password */}
                 <TextInput
                     className="h-14 w-full rounded-xl border border-white/20 bg-white/15 px-3 text-white"
-                    value={oldpw}
-                    onChangeText={setOldPw}
+                    value={old_password}
+                    onChangeText={setOldPassword}
                     placeholder="Old Password"
                     placeholderTextColor="#ccc"
                 />
                 {/* New Password */}
                 <TextInput
                     className="h-14 w-full rounded-xl border border-white/20 bg-white/15 px-3 text-white"
-                    value={newpw}
-                    onChangeText={setNewPw}
+                    value={new_password}
+                    onChangeText={setNewPassword}
                     placeholder="New Password"
                     placeholderTextColor="#ccc"
                 />
                 {/* Confirm Password */}
                 <TextInput
                     className="h-14 w-full rounded-xl border border-white/20 bg-white/15 px-3 text-white"
-                    value={confirmpw}
-                    onChangeText={setConfirmPw}
+                    value={confirm_password}
+                    onChangeText={setConfirmPassword}
                     placeholder="Confirm Password"
                     placeholderTextColor="#ccc"
                 />
                 <TouchableOpacity
-                    disabled={!oldpw || !newpw || !confirmpw}
-                    className={`${!oldpw || !newpw || !confirmpw ? "opacity-40" : ""}`}
+                    disabled={!old_password || !new_password || !confirm_password}
+                    className={`${!old_password || !new_password || !confirm_password ? "opacity-40" : ""}`}
                     onPress={() => router.push("/(tabs)/settings")}
                 >
                     <LinearGradient

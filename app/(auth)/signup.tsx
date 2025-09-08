@@ -1,21 +1,13 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Eye, EyeOff, Gift } from "lucide-react-native";
+import { Gift } from "lucide-react-native";
 import { useState } from "react";
-import {
-    Pressable,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function SignUpScreen() {
     const router = useRouter();
-    const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [username, setUsername] = useState("");
 
     const handleSignUp = () => {
         router.replace("/(auth)/login");
@@ -48,17 +40,6 @@ export default function SignUpScreen() {
                 />
             </View>
 
-            {/* Username */}
-            <View className="mb-4">
-                <TextInput
-                    placeholder="Username"
-                    value={username}
-                    onChangeText={setUsername}
-                    placeholderTextColor="#cdaded"
-                    className="w-full h-14 bg-white/10 text-white rounded-2xl px-5 py-3 border border-[#5204BF]/40 font-inter"
-                />
-            </View>
-
             {/* Password */}
             <View className="h-14 flex-row items-center bg-white/10 rounded-2xl px-5 mb-6 border border-[#5204BF]/40">
                 <TextInput
@@ -66,23 +47,15 @@ export default function SignUpScreen() {
                     placeholderTextColor="#cdaded"
                     value={password}
                     onChangeText={setPassword}
-                    secureTextEntry={!showPassword}
                     className="flex-1 text-white py-3 font-inter"
                 />
-                <Pressable onPress={() => setShowPassword(!showPassword)}>
-                {showPassword ? (
-                    <Eye size={22} color="#cdaded" />
-                ) : (
-                    <EyeOff size={22} color="#cdaded" />
-                )}
-                </Pressable>
             </View>
 
             {/* Sign Up */}
             <TouchableOpacity
-                disabled={!email || !password || !username}
+                disabled={!email || !password}
                 onPress={handleSignUp}
-                className={`${!email || !password || !username ? "opacity-40" : ""}`}
+                className={`${!email || !password ? "opacity-40" : ""}`}
             >
                 <LinearGradient
                     colors={["#8736D9", "#5204BF"]}
