@@ -81,7 +81,7 @@ export default function CommunityScreen() {
       {/* Floating Add Button */}
       <TouchableOpacity
         className="absolute bottom-6 right-6 w-16 h-16 shadow-lg"
-        onPress={() => router.push("/(tabs)/community/add")}
+        onPress={() => router.push("/(tabs)/community/confirm")}
       >
         <LinearGradient
           colors={["#8736D9", "#5204BF"]}
