@@ -16,6 +16,7 @@ export default function UpdateScreen() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [name, setName] = useState("");
   const [time, setTime] = useState("");
+  const [phrase, setPhrase] = useState("");
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
@@ -92,12 +93,13 @@ export default function UpdateScreen() {
 
             {/* Input */}
             <View className="space-y-2">
-              <Text className="text-sm font-semibold text-white">
+              <Text className="text-sm font-semibold text-white mb-2">
                 Reminder Name
               </Text>
               <TextInput
                 className="h-14 w-full rounded-xl border border-white/20 bg-white/15 px-3 text-white"
-                value="Name"
+                value={name}
+                onChangeText={setName}
                 placeholderTextColor="#ccc"
                 maxLength={30}
               />
@@ -108,12 +110,13 @@ export default function UpdateScreen() {
 
             {/* Input: Cụm từ nhắc nhở */}
             <View className="space-y-2">
-              <Text className="text-sm font-semibold text-white">
+              <Text className="text-sm font-semibold text-white mb-2">
                 Reminder Phrase
               </Text>
               <TextInput
                 className="min-h-[100px] w-full rounded-xl border border-white/20 bg-white/15 px-3 py-2 text-white"
-                value="Phrase"
+                value={phrase}
+                onChangeText={setPhrase}
                 placeholderTextColor="#ccc"
                 maxLength={200}
                 multiline
