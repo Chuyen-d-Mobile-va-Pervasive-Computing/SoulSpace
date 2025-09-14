@@ -8,6 +8,7 @@ export default function HomeLayout() {
       <Stack.Screen name="remind/index" options={{ title: "Nhắc nhở" }} />
       <Stack.Screen name="remind/add" options={{ title: "Thêm lời nhắc" }} />
       <Stack.Screen name="remind/update" options={{ title: "Chỉnh sửa lời nhắc" }} />
+      <Stack.Screen name="remind/custom" options={{ title: "Tùy chỉnh lời nhắc" }} />
       <Stack.Screen name="minigame/index" options={{ title: "Minigame" }} />
       <Stack.Screen name="minigame/write" options={{ title: "Viết bài" }} />
       <Stack.Screen name="minigame/share" options={{ title: "Chia sẻ bài" }} />

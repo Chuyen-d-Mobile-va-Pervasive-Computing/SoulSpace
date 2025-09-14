@@ -84,6 +84,18 @@ export default function AddScreen() {
             onCancel={hideDatePicker}
           />
 
+          <TouchableOpacity
+            className="w-full h-14 rounded-xl border border-white/20 bg-white/10 px-4 justify-center mb-4"
+            onPress={() => router.push("/(tabs)/home/remind/custom")}
+          >
+            <View className="flex-row items-center justify-between">
+              <Text className="text-white font-bold text-base">Repeat</Text>
+              <View className="flex-row items-center">
+                <ChevronRight width={20} height={20} color="#BBBBBB" />
+              </View>
+            </View>
+          </TouchableOpacity>
+
           {/* Card: Custom reminder */}
           <View className="rounded-2xl border border-white/20 bg-white/10 p-4 space-y-6 gap-4">
             <Text className="text-base font-bold text-white">
@@ -92,7 +104,7 @@ export default function AddScreen() {
 
             {/* Input */}
             <View className="space-y-2">
-              <Text className="text-sm font-semibold text-white">
+              <Text className="text-sm font-semibold text-white mb-2">
                 Reminder Name
               </Text>
               <TextInput
@@ -108,7 +120,7 @@ export default function AddScreen() {
 
             {/* Input: Cụm từ nhắc nhở */}
             <View className="space-y-2">
-              <Text className="text-sm font-semibold text-white">
+              <Text className="text-sm font-semibold text-white mb-2">
                 Reminder Phrase
               </Text>
               <TextInput
