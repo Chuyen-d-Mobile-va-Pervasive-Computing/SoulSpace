@@ -128,10 +128,7 @@ export default function LoginScreen() {
             Don’t have an account?{" "}
           </Text>
           <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
-            <Text
-              className="text-[#7F56D9] font-[Poppins-Medium9p'
-            0]"
-            >
+            <Text className="text-[#7F56D9] font-[Poppins-Medium]">
               Register Now
             </Text>
           </TouchableOpacity>
