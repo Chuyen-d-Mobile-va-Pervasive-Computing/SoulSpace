@@ -61,10 +61,10 @@ export default function RegisterScreen() {
 
       {/* Title */}
       <View className="px-6 mt-24">
-        <Text className="text-black text-4xl font-[Poppins-Bold]">
+        <Text className="text-black text-[32px] font-[Poppins-Bold]">
           Welcome back! Glad
         </Text>
-        <Text className="text-black text-4xl font-[Poppins-Bold] leading-[50px]">
+        <Text className="text-black text-[32px] font-[Poppins-Bold] leading-[50px]">
           to see you, Again!
         </Text>
       </View>
