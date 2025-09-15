@@ -46,7 +46,7 @@ export default function Introduce() {
 
       {/* Text */}
       <View className="items-center">
-        <Text className="text-[28px] font-[Poppins-Bold] text-[#7C3AED]">
+        <Text className="text-[28px] font-[Poppins-Bold] text-[#7F56D9]">
           Welcome to SoulSpace
         </Text>
         <Text className="text-[14px] text-center mt-2 font-[Poppins-Regular] text-black">
@@ -88,21 +88,21 @@ export default function Introduce() {
         <View className="absolute" style={{ top: "20%", right: "20%" }}>
           <Wave width={50} height={50} />
         </View>
-        <View className="absolute" style={{ top: "35%", left: "10%" }}>
+        <View className="absolute" style={{ top: "35%", left: "5%" }}>
           <Circle width={20} height={20} />
         </View>
-        <View className="absolute" style={{ bottom: "25%", left: "10%" }}>
+        <View className="absolute" style={{ bottom: "20%", left: "10%" }}>
           <Ushape width={50} height={50} />
         </View>
-        <View className="absolute" style={{ bottom: "20%", left: "50%" }}>
+        <View className="absolute" style={{ bottom: "13%", left: "50%" }}>
           <Cshape width={20} height={20} />
         </View>
       </View>
 
       {/* Get Started Button */}
       <TouchableOpacity
-        onPress={() => router.push("/(auth)/login")}
-        className="w-full py-3 mb-4 bg-[#7C3AED] rounded-full shadow-lg"
+        onPress={() => router.push("/(auth)/introduce")}
+        className="w-full py-3 mb-4 bg-[#7F56D9] rounded-full shadow-lg"
       >
         <Text className="text-white text-center font-[Poppins-Bold] text-lg">
           Get Started →
@@ -110,10 +110,10 @@ export default function Introduce() {
       </TouchableOpacity>
 
       {/* Sign in */}
-      <Text className="text-center font-[Poppins-Regular] text-gray-500 mb-24">
+      <Text className="text-center font-[Poppins-Regular] text-gray-500 mb-32">
         Already have an account?{" "}
         <Text
-          className="text-[#7C3AED] font-[Poppins-Bold]"
+          className="text-[#7F56D9] font-[Poppins-Bold]"
           onPress={() => router.push("/(auth)/login")}
         >
           Sign In
