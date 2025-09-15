@@ -113,7 +113,7 @@ export default function Introduce() {
           setCurrentIndex(index);
         }}
         renderItem={({ item }) => (
-          <View style={{ width }} className="flex-1 px-6 w-full">
+          <View style={{ width }} className="flex-1 w-full">
             {/* Step chip */}
             <View className="items-center mt-[20px]">
               <View className="rounded-[32px] border border-stone-700 px-3.5 py-2">
@@ -125,7 +125,7 @@ export default function Introduce() {
 
             {/* Illustration */}
             <View className="flex-1 items-center justify-center w-full">
-              <item.image width="100%" height={450} style={{ zIndex: -2 }} />
+              <item.image width="100%" height={550} style={{ zIndex: -2 }} />
             </View>
             <View
               className="absolute"
