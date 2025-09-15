@@ -140,7 +140,7 @@ export default function Introduce() {
               }}
             />
             {/* Title */}
-            <Text className="text-center font-[Poppins-Bold] text-[24px] mb-4">
+            <Text className="text-center font-[Poppins-Bold] text-2xl mb-4">
               {item.title}
               <Text style={{ color: item.highlightColor }}>
                 {item.highlight}

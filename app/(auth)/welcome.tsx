@@ -46,10 +46,10 @@ export default function Introduce() {
 
       {/* Text */}
       <View className="items-center">
-        <Text className="text-[28px] font-[Poppins-Bold] text-[#7F56D9]">
+        <Text className="text-2xl font-[Poppins-Bold] text-[#7F56D9]">
           Welcome to SoulSpace
         </Text>
-        <Text className="text-[14px] text-center mt-2 font-[Poppins-Regular] text-black">
+        <Text className="text-base text-center mt-2 font-[Poppins-Regular] text-black">
           Your mindful mental health AI companion{"\n"}
           for everyone, anywhere 🌿
         </Text>
