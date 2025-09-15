@@ -100,14 +100,16 @@ export default function Introduce() {
       </View>
 
       {/* Get Started Button */}
-      <TouchableOpacity
-        onPress={() => router.push("/(auth)/introduce")}
-        className="w-full py-3 mb-4 bg-[#7F56D9] rounded-full shadow-lg"
-      >
-        <Text className="text-white text-center font-[Poppins-Bold] text-lg">
-          Get Started →
-        </Text>
-      </TouchableOpacity>
+      <View className="w-full self-stretch px-2.5 flex-col justify-center items-center gap-2.5">
+        <TouchableOpacity
+          onPress={() => router.push("/(auth)/introduce")}
+          className="py-5 mb-4 bg-[#7F56D9] rounded-full shadow-lg"
+        >
+          <Text className="text-white text-center font-[Poppins-Bold] text-lg px-10">
+            Get Started →
+          </Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Sign in */}
       <Text className="text-center font-[Poppins-Regular] text-gray-500 mb-32">
