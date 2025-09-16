@@ -57,6 +57,7 @@ export default function CommunityScreen() {
       likes: 10,
       comments: 10,
       isInterested: false,
+      isLiked: false,
     },
     {
       id: "p2",
@@ -67,6 +68,7 @@ export default function CommunityScreen() {
       likes: 2,
       comments: 1,
       isInterested: true,
+      isLiked: true,
     },
   ]);
 
@@ -104,6 +106,20 @@ export default function CommunityScreen() {
         ToastAndroid.SHORT
       );
     }
+  };
+
+  const handleToggleLike = (id: string) => {
+    setPosts((prev) =>
+      prev.map((p) =>
+        p.id === id
+          ? {
+              ...p,
+              isLiked: !p.isLiked,
+              likes: p.isLiked ? p.likes - 1 : p.likes + 1,
+            }
+          : p
+      )
+    );
   };
 
   return (
@@ -167,13 +183,26 @@ export default function CommunityScreen() {
 
               {/* Interaction */}
               <View className="flex-row mt-3 gap-6">
-                <View className="flex-row items-center gap-1">
-                  <Heart width={18} height={18} color="white" />
-                  <Text className="text-white text-sm font-[Poppins-Regular]">{post.likes}</Text>
-                </View>
+                <TouchableOpacity
+                  className="flex-row items-center gap-1"
+                  onPress={() => handleToggleLike(post.id)}
+                >
+                  <Heart
+                    width={18}
+                    height={18}
+                    color={post.isLiked ? "red" : "white"} // đổi màu khi like
+                    fill={post.isLiked ? "red" : "transparent"} // trái tim đầy
+                  />
+                  <Text className="text-white text-sm font-[Poppins-Regular]">
+                    {post.likes}
+                  </Text>
+                </TouchableOpacity>
+
                 <View className="flex-row items-center gap-1">
                   <MessageCircle width={18} height={18} color="white" />
-                  <Text className="text-white text-sm font-[Poppins-Regular]">{post.comments}</Text>
+                  <Text className="text-white text-sm font-[Poppins-Regular]">
+                    {post.comments}
+                  </Text>
                 </View>
               </View>
             </View>
