@@ -1,65 +1,179 @@
-import { LinearGradient } from "expo-linear-gradient";
+import CreateAccount from "@/assets/images/account_create.svg";
 import { useRouter } from "expo-router";
-import { Gift } from "lucide-react-native";
-import {
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from "react-native";
-import { useState } from "react";
+import { ChevronLeft } from "lucide-react-native";
+import React, { useRef, useState } from "react";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import PagerView from "react-native-pager-view";
+import NewPassword from "./components/NewPassword";
+import OTPInput from "./components/OTPInput";
 
-export default function ForgotPasswordScreen() {
-    const router = useRouter();
-    const [email, setEmail] = useState("");
+export default function SignupPager() {
+  const [page, setPage] = useState(0);
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [password, setPassword] = useState("");
+  const pagerRef = useRef<PagerView>(null);
+  const router = useRouter();
 
-    return (
-        <LinearGradient
-            colors={["#010440", "#020659"]}
-            className="flex-1 justify-center px-6"
-        >
-        {/* Logo */}
-        <View className="items-center mb-8">
-            <LinearGradient
-                colors={["#8736D9", "#cdaded"]}
-                className="w-24 h-24 rounded-full items-center justify-center shadow-lg"
-            >
-                <Gift size={42} color="#fff" />
-            </LinearGradient>
-            <Text className="text-white text-2xl font-inter_bold mt-5 tracking-widest">SOULSPACE</Text>
+  const totalSteps = 4;
+
+  const goNext = () => {
+    const next = Math.min(page + 1, totalSteps - 1);
+    pagerRef.current?.setPage(next);
+    setPage(next);
+  };
+  const goPrev = () => {
+    if (page === 0) {
+      router.back();
+    } else {
+      const prev = Math.max(page - 1, 0);
+      pagerRef.current?.setPage(prev);
+      setPage(prev);
+    }
+  };
+
+  // Các tiêu đề cho từng trang (trang cuối không cần heading)
+  const headings = [
+    "Add your email",
+    "Verify your email",
+    "Create your password",
+  ];
+
+  const Heading = () =>
+    page < totalSteps - 1 ? (
+      <View className="px-6 pt-12 mb-4">
+        {/* Back button + heading */}
+        <View className="flex-row items-center mb-4">
+          <TouchableOpacity
+            onPress={goPrev}
+            className="w-12 h-12 rounded-[10px] items-center justify-center mr-4"
+          >
+            <ChevronLeft size={30} color="#000000" />
+          </TouchableOpacity>
+          <Text className="text-2xl font-[Poppins-Medium] text-black">
+            {headings[page]}
+          </Text>
         </View>
 
-        <View className="mb-6 px-4">
-            <Text className="text-white text-[10px] text-center">Enter email for verification, we will send 6-digit verification code to this email</Text>
+        {/* Progress bar */}
+        <View className="flex-row justify-center">
+          {Array.from({ length: totalSteps }).map((_, i) => {
+            const active = i <= page;
+            return (
+              <View
+                key={i}
+                className="flex-1 h-2 mx-0.5 rounded-full"
+                style={{
+                  backgroundColor: active ? "#7F56D9" : "#E0D8F5",
+                }}
+              />
+            );
+          })}
         </View>
+      </View>
+    ) : null;
 
-        {/* Email */}
-        <View className="mb-4">
-            <TextInput
-                value={email}
-                onChangeText={setEmail}
-                placeholder="Email"
-                placeholderTextColor="#cdaded"
-                className="w-full h-14 bg-white/10 text-white rounded-2xl px-5 py-3 border border-[#5204BF]/40 font-inter"
-            />
-        </View>
+  return (
+    <View className="flex-1 bg-[#FAF9FF] w-full">
+      {/* Heading + Progress */}
+      <Heading />
 
-        <TouchableOpacity
-            disabled={!email}
-            onPress={() => router.push("/(auth)/forgot-pw/confirm-otp")}
-            className={`${!email ? "opacity-40" : ""}`}
-        >
-            <LinearGradient
-                colors={["#8736D9", "#5204BF"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                className="py-4 items-center w-full rounded-2xl overflow-hidden"
-            >
-            <Text className="text-white font-bold text-lg tracking-wide">
-                Continue
+      {/* PagerView */}
+      <PagerView
+        ref={pagerRef}
+        style={{ flex: 1 }}
+        scrollEnabled={false} // không cho vuốt thủ công
+        initialPage={0}
+        onPageSelected={(e) => setPage(e.nativeEvent.position)}
+      >
+        {/* Screen 1 */}
+        <View key="1" className="flex-1 px-6">
+          <Text className="text-base font-[Poppins-Medium] text-gray-700 mb-2 mt-8">
+            Email Address
+          </Text>
+          <TextInput
+            placeholder="Enter your email"
+            placeholderTextColor="#9CA3AF"
+            value={email}
+            onChangeText={setEmail}
+            className="w-full h-16 bg-transparent rounded-[10px] px-4 border border-[#DADADA] font-[Poppins-Regular]"
+          />
+
+          <TouchableOpacity
+            onPress={goNext}
+            className="w-full h-16 rounded-lg items-center justify-center mb-4 bg-[#7F56D9] mt-8"
+          >
+            <Text className="text-white font-[Poppins-Bold] text-base">
+              Send OTP
             </Text>
-            </LinearGradient>
-        </TouchableOpacity>
-        </LinearGradient>
-    );
+          </TouchableOpacity>
+        </View>
+
+        {/* Screen 2 */}
+        <View key="2" className="flex-1 px-6">
+          <Text className="text-base font-[Poppins-Medium] text-gray-700 mb-2 mt-8 text-center">
+            We just sent a 6-digit code to {email || "exampleemail@gmail.com"},
+            enter it below:
+          </Text>
+
+          <OTPInput length={6} onComplete={(val) => setCode(val)} />
+
+          <TouchableOpacity
+            onPress={goNext}
+            disabled={code.length < 6}
+            className={`w-full h-16 rounded-lg items-center justify-center mt-8 ${
+              code.length < 6 ? "bg-gray-300" : "bg-[#7F56D9]"
+            }`}
+          >
+            <Text className="text-white font-[Poppins-Bold] text-base">
+              Confirm OTP
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Screen 3 */}
+        <View key="3" className="flex-1 px-6 mt-8">
+          <NewPassword
+            onValidChange={(valid, val) => {
+              setPassword(valid ? val : "");
+            }}
+          />
+
+          <TouchableOpacity
+            onPress={goNext}
+            disabled={code.length < 6}
+            className={`w-full h-16 rounded-lg items-center justify-center mt-8 ${
+              code.length < 6 ? "bg-gray-300" : "bg-[#7F56D9]"
+            }`}
+          >
+            <Text className="text-white font-[Poppins-Bold] text-base">
+              Confirm Password
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Screen 4: Success */}
+        <View key="4" className="flex-1 items-center justify-center px-6">
+          <CreateAccount width={250} height={250} />
+          <Text className="text-3xl font-[Poppins-Bold] mb-6 text-center">
+            Your account was successfully created!
+          </Text>
+          <Text className="text-xl font-[Poppins-Regular] mb-6 text-center">
+            Only one click to explore SoulSpace.
+          </Text>
+          <TouchableOpacity
+            className="w-full h-16 rounded-lg items-center justify-center bg-[#7F56D9]"
+            onPress={() => router.push("/login")}
+          >
+            <Text
+              className="text-white font-[Poppins-Bold]"
+              onPress={() => router.push("/(auth)/login")}
+            >
+              Sign In
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </PagerView>
+    </View>
+  );
 }
