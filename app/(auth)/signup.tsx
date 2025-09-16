@@ -56,7 +56,6 @@ export default function RegisterScreen() {
       keyboardShouldPersistTaps="handled"
       enableOnAndroid
     >
-      {/* Nội dung màn hình cũ của bạn */}
       <View className="flex-1 bg-[#FAF9FF] pt-12">
         {/* Nút Back */}
         <View className="mt-8 ml-4">

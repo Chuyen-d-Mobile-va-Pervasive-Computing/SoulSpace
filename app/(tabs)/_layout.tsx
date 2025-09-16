@@ -1,17 +1,13 @@
-import { Tabs } from 'expo-router';
-import { Compass, Home, PencilLine, Settings, Users } from "lucide-react-native";
-import React from 'react';
+import { HapticTab } from "@/components/HapticTab";
+import TabBarBackground from "@/components/ui/TabBarBackground";
 import { useFonts } from "expo-font";
-import { useCallback } from "react";
+import { Tabs } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { HapticTab } from '@/components/HapticTab';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { LinearGradient } from 'expo-linear-gradient';
-import { View } from 'react-native';
+import { Compass, Home, Plus, Settings, Users } from "lucide-react-native";
+import React, { useCallback } from "react";
+import { View } from "react-native";
 
 export default function TabLayout() {
-  const theme = Colors.dark; // vì chỉ định nghĩa dark mode
   const [fontsLoaded] = useFonts({
     "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
     "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
@@ -24,13 +20,13 @@ export default function TabLayout() {
     "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
     "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
   });
-            
+
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
       await SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
-            
+
   if (!fontsLoaded) return null;
 
   return (
@@ -39,11 +35,13 @@ export default function TabLayout() {
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
-        tabBarActiveTintColor: theme.textActive,     // màu text + icon active
-        tabBarInactiveTintColor: theme.textInactive, // màu text + icon inactive
+        tabBarActiveTintColor: "#7F56D9", // Màu icon/text khi chọn
+        tabBarInactiveTintColor: "#BDBDBD", // Màu icon/text khi chưa chọn
         tabBarStyle: {
-          backgroundColor: theme.footer,         // màu nền tabbar
-          borderTopColor: theme.accent,              // viền trên
+          backgroundColor: "#FCFBFF",
+          borderTopColor: "#E5E5E5",
+          height: 110, // 👉 tăng chiều cao tab bar
+          paddingTop: 12,
         },
         tabBarLabelStyle: {
           fontFamily: "Poppins-Medium",
@@ -53,14 +51,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          title: 'Home',
+          title: "Home",
           tabBarIcon: ({ color }) => <Home size={28} color={color} />,
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
-          title: 'Explore',
+          title: "Explore",
           tabBarIcon: ({ color }) => <Compass size={28} color={color} />,
         }}
       />
@@ -68,22 +66,21 @@ export default function TabLayout() {
         name="diary"
         options={{
           tabBarLabel: () => null, // Ẩn chữ Diary
-          tabBarIcon: ({ color, size }) => (
-            <View style={{ marginTop: 10 }}>
-              <LinearGradient
-                colors={["#8736D9", "#5204BF"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
+          tabBarIcon: ({ size }) => (
+            <View>
+              <View
                 style={{
-                  width: 54,
-                  height: 40,
-                  borderRadius: 20,
+                  width: 60,
+                  height: 60,
+                  borderRadius: 30,
+                  backgroundColor: "#E0D7F9",
                   alignItems: "center",
                   justifyContent: "center",
+                  shadowColor: "#000",
                 }}
               >
-                <PencilLine color={color} size={size} />
-              </LinearGradient>
+                <Plus color="#7F56D9" size={size} />
+              </View>
             </View>
           ),
         }}
@@ -99,7 +96,9 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: "Settings",
-          tabBarIcon: ({ color, size }) => <Settings color={color} size={size} />,
+          tabBarIcon: ({ color, size }) => (
+            <Settings color={color} size={size} />
+          ),
         }}
       />
     </Tabs>
