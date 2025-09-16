@@ -40,8 +40,9 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: "#FCFBFF",
           borderTopColor: "#E5E5E5",
-          height: 110, // 👉 tăng chiều cao tab bar
-          paddingTop: 12,
+          height: 120,
+          paddingTop: 10,
+          paddingBottom: 20,
         },
         tabBarLabelStyle: {
           fontFamily: "Poppins-Medium",
@@ -67,7 +68,7 @@ export default function TabLayout() {
         options={{
           tabBarLabel: () => null, // Ẩn chữ Diary
           tabBarIcon: ({ size }) => (
-            <View>
+            <View className="mt-4">
               <View
                 style={{
                   width: 60,
