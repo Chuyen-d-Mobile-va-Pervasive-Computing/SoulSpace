@@ -152,6 +152,7 @@ export default function AddScreen() {
                 placeholderTextColor="#ccc"
                 maxLength={200}
                 multiline
+                numberOfLines={4}
                 textAlignVertical="top"
               />
               <Text className="self-stretch font-[Poppins-Regular] text-right text-xs text-gray-400">

@@ -161,10 +161,11 @@ export default function DiaryScreen() {
             <TextInput
               value={thoughts}
               onChangeText={setThoughts}
-              className="bg-white/30 border border-white p-4 rounded-xl text-white text-base min-h-[120px] font-[Poppins-Regular]"
+              className="bg-white/30 border border-white p-4 rounded-xl text-white text-base min-h-[180px] font-[Poppins-Regular]"
               placeholder="What are you thinking..."
               placeholderTextColor="#BBBBBB"
               multiline
+              numberOfLines={6}
               textAlignVertical="top"
             />
           </View>
