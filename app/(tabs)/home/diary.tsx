@@ -1,3 +1,6 @@
+import { useFonts } from "expo-font";
+import { useCallback } from "react";
+import * as SplashScreen from "expo-splash-screen";
 import Heading from "@/components/Heading";
 import TagSelector from "@/components/TagSelector";
 import { router } from "expo-router";
@@ -6,6 +9,26 @@ import React, { useState } from "react";
 import { Modal, Pressable, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 export default function DiaryListScreen() {
+    const [fontsLoaded] = useFonts({
+        "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
+        "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
+        "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
+        "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
+        "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
+        "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
+        "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
+        "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
+        "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
+        "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
+    });
+                
+    const onLayoutRootView = useCallback(async () => {
+        if (fontsLoaded) {
+        await SplashScreen.hideAsync();
+        }
+    }, [fontsLoaded]);
+                
+    if (!fontsLoaded) return null;
     const [filterVisible, setFilterVisible] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
 
@@ -29,7 +52,7 @@ export default function DiaryListScreen() {
                     className="flex-row justify-end items-center mb-4"
                     onPress={() => setFilterVisible(true)}
                 >
-                    <Text className="text-white font-bold text-xs mr-2">Filter</Text>
+                    <Text className="text-white font-[Poppins-Bold] text-xs mr-2">Filter</Text>
                     <SlidersHorizontal width={20} height={20} color="white" />
                 </TouchableOpacity>
                 <View className="w-full p-2 overflow-hidden gap-4">
@@ -37,7 +60,7 @@ export default function DiaryListScreen() {
                         <View className="w-full border border-white px-3 py-5 gap-3 bg-white/30 rounded-lg overflow-hidden">
                             {/* Date */}
                             <View className="w-full flex-row justify-between">
-                                <Text className="text-white text-[15px] font-inter">Saturday, Jan 19</Text>
+                                <Text className="text-white text-[15px] font-[Poppins-Regular]">Saturday, Jan 19</Text>
                                 <TouchableOpacity onPress={handleCancel}>
                                     <Trash2 width={24} height={24} color="#FB4141" />
                                 </TouchableOpacity>
@@ -45,17 +68,17 @@ export default function DiaryListScreen() {
                             {/* Emoji */}
                             <View className="h-20 justify-center items-center w-full">
                                 <CalendarDays width={20} height={20} color="white" />
-                                <Text className="text-white text-xs font-bold text-center w-full">
+                                <Text className="text-white text-xs font-[Poppins-Bold] text-center w-full">
                                     Hạnh phúc
                                 </Text>
                             </View>
                             {/* Time */}
                             <View className="items-center w-full">
-                                <Text className="text-white text-[15px] font-inter">--- 19:01 AM ---</Text>
+                                <Text className="text-white text-[15px] font-[Poppins-Regular]">--- 19:01 AM ---</Text>
                             </View>
                             {/* Content */}
                             <View className="items-center w-full">
-                                <Text className="text-white text-[15px] font-inter">
+                                <Text className="text-white text-[15px] font-[Poppins-Regular]">
                                     aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
                                 </Text>
                             </View>
@@ -74,7 +97,7 @@ export default function DiaryListScreen() {
                 <View className="flex-1 bg-black/50 items-center justify-center">
                     <View className="w-[300px] bg-white p-6 rounded-2xl gap-4">
                         <>
-                            <Text className="text-base font-bold">Sort</Text>
+                            <Text className="text-base font-[Poppins-Bold]">Sort</Text>
                             <TagSelector
                                 options={[
                                 { id: "recent", name: "Recent" },
@@ -85,7 +108,7 @@ export default function DiaryListScreen() {
                             />
                         </>
                         <>
-                            <Text className="text-base font-bold">Tags</Text>
+                            <Text className="text-base font-[Poppins-Bold]">Tags</Text>
                             <TagSelector
                                 options={[
                                 { id: "1", name: "Family" },
@@ -100,7 +123,7 @@ export default function DiaryListScreen() {
                           className="mt-4 bg-[#6F04D9] py-2 rounded-xl"
                           onPress={() => setFilterVisible(false)}
                         >
-                          <Text className="text-center text-white font-bold">Apply</Text>
+                          <Text className="text-center text-white font-[Poppins-Bold]">Apply</Text>
                         </Pressable>
                     </View>
                 </View>
@@ -114,7 +137,7 @@ export default function DiaryListScreen() {
             >
                 <View className="flex-1 bg-black/60 justify-center items-center">
                     <View className="bg-white w-4/5 rounded-2xl p-6 items-center">
-                        <Text className="text-lg font-semibold mb-6 text-gray-800">
+                        <Text className="text-lg font-[Poppins-SemiBold] mb-6 text-gray-800">
                             Are you sure you want to delete this diary?
                         </Text>
                         <View className="flex-row gap-4">
@@ -122,7 +145,7 @@ export default function DiaryListScreen() {
                                 onPress={() => setShowConfirm(false)}
                                 className="bg-gray-300 px-8 py-4 rounded-xl"
                             >
-                                <Text className="text-base font-semibold text-gray-800">
+                                <Text className="text-base font-[Poppins-SemiBold] text-gray-800">
                                     No
                                 </Text>
                             </TouchableOpacity>
@@ -130,7 +153,7 @@ export default function DiaryListScreen() {
                                 onPress={handleConfirmCancel}
                                 className="bg-red-500 px-8 py-4 rounded-xl"
                             >
-                                <Text className="text-base font-semibold text-white">
+                                <Text className="text-base font-[Poppins-SemiBold] text-white">
                                     Yes
                                 </Text>
                             </TouchableOpacity>

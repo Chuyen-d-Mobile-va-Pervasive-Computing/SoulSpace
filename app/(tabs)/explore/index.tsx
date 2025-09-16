@@ -1,3 +1,6 @@
+import { useFonts } from "expo-font";
+import { useCallback } from "react";
+import * as SplashScreen from "expo-splash-screen";
 import Heading from "@/components/Heading";
 import { router } from "expo-router";
 import { ChevronRight } from "lucide-react-native";
@@ -27,6 +30,26 @@ const cards = [
 ];
 
 export default function ExploreScreen() {
+  const [fontsLoaded] = useFonts({
+    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
+    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
+    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
+    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
+    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
+    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
+    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
+    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
+    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
+    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
+  });
+            
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+            
+  if (!fontsLoaded) return null;
   return (
     <View className="flex-1 bg-[#020659]">
       {/* Header */}
@@ -41,7 +64,7 @@ export default function ExploreScreen() {
             onPress={() => router.push("/(tabs)/explore/result")}
           >
             <View className="flex-row items-center justify-between">
-              <Text className="text-white font-bold text-base">
+              <Text className="text-white font-[Poppins-Bold] text-base">
                 Tests Performed
               </Text>
               <ChevronRight width={24} height={24} color="white" />
@@ -60,10 +83,10 @@ export default function ExploreScreen() {
               resizeMode="cover"
             />
             <View className="my-2">
-              <Text className="text-white text-base font-bold mb-1">
+              <Text className="text-white text-base font-[Poppins-Bold] mb-1">
                 {item.title}
               </Text>
-              <Text className="text-gray-300 text-sm">{item.desc}</Text>
+              <Text className="text-gray-300 text-sm font-[Poppins-Regular]">{item.desc}</Text>
             </View>
             <TouchableOpacity
               onPress={() =>
@@ -74,7 +97,7 @@ export default function ExploreScreen() {
               }
               className="bg-[rgba(111,4,217,0.6)] rounded-lg py-3 items-center mt-2"
             >
-              <Text className="text-white font-semibold text-sm">
+              <Text className="text-white font-[Poppins-SemiBold] text-sm">
                 Do the questionnaire
               </Text>
             </TouchableOpacity>

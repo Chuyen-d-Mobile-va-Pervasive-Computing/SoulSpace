@@ -1,3 +1,6 @@
+import { useFonts } from "expo-font";
+import { useCallback } from "react";
+import * as SplashScreen from "expo-splash-screen";
 import Heading from "@/components/Heading";
 import ReminderItem from "@/components/ReminderItem";
 import { LinearGradient } from "expo-linear-gradient";
@@ -6,6 +9,26 @@ import React from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 export default function RemindScreen() {
+  const [fontsLoaded] = useFonts({
+    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
+    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
+    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
+    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
+    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
+    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
+    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
+    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
+    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
+    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
+  });
+      
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+      
+  if (!fontsLoaded) return null;
   return (
     <View className="flex-1 bg-[#020659]">
       <Heading title="Remind" showBack={true} onBackPress={() => router.back()} />
@@ -35,7 +58,7 @@ export default function RemindScreen() {
               end={{ x: 1, y: 1 }}
               className="py-3 items-center w-full rounded-2xl overflow-hidden"
             >
-              <Text className="text-sm font-bold text-white text-right">Add new reminder</Text>
+              <Text className="text-sm font-[Poppins-Bold] text-white text-right">Add new reminder</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>

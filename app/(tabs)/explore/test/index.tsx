@@ -1,3 +1,6 @@
+import { useFonts } from "expo-font";
+import { useCallback } from "react";
+import * as SplashScreen from "expo-splash-screen";
 import Heading from "@/components/Heading";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
@@ -5,6 +8,26 @@ import React from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 export default function TestInfoScreen() {
+  const [fontsLoaded] = useFonts({
+    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
+    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
+    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
+    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
+    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
+    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
+    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
+    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
+    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
+    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
+  });
+            
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+            
+  if (!fontsLoaded) return null;
   const { testType } = useLocalSearchParams<{ testType?: string }>();
 
   return (
@@ -30,7 +53,7 @@ export default function TestInfoScreen() {
 
         {/* Nội dung */}
         <View className="items-center gap-5 px-2">
-          <Text className="text-white text-xl font-bold text-center">
+          <Text className="text-white text-xl font-[Poppins-Bold] text-center">
             {testType?.includes("PHQ-9")
               ? "PHQ-9 – Đo lường mức độ trầm cảm"
               : testType?.includes("PSS")
@@ -40,7 +63,7 @@ export default function TestInfoScreen() {
               : "MBTI – Khám phá tính cách của bạn"}
           </Text>
 
-          <Text className="text-white text-base text-center">
+          <Text className="text-white text-base text-center font-[Poppins-Regular]">
             {testType?.includes("PHQ-9")
               ? "Bài trắc nghiệm PHQ giúp đánh giá mức độ trầm cảm..."
               : testType?.includes("PSS")
@@ -61,7 +84,7 @@ export default function TestInfoScreen() {
               end={{ x: 1, y: 1 }}
               className="py-3 items-center w-full rounded-2xl overflow-hidden"
             >
-              <Text className="text-white text-base font-bold">Start</Text>
+              <Text className="text-white text-base font-[Poppins-Bold]">Start</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>

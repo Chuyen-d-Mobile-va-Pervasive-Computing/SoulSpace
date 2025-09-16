@@ -1,3 +1,6 @@
+import { useFonts } from "expo-font";
+import { useCallback } from "react";
+import * as SplashScreen from "expo-splash-screen";
 import HappyIcon from "@/assets/images/happy.svg";
 import EmotionDisplay from "@/components/EmotionDisplay";
 import { emotionMap } from "@/constants/EmotionMap";
@@ -17,6 +20,27 @@ const latestJournal: LatestJournal = {
 };
 
 export default function HomeScreen() {
+  const [fontsLoaded] = useFonts({
+    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
+    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
+    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
+    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
+    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
+    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
+    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
+    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
+    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
+    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
+  });
+  
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+  
+  if (!fontsLoaded) return null;
+  
   const openDiary = () => {
     router.push("/(tabs)/home/diary");
   };
@@ -43,10 +67,10 @@ export default function HomeScreen() {
                 {/* User Info */}
                 <View className="flex-row items-center gap-2">
                   <View className="px-2">
-                    <Text className="text-[12px] text-white">
+                    <Text className="text-[12px] text-white font-[Poppins-Regular]">
                       Tuesday, 1st January
                     </Text>
-                    <Text className="text-[14px] font-bold text-white">
+                    <Text className="text-[14px] text-white font-[Poppins-Bold]">
                       user01234567
                     </Text>
                   </View>
@@ -66,7 +90,7 @@ export default function HomeScreen() {
               >
                 <View className="flex-1 items-center justify-center">
                   <Sprout size={24} color="#5cb338" />
-                  <Text className="text-center font-extrabold text-[14px] text-[#5cb338]">
+                  <Text className="text-center font-[Poppins-ExtraBold] text-[14px] text-[#5cb338]">
                     Plant
                   </Text>
                 </View>
@@ -79,7 +103,7 @@ export default function HomeScreen() {
               >
                 <View className="flex-1 items-center justify-center">
                   <Bell width={24} height={24} color="#ece852" />
-                  <Text className="text-center font-extrabold text-[14px] text-[#ece852]">
+                  <Text className="text-center font-[Poppins-ExtraBold] text-[14px] text-[#ece852]">
                     Remind
                   </Text>
                 </View>
@@ -92,7 +116,7 @@ export default function HomeScreen() {
               >
                 <View className="flex-1 items-center justify-center">
                   <Gamepad2 size={24} color="#e6a117" />
-                  <Text className="text-center font-extrabold text-[14px] text-[#e6a117]">
+                  <Text className="text-center font-[Poppins-ExtraBold] text-[14px] text-[#e6a117]">
                     Minigame
                   </Text>
                 </View>
@@ -102,9 +126,9 @@ export default function HomeScreen() {
           {/* Analytic */}
           <View className="mt-6">
             <View className="flex-row justify-between">
-              <Text className="text-white font-bold text-base">Emotion</Text>
+              <Text className="text-white font-[Poppins-Bold] text-base">Emotion</Text>
                 <TouchableOpacity onPress={openAnalytic}>
-                  <Text className="text-right text-sm font-semibold text-[#8736D9]">
+                  <Text className="text-right text-sm font-[Poppins-SemiBold] text-[#8736D9]">
                     View stats
                   </Text>
                 </TouchableOpacity>
@@ -116,9 +140,9 @@ export default function HomeScreen() {
           {/* Diary */}
           <View className="mt-6">
             <View className="flex-row justify-between">
-              <Text className="text-white font-bold text-base">My recent diary</Text>
+              <Text className="text-white font-[Poppins-Bold] text-base">My recent diary</Text>
                 <TouchableOpacity onPress={openDiary}>
-                  <Text className="text-right text-sm font-semibold text-[#8736D9]">
+                  <Text className="text-right text-sm font-[Poppins-SemiBold] text-[#8736D9]">
                     View all
                   </Text>
                 </TouchableOpacity>
@@ -127,14 +151,14 @@ export default function HomeScreen() {
               <View className=" gap-2 rounded-xl mt-4 bg-white/10 border border-white/20 p-4">
                 <View className="w-full items-center self-stretch gap-2">
                   <View className="flex-row self-stretch justify-between">
-                    <Text className="text-white text-[12px] font-bold">Hôm qua</Text>
+                    <Text className="text-white text-[12px] font-[Poppins-Bold]">Hôm qua</Text>
                     <HappyIcon width={20} height={20} className="overflow-hidden" />
                   </View>
-                  <Text className="self-stretch text-base text-white">Tôi vui lắm</Text>
+                  <Text className="self-stretch font-[Poppins-Regular] text-base text-white">Tôi vui lắm</Text>
                 </View>
 
                 <View className="self-start rounded-full border border-[#6f04d9] bg-[#6f04d94d] px-3 py-0.5">
-                  <Text className="text-xs font-bold text-white">Gia đình</Text>
+                  <Text className="text-xs font-[Poppins-Bold] text-white">Gia đình</Text>
                 </View>
               </View>
             </View>
@@ -143,9 +167,9 @@ export default function HomeScreen() {
           {/* Community */}
           <View className="mt-6">
             <View className="flex-row justify-between">
-              <Text className="text-white font-bold text-base">Posts from community</Text>
+              <Text className="text-white font-[Poppins-Bold] text-base">Posts from community</Text>
                 <TouchableOpacity onPress={openCommunity}>
-                  <Text className="text-right text-sm font-semibold text-[#8736D9]">
+                  <Text className="text-right text-sm font-[Poppins-SemiBold] text-[#8736D9]">
                     View all
                   </Text>
                 </TouchableOpacity>
@@ -153,24 +177,24 @@ export default function HomeScreen() {
             <View className="mt-4 p-4 rounded-2xl bg-white/10 border border-white/20 shadow-lg">
               {/* Header */}
               <View>
-                <Text className="text-white font-semibold text-sm">
+                <Text className="text-white font-[Poppins-SemiBold] text-sm">
                   user01234567
                 </Text>
-                <Text className="text-gray-300 text-xs mt-1">
+                <Text className="text-gray-300 text-xs mt-1 font-[Poppins-Regular]">
                   12:20:20 26/4/2025
                 </Text>
               </View>
               {/* Content */}
-              <Text className="text-white text-base mt-3">Tôi vui lắm</Text>
+              <Text className="text-white text-base font-[Poppins-Regular] mt-3">Tôi vui lắm</Text>
               {/* Interaction */}
               <View className="flex-row mt-3 gap-6">
                 <View className="flex-row items-center gap-1">
                   <Heart width={18} height={18} color="white" />
-                  <Text className="text-white text-sm">10</Text>
+                  <Text className="text-white text-sm font-[Poppins-Regular]">10</Text>
                 </View>
                 <View className="flex-row items-center gap-1">
                   <MessageCircle width={18} height={18} color="white" />
-                  <Text className="text-white text-sm">10</Text>
+                  <Text className="text-white text-sm font-[Poppins-Regular]">10</Text>
                 </View>
               </View>
             </View>

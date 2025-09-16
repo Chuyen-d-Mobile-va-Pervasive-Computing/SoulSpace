@@ -1,3 +1,6 @@
+import { useFonts } from "expo-font";
+import { useCallback } from "react";
+import * as SplashScreen from "expo-splash-screen";
 import Heading from "@/components/Heading";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
@@ -24,14 +27,34 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   value,
   onSelect,
 }) => {
+  const [fontsLoaded] = useFonts({
+    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
+    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
+    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
+    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
+    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
+    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
+    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
+    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
+    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
+    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
+  });
+            
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+            
+  if (!fontsLoaded) return null;
   return (
     <View className="rounded-lg overflow-hidden bg-white/20 mb-5">
       {/* Header */}
       <View className="p-3 bg-white/30">
-        <Text className="text-[#ccc] text-sm font-medium text-center">
+        <Text className="text-[#ccc] text-sm font-[Poppins-Medium] text-center">
           Câu hỏi {index + 1}/7
         </Text>
-        <Text className="text-white text-base font-medium text-center">
+        <Text className="text-white text-base font-[Poppins-Medium] text-center">
           {question}
         </Text>
       </View>
@@ -43,7 +66,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           onPress={() => onSelect(i)}
           className="flex-row justify-between items-center h-12 px-3 border-t border-white/20"
         >
-          <Text className="text-white text-base font-medium">{item}</Text>
+          <Text className="text-white text-base font-[Poppins-Medium]">{item}</Text>
           <View
             className={`w-6 h-6 rounded-full border-2 ${
               value === i ? "border-[#6f04d9] bg-[#6f04d9]" : "border-white"
@@ -96,7 +119,7 @@ export default function TestDoingScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Mô tả */}
-        <Text className="text-white text-base font-medium text-center mb-5">
+        <Text className="text-white text-base font-[Poppins-Medium] text-center mb-5">
           Bài trắc nghiệm MBTI giúp xác định kiểu tính cách dựa trên 4 nhóm đặc
           điểm, từ đó hiểu cách bạn suy nghĩ, cảm nhận và tương tác với thế
           giới.
@@ -127,7 +150,7 @@ export default function TestDoingScreen() {
               end={{ x: 1, y: 1 }}
               className="py-3 items-center w-full rounded-2xl overflow-hidden"
             >
-              <Text className="text-white font-bold text-base">Complete</Text>
+              <Text className="text-white font-[Poppins-Bold] text-base">Complete</Text>
             </LinearGradient>
           </Pressable>
         </View>

@@ -1,3 +1,6 @@
+import { useFonts } from "expo-font";
+import { useCallback } from "react";
+import * as SplashScreen from "expo-splash-screen";
 import { Picker } from "@react-native-picker/picker";
 import { CalendarDays } from "lucide-react-native";
 import React, { useState } from "react";
@@ -66,6 +69,27 @@ export default function WeekMonthYearSelector({ mode, onChange }: Props) {
     onChange({ start, end });
   };
 
+  const [fontsLoaded] = useFonts({
+    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
+    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
+    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
+    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
+    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
+    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
+    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
+    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
+    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
+    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
+  });
+            
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+            
+  if (!fontsLoaded) return null;
+
   return (
     <View className="w-full items-center mb-4">
       {mode === "week" && (
@@ -73,13 +97,14 @@ export default function WeekMonthYearSelector({ mode, onChange }: Props) {
           <CalendarDays size={18} color="white" style={{ marginRight: 6 }} />
           {/* Picker */}
           <Picker
+          mode="dropdown"
             selectedValue={selectedWeekIndex}
             onValueChange={handleSelectWeek}
             dropdownIconColor="white"
             style={styles.picker}
           >
             {weeks.map((w, i) => (
-              <Picker.Item key={i} label={w.label} value={i} />
+              <Picker.Item key={i} label={w.label} value={i} style={styles.pickerItem}/>
             ))}
           </Picker>
         </View>
@@ -143,5 +168,9 @@ const styles = StyleSheet.create({
     textAlign: "center", // căn giữa text (Android)
     paddingVertical: 0,
     marginVertical: -6, // giảm chiều cao mặc định
+  },
+  pickerItem: {
+    fontFamily: "Poppins-Bold", // 👈 font
+    fontSize: 14,
   },
 });

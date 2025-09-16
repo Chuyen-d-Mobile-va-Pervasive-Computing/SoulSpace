@@ -1,8 +1,31 @@
+import { useFonts } from "expo-font";
+import { useCallback } from "react";
+import * as SplashScreen from "expo-splash-screen";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function AddScreen() {
+  const [fontsLoaded] = useFonts({
+    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
+    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
+    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
+    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
+    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
+    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
+    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
+    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
+    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
+    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
+  });
+            
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+            
+  if (!fontsLoaded) return null;
   const [showConfirm, setShowConfirm] = useState(false);
   const [postContent, setPostContent] = useState("");
 
@@ -25,12 +48,12 @@ export default function AddScreen() {
         {/* Header buttons */}
         <View className="flex-row items-center justify-between">
           <TouchableOpacity onPress={handleCancel}>
-            <Text className="text-right text-sm font-semibold text-white">
+            <Text className="text-right text-sm font-[Poppins-SemiBold] text-white">
               Cancel
             </Text>
           </TouchableOpacity>
 
-          <Text className="text-left text-base font-bold text-white">
+          <Text className="text-left text-base font-[Poppins-Bold] text-white">
             Write a post
           </Text>
 
@@ -39,7 +62,7 @@ export default function AddScreen() {
             className={`${!postContent ? "opacity-40" : ""}`}
             onPress={handlePost}
           >
-            <Text className="text-right text-sm font-bold text-white">Post</Text>
+            <Text className="text-right text-sm font-[Poppins-Bold] text-white">Post</Text>
           </TouchableOpacity>
         </View>
 
@@ -48,7 +71,7 @@ export default function AddScreen() {
           <TextInput
             value={postContent}
             onChangeText={setPostContent}
-            className="text-left text-base text-white"
+            className="text-left text-base font-[Poppins-Regular] text-white"
             placeholder="Share on community...."
             placeholderTextColor={"#CCCCCC"}
             multiline
@@ -66,7 +89,7 @@ export default function AddScreen() {
       >
         <View className="flex-1 bg-black/60 justify-center items-center">
           <View className="bg-white w-4/5 rounded-2xl p-6 items-center">
-            <Text className="text-lg font-semibold mb-6 text-gray-800">
+            <Text className="text-lg font-[Poppins-SemiBold] mb-6 text-gray-800">
               Are you sure you want to discard this post?
             </Text>
 
@@ -75,7 +98,7 @@ export default function AddScreen() {
                 onPress={() => setShowConfirm(false)}
                 className="bg-gray-300 px-8 py-4 rounded-xl"
               >
-                <Text className="text-base font-semibold text-gray-800">
+                <Text className="text-base font-[Poppins-SemiBold] text-gray-800">
                   No
                 </Text>
               </TouchableOpacity>
@@ -84,7 +107,7 @@ export default function AddScreen() {
                 onPress={handleConfirmCancel}
                 className="bg-red-500 px-8 py-4 rounded-xl"
               >
-                <Text className="text-base font-semibold text-white">
+                <Text className="text-base font-[Poppins-SemiBold] text-white">
                   Yes
                 </Text>
               </TouchableOpacity>

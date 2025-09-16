@@ -1,3 +1,6 @@
+import { useFonts } from "expo-font";
+import { useCallback } from "react";
+import * as SplashScreen from "expo-splash-screen";
 import Heading from "@/components/Heading";
 import WeekMonthYearSelector from "@/components/WeekMonthYearSelector";
 import { LinearGradient } from "expo-linear-gradient";
@@ -11,17 +14,32 @@ import PositiveEmotionStat from "./components/charts/PositiveEmotionStat";
 import TotalDiaryStat from "./components/charts/TotalDiaryStat";
 
 export default function AnalyticScreen() {
+  const [fontsLoaded] = useFonts({
+    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
+    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
+    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
+    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
+    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
+    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
+    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
+    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
+    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
+    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
+  });
+            
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+            
+  if (!fontsLoaded) return null;
   const [tab, setTab] = useState<"week" | "month" | "year">("week");
 
   return (
-    <View className="flex-1">
+    <View className="flex-1 bg-white">
       <Heading title="Analytic" showBack={true} onBackPress={() => router.back()} />
-      <LinearGradient
-        colors={["#010440", "#020659", "#5204BF"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        className="flex-1"
-      >
+     
         <ScrollView 
           contentContainerStyle={{ paddingBottom: 40 }}
           className="flex-1 px-4 mt-4"
@@ -37,7 +55,7 @@ export default function AnalyticScreen() {
                 }`}
               >
                 <Text
-                  className={`text-center font-bold ${
+                  className={`text-center font-[Poppins-Bold] ${
                     tab === t ? "text-white" : "text-gray-700"
                   }`}
                 >
@@ -103,7 +121,7 @@ export default function AnalyticScreen() {
             )}
           </View>
         </ScrollView>
-      </LinearGradient>
+      
     </View>
   );
 }

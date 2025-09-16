@@ -1,3 +1,6 @@
+import { useFonts } from "expo-font";
+import { useCallback } from "react";
+import * as SplashScreen from "expo-splash-screen";
 import Heading from "@/components/Heading";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
@@ -7,6 +10,26 @@ import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import * as Progress from "react-native-progress";
 
 export default function MinigameScreen() {
+    const [fontsLoaded] = useFonts({
+        "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
+        "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
+        "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
+        "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
+        "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
+        "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
+        "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
+        "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
+        "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
+        "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
+      });
+        
+    const onLayoutRootView = useCallback(async () => {
+        if (fontsLoaded) {
+          await SplashScreen.hideAsync();
+        }
+    }, [fontsLoaded]);
+        
+    if (!fontsLoaded) return null;
     return (
         <View className="flex-1">
             <Heading title="Minigame" showBack={true} onBackPress={() => router.back()} />
@@ -26,10 +49,10 @@ export default function MinigameScreen() {
                                 <View className="rounded-full bg-[#ECE852]/30 border border-[#ECE852] p-2">
                                     <Gift width={36} height={36} className="rounded-full overflow-hidden" color="#ECE852" />
                                 </View>
-                                <Text className="text-lg font-bold text-white text-center">
+                                <Text className="text-lg font-[Poppins-Bold] text-white text-center">
                                     Build your mental habits
                                 </Text>
-                                <Text className="text-sm text-gray-300 text-center">
+                                <Text className="text-sm text-gray-300 font-[Poppins-Regular] text-center">
                                     Overcome challenges to earn badges and improve your mental health
                                 </Text>
                             </View>
@@ -51,15 +74,15 @@ export default function MinigameScreen() {
                                                 <Heart width={24} height={24} color="white" />
                                             </View>
                                             <View className="h-full gap-1 flex-1">
-                                                <Text className="text-white text-[14px] font-bold">Inner Explorer</Text>
-                                                <Text className="text-[#ccc] text-[13px]">
+                                                <Text className="text-white text-[14px] font-[Poppins-Bold]">Inner Explorer</Text>
+                                                <Text className="text-[#ccc] text-[13px] font-[Poppins-Regular]">
                                                     Write your feelings daily for a week
                                                 </Text>
                                             </View>
                                         </View>
                                         <View className="justify-center items-center ml-2">
                                             <View className="flex-row items-center justify-center h-8 bg-[#6F04D9]/30 border-2 border-[#6F04D9] rounded-lg px-3">
-                                                <Text className="text-white font-extrabold text-sm">+30 pts</Text>
+                                                <Text className="text-white font-[Poppins-ExtraBold] text-sm">+30 pts</Text>
                                             </View>
                                         </View>
                                     </View>
@@ -71,7 +94,7 @@ export default function MinigameScreen() {
                                             color="#6f04d9"
                                             borderRadius={10}
                                         />
-                                        <Text className="text-white text-[13px] font-bold ml-3">
+                                        <Text className="text-white text-[13px] font-[Poppins-Bold] ml-3">
                                             6/7 days
                                         </Text>
                                     </View>
@@ -95,15 +118,15 @@ export default function MinigameScreen() {
                                                 <Sun width={24} height={24} color="#E6A117" />
                                             </View>
                                             <View className="h-full gap-1 flex-1">
-                                                <Text className="text-white text-[14px] font-bold">Spreading Smile</Text>
-                                                <Text className="text-[#ccc] text-[13px]">
+                                                <Text className="text-white text-[14px] font-[Poppins-Bold]">Spreading Smile</Text>
+                                                <Text className="text-[#ccc] font-[Poppins-Regular] text-[13px]">
                                                     Share three posts on the forum for a month
                                                 </Text>
                                             </View>
                                         </View>
                                         <View className="justify-center items-center ml-2">
                                             <View className="flex-row items-center justify-center h-8 bg-[#E6A117]/30 border-2 border-[#E6A117] rounded-lg px-3">
-                                                <Text className="text-white font-extrabold text-sm">+50 pts</Text>
+                                                <Text className="text-white font-[Poppins-ExtraBold] text-sm">+50 pts</Text>
                                             </View>
                                         </View>
                                     </View>
@@ -115,7 +138,7 @@ export default function MinigameScreen() {
                                             color="#E6A117"
                                             borderRadius={10}
                                         />
-                                        <Text className="text-white text-[13px] font-bold ml-3">
+                                        <Text className="text-white text-[13px] font-[Poppins-Bold] ml-3">
                                             1/3 posts
                                         </Text>
                                     </View>
@@ -139,15 +162,15 @@ export default function MinigameScreen() {
                                                 <Rainbow width={24} height={24} color="#ECE852" />
                                             </View>
                                             <View className="h-full gap-1 flex-1">
-                                                <Text className="text-white text-[14px] font-bold">Light Bearer</Text>
-                                                <Text className="text-[#ccc] text-[13px]">
+                                                <Text className="text-white text-[14px] font-[Poppins-Bold]">Light Bearer</Text>
+                                                <Text className="text-[#ccc] font-[Poppins-Regular] text-[13px]">
                                                     Leave positive messages on five different posts
                                                 </Text>
                                             </View>
                                         </View>
                                         <View className="justify-center items-center ml-2">
                                             <View className="flex-row items-center justify-center h-8 bg-[#ECE852]/30 border-2 border-[#ECE852] rounded-lg px-3">
-                                                <Text className="text-white font-extrabold text-sm">+50 pts</Text>
+                                                <Text className="text-white font-[Poppins-ExtraBold] text-sm">+50 pts</Text>
                                             </View>
                                         </View>
                                     </View>
@@ -159,7 +182,7 @@ export default function MinigameScreen() {
                                             color="#ECE852"
                                             borderRadius={10}
                                         />
-                                        <Text className="text-white text-[13px] font-bold ml-3">
+                                        <Text className="text-white text-[13px] font-[Poppins-Bold] ml-3">
                                             0/5 posts
                                         </Text>
                                     </View>
@@ -171,28 +194,28 @@ export default function MinigameScreen() {
                     {/* Badges */}
                     <View className="mt-6">
                         <View className="flex-col gap-6">
-                            <Text className="text-white font-bold text-[15px]">My Badges</Text>
+                            <Text className="text-white font-[Poppins-Bold] text-[15px]">My Badges</Text>
                             <View className="flex-row px-6 gap-4">
                                 {/* Badge 1 */}
                                 <View className="flex-col items-center gap-2">
                                     <View className="rounded-full bg-[#6F04D9]/30 border border-[#6F04D9] p-2">
                                         <Radar width={36} height={36} className="rounded-full overflow-hidden" color="white" />
                                     </View>
-                                    <Text className="text-white text-[13px] text-base font-bold">PathFinder</Text>
+                                    <Text className="text-white text-[13px] text-base font-[Poppins-Bold]">PathFinder</Text>
                                 </View>
                                 {/* Badge 2 */}
                                 <View className="flex-col items-center gap-2">
                                     <View className="rounded-full bg-[#CCCCCC]/30 border border-[#CCCCCC] p-2">
                                         <HandHeart width={36} height={36} className="rounded-full overflow-hidden" color="#CCCCCC" />
                                     </View>
-                                    <Text className="text-[#CCCCCC] text-[13px] text-base font-bold">SilentHealer</Text>
+                                    <Text className="text-[#CCCCCC] text-[13px] text-base font-[Poppins-Bold]">SilentHealer</Text>
                                 </View>
                                 {/* Badge 3 */}
                                 <View className="flex-col items-center gap-2">
                                     <View className="rounded-full bg-[#CCCCCC]/30 border border-[#CCCCCC] p-2">
                                         <SunMoon width={36} height={36} className="rounded-full overflow-hidden" color="#CCCCCC" />
                                     </View>
-                                    <Text className="text-[#CCCCCC] text-[13px] text-base font-bold">LightBearer</Text>
+                                    <Text className="text-[#CCCCCC] text-[13px] text-base font-[Poppins-Bold]">LightBearer</Text>
                                 </View>
                             </View>
                         </View>

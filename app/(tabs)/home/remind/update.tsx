@@ -1,3 +1,6 @@
+import { useFonts } from "expo-font";
+import { useCallback } from "react";
+import * as SplashScreen from "expo-splash-screen";
 import Heading from "@/components/Heading";
 import { router } from "expo-router";
 import { ChevronRight } from "lucide-react-native";
@@ -13,6 +16,26 @@ import {
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 export default function UpdateScreen() {
+  const [fontsLoaded] = useFonts({
+    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
+    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
+    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
+    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
+    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
+    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
+    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
+    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
+    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
+    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
+  });
+            
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+            
+  if (!fontsLoaded) return null;
   const [showConfirm, setShowConfirm] = useState(false);
   const [name, setName] = useState("");
   const [time, setTime] = useState("");
@@ -67,9 +90,9 @@ export default function UpdateScreen() {
             onPress={showDatePicker}
           >
             <View className="flex-row items-center justify-between">
-              <Text className="text-white font-bold text-base">Time</Text>
+              <Text className="text-white font-[Poppins-Bold] text-base">Time</Text>
               <View className="flex-row items-center">
-                <Text className="text-[#BBBBBB] font-medium text-sm mr-1">
+                <Text className="text-[#BBBBBB] font-[Poppins-Medium] text-sm mr-1">
                   {selectedTime ? selectedTime : "Select time"}
                 </Text>
                 <ChevronRight width={20} height={20} color="#BBBBBB" />
@@ -87,13 +110,13 @@ export default function UpdateScreen() {
 
           {/* Card: Custom reminder */}
           <View className="rounded-2xl border border-white/20 bg-white/10 p-4 space-y-6 gap-4">
-            <Text className="text-base font-bold text-white">
+            <Text className="text-base font-[Poppins-Bold] text-white">
               Custom reminder
             </Text>
 
             {/* Input */}
             <View className="space-y-2">
-              <Text className="text-sm font-semibold text-white mb-2">
+              <Text className="text-sm font-[Poppins-SemiBold] text-white mb-2">
                 Reminder Name
               </Text>
               <TextInput
@@ -103,14 +126,14 @@ export default function UpdateScreen() {
                 placeholderTextColor="#ccc"
                 maxLength={30}
               />
-              <Text className="self-stretch text-right text-xs text-gray-400">
+              <Text className="self-stretch text-right font-[Poppins-Regular] text-xs text-gray-400">
                 0/30
               </Text>
             </View>
 
             {/* Input: Cụm từ nhắc nhở */}
             <View className="space-y-2">
-              <Text className="text-sm font-semibold text-white mb-2">
+              <Text className="text-sm font-[Poppins-SemiBold] text-white mb-2">
                 Reminder Phrase
               </Text>
               <TextInput
@@ -122,7 +145,7 @@ export default function UpdateScreen() {
                 multiline
                 textAlignVertical="top"
               />
-              <Text className="self-stretch text-right text-xs text-gray-400">
+              <Text className="self-stretch font-[Poppins-Regular] text-right text-xs text-gray-400">
                 0/200
               </Text>
             </View>
@@ -133,7 +156,7 @@ export default function UpdateScreen() {
               onPress={handleCancel}
               className="flex-1 h-14 rounded-xl border border-red-400/40 bg-red-500/20 justify-center items-center"
             >
-              <Text className="text-red-400 font-bold text-base">
+              <Text className="text-red-400 font-[Poppins-Bold] text-base">
                 Delete
               </Text>
             </TouchableOpacity>
@@ -143,7 +166,7 @@ export default function UpdateScreen() {
               className={`flex-1 h-14 rounded-xl border border-green-400/40 bg-green-500/20 justify-center items-center ${!name || !time ? "opacity-40" : ""}`}
               onPress={handlePost}
             >
-              <Text className="text-green-400 font-bold text-base">
+              <Text className="text-green-400 font-[Poppins-Bold] text-base">
                 Update
               </Text>
             </TouchableOpacity>
@@ -159,7 +182,7 @@ export default function UpdateScreen() {
       >
         <View className="flex-1 bg-black/60 justify-center items-center">
           <View className="bg-white w-4/5 rounded-2xl p-6 items-center">
-            <Text className="text-lg font-semibold mb-6 text-gray-800">
+            <Text className="text-lg font-[Poppins-SemiBold] mb-6 text-gray-800">
               Are you sure you want to discard this reminder?
             </Text>
       
@@ -168,7 +191,7 @@ export default function UpdateScreen() {
                 onPress={() => setShowConfirm(false)}
                 className="bg-gray-300 px-8 py-4 rounded-xl"
               >
-                <Text className="text-base font-semibold text-gray-800">
+                <Text className="text-base font-[Poppins-SemiBold] text-gray-800">
                   No
                 </Text>
               </TouchableOpacity>
@@ -177,7 +200,7 @@ export default function UpdateScreen() {
                 onPress={handleConfirmCancel}
                 className="bg-red-500 px-8 py-4 rounded-xl"
               >
-                <Text className="text-base font-semibold text-white">
+                <Text className="text-base font-[Poppins-SemiBold] text-white">
                   Yes
                 </Text>
               </TouchableOpacity>

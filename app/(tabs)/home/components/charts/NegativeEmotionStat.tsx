@@ -14,7 +14,7 @@ export default function NegativeEmotionStat({ period, value, percent, trend }: {
       percent={percent}
       change={trend}
       icon={<SadIcon width={28} height={28} />}
-      bg="bg-[rgba(239,68,68,0.3)]"
+      bg="bg-[rgba(239,68,68,0.08)]"
       border="border-[rgba(239,68,68,0.5)]"
       compareText={`compare to last ${period}`}
     />

@@ -1,7 +1,9 @@
 import { Tabs } from 'expo-router';
 import { Compass, Home, PencilLine, Settings, Users } from "lucide-react-native";
 import React from 'react';
-
+import { useFonts } from "expo-font";
+import { useCallback } from "react";
+import * as SplashScreen from "expo-splash-screen";
 import { HapticTab } from '@/components/HapticTab';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
@@ -10,6 +12,26 @@ import { View } from 'react-native';
 
 export default function TabLayout() {
   const theme = Colors.dark; // vì chỉ định nghĩa dark mode
+  const [fontsLoaded] = useFonts({
+    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
+    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
+    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
+    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
+    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
+    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
+    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
+    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
+    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
+    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
+  });
+            
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+            
+  if (!fontsLoaded) return null;
 
   return (
     <Tabs
@@ -22,6 +44,9 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: theme.footer,         // màu nền tabbar
           borderTopColor: theme.accent,              // viền trên
+        },
+        tabBarLabelStyle: {
+          fontFamily: "Poppins-Medium",
         },
       }}
     >

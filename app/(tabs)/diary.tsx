@@ -1,3 +1,6 @@
+import { useFonts } from "expo-font";
+import { useCallback } from "react";
+import * as SplashScreen from "expo-splash-screen";
 import EmotionPicker from "@/components/EmotionPicker";
 import Heading from "@/components/Heading";
 import TagSelector from "@/components/TagSelector";
@@ -9,6 +12,26 @@ import React, { useState } from "react";
 import { Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function DiaryScreen() {
+  const [fontsLoaded] = useFonts({
+    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
+    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
+    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
+    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
+    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
+    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
+    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
+    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
+    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
+    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
+  });
+            
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+            
+  if (!fontsLoaded) return null;
   const [emotion, setEmotion] = useState<{
     label: string;
     emoji: string;
@@ -124,7 +147,7 @@ export default function DiaryScreen() {
         <View className="flex-col gap-y-6">
           {/* Emotion */}
           <View>
-            <Text className="text-white text-base font-medium">
+            <Text className="text-white text-base font-[Poppins-Medium]">
               How are you today?
             </Text>
             <EmotionPicker onSelect={(em) => setEmotion({ label: em.name, emoji: em.icon })} />
@@ -132,13 +155,13 @@ export default function DiaryScreen() {
 
           {/* Thoughts */}
           <View className="space-y-2">
-            <Text className="text-white text-base font-medium mb-2">
+            <Text className="text-white text-base font-[Poppins-Medium] mb-2">
               Write down your thought
             </Text>
             <TextInput
               value={thoughts}
               onChangeText={setThoughts}
-              className="bg-white/30 border border-white p-4 rounded-xl text-white text-base min-h-[120px]"
+              className="bg-white/30 border border-white p-4 rounded-xl text-white text-base min-h-[120px] font-[Poppins-Regular]"
               placeholder="What are you thinking..."
               placeholderTextColor="#BBBBBB"
               multiline
@@ -148,7 +171,7 @@ export default function DiaryScreen() {
 
           {/* Tags */}
           <View className="space-y-2">
-            <Text className="text-white text-base font-medium">Tags (Optional)</Text>
+            <Text className="text-white text-base font-[Poppins-Medium]">Tags (Optional)</Text>
             <View className="flex-row flex-wrap gap-2 mt-2">
               <TagSelector
                 options={[
@@ -167,7 +190,7 @@ export default function DiaryScreen() {
 
           {/* Recorder */}
           <View className="space-y-2">
-            <Text className="text-white text-base font-medium mb-2">
+            <Text className="text-white text-base font-[Poppins-Medium] mb-2">
               Speak your mind (Optional)
             </Text>
             <TouchableOpacity
@@ -175,7 +198,7 @@ export default function DiaryScreen() {
               onPress={recording ? stopRecording : startRecording}
             >
               <Mic width={40} height={40} color={recording ? "#D946EF" : "#A894C1"} />
-              <Text className="text-white font-semibold text-sm tracking-wide">
+              <Text className="text-white font-[Poppins-SemiBold] text-sm tracking-wide">
                 {recording ? "Stop Recording" : "Start Recording"}
               </Text>
             </TouchableOpacity>
@@ -186,7 +209,7 @@ export default function DiaryScreen() {
                 onPress={playRecording}
               >
                 <AudioLines width={40} height={40} color="#4ADE80" />
-                <Text className="text-white font-semibold text-sm tracking-wide">
+                <Text className="text-white font-[Poppins-SemiBold] text-sm tracking-wide">
                   Play Recording
                 </Text>
               </TouchableOpacity>
@@ -204,7 +227,7 @@ export default function DiaryScreen() {
               end={{ x: 1, y: 1 }}
               className="py-3 items-center w-full rounded-2xl overflow-hidden"
             >
-              <Text className="text-white font-bold text-lg tracking-wide">SAVE</Text>
+              <Text className="text-white font-[Poppins-Bold] text-lg tracking-wide">SAVE</Text>
             </LinearGradient>          
           </TouchableOpacity>
         </View>

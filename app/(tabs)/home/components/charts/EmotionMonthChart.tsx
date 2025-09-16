@@ -29,6 +29,10 @@ const EmotionMonthChart = () => {
           decimalPlaces: 0,
           color: (opacity = 1) => `rgba(135, 54, 217, ${opacity})`,
           labelColor: () => "#fff",
+          propsForLabels: {
+            fontFamily: "Poppins-SemiBold",
+            fontSize: 10,
+          },
         }}
         showValuesOnTopOfBars
         withInnerLines={false}

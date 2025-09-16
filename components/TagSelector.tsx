@@ -1,3 +1,6 @@
+import { useFonts } from "expo-font";
+import { useCallback } from "react";
+import * as SplashScreen from "expo-splash-screen";
 import { useState } from "react";
 import { ScrollView, Text, TouchableOpacity } from "react-native";
 
@@ -46,6 +49,27 @@ export default function GenericSelector({
       ? (selected as Option[]).some((s) => s.id === id)
       : (selected as Option | null)?.id === id;
 
+  const [fontsLoaded] = useFonts({
+    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
+    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
+    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
+    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
+    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
+    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
+    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
+    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
+    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
+    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
+  });
+            
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+            
+  if (!fontsLoaded) return null;  
+
   return (
     <ScrollView
       horizontal
@@ -60,7 +84,7 @@ export default function GenericSelector({
           }`}
           onPress={() => toggleSelect(opt.id)}
         >
-          <Text className="text-white">{opt.name}</Text>
+          <Text className="text-white font-[Poppins-Regular]">{opt.name}</Text>
         </TouchableOpacity>
       ))}
     </ScrollView>

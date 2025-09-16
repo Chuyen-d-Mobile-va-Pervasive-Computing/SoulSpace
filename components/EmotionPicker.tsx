@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { ScrollView, Text, TouchableOpacity } from "react-native";
-
+import { useFonts } from "expo-font";
+import { useCallback } from "react";
+import * as SplashScreen from "expo-splash-screen";
 import AngryIcon from "@/assets/images/angry.svg";
 import AnnoyIcon from "@/assets/images/annoy.svg";
 import CalmIcon from "@/assets/images/calm.svg";
@@ -31,6 +33,26 @@ export default function EmotionPicker({
   onSelect: (emotion: { id: number; name: string; icon: any }) => void;
 }) {
   const [selected, setSelected] = useState<number | null>(null);
+  const [fontsLoaded] = useFonts({
+    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
+    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
+    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
+    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
+    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
+    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
+    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
+    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
+    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
+    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
+  });
+            
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+            
+  if (!fontsLoaded) return null;
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-3">
@@ -49,7 +71,7 @@ export default function EmotionPicker({
             }}
           >
             <Icon width={32} height={32} />
-            <Text className="text-xs mt-1">{emotion.name}</Text>
+            <Text className="text-xs mt-1 font-[Poppins-Regular]">{emotion.name}</Text>
           </TouchableOpacity>
         );
       })}

@@ -14,7 +14,7 @@ export default function PositiveEmotionStat({ period, value, percent, trend }: {
       percent={percent}
       change={trend}
       icon={<HappyIcon width={28} height={28}/>}
-      bg="bg-[rgba(34,197,94,0.3)]"
+      bg="bg-[rgba(34,197,94,0.08)]"
       border="border-[rgba(34,197,94,0.5)]"
       compareText={`compare to last ${period}`}
     />

@@ -1,3 +1,6 @@
+import { useFonts } from "expo-font";
+import { useCallback } from "react";
+import * as SplashScreen from "expo-splash-screen";
 import Heading from "@/components/Heading";
 import { router } from "expo-router";
 import { NotebookPen, Sprout } from "lucide-react-native";
@@ -5,6 +8,26 @@ import React from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 export default function ListScreen() {
+    const [fontsLoaded] = useFonts({
+        "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
+        "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
+        "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
+        "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
+        "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
+        "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
+        "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
+        "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
+        "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
+        "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
+      });
+      
+    const onLayoutRootView = useCallback(async () => {
+        if (fontsLoaded) {
+          await SplashScreen.hideAsync();
+        }
+      }, [fontsLoaded]);
+      
+    if (!fontsLoaded) return null;
     return (
         <View className="flex-1 bg-[#020659]">
             <Heading title="Action List" showBack={true} onBackPress={() => router.back()} />
@@ -19,10 +42,10 @@ export default function ListScreen() {
                             <View className="rounded-full bg-[#5CB338]/30 border border-[#5CB338] p-2">
                                 <Sprout width={36} height={36} className="rounded-full overflow-hidden" color="#5CB338" />
                             </View>
-                            <Text className="text-lg font-bold text-white text-center">
+                            <Text className="text-lg text-white text-center font-[Poppins-Bold]">
                                 What positive action did you take today?
                             </Text>
-                            <Text className="text-sm text-gray-300 text-center">
+                            <Text className="text-sm text-gray-300 text-center font-[Poppins-Regular]">
                                 Click to "water" your spiritual tree
                             </Text>
                         </View>
@@ -42,8 +65,8 @@ export default function ListScreen() {
                                             <NotebookPen width={24} height={24} color="white" />
                                         </View>
                                         <View className="h-full gap-1 flex-1">
-                                            <Text className="text-white text-[14px] font-bold">Practice Gratitude</Text>
-                                            <Text className="text-[#ccc] text-[13px]">
+                                            <Text className="text-white text-[14px] font-[Poppins-Bold]">Practice Gratitude</Text>
+                                            <Text className="text-[#ccc] text-[13px] font-[Poppins-Regular]">
                                                 Write down 3 things you are thankful for
                                             </Text>
                                         </View>
