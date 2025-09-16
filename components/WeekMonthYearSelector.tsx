@@ -97,7 +97,6 @@ export default function WeekMonthYearSelector({ mode, onChange }: Props) {
           <CalendarDays size={18} color="white" style={{ marginRight: 6 }} />
           {/* Picker */}
           <Picker
-          mode="dropdown"
             selectedValue={selectedWeekIndex}
             onValueChange={handleSelectWeek}
             dropdownIconColor="white"
@@ -170,7 +169,7 @@ const styles = StyleSheet.create({
     marginVertical: -6, // giảm chiều cao mặc định
   },
   pickerItem: {
-    fontFamily: "Poppins-Bold", // 👈 font
+    fontFamily: "Poppins-Bold",
     fontSize: 14,
   },
 });
