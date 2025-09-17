@@ -5,6 +5,7 @@ import Excited from "@/assets/images/excited.svg";
 import Happy from "@/assets/images/happy.svg";
 import Logo from "@/assets/images/logo.svg";
 import Worried from "@/assets/images/worried.svg";
+import MoodTrends from "@/components/MoodTrends";
 import { Bell, Settings } from "lucide-react-native";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
@@ -78,6 +79,7 @@ export default function HomeScreen() {
               </View>
             ))}
           </View>
+          <MoodTrends />
         </View>
       </ScrollView>
     </View>
