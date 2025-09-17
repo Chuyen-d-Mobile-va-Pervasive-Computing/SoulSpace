@@ -1,206 +1,85 @@
-import { useFonts } from "expo-font";
-import { useCallback } from "react";
-import * as SplashScreen from "expo-splash-screen";
-import HappyIcon from "@/assets/images/happy.svg";
-import EmotionDisplay from "@/components/EmotionDisplay";
-import { emotionMap } from "@/constants/EmotionMap";
-import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
-import { Bell, Gamepad2, Heart, MessageCircle, Sprout } from "lucide-react-native";
+import Angry from "@/assets/images/angry.svg";
+import Confused from "@/assets/images/confused.svg";
+import Decor from "@/assets/images/decor.svg";
+import Excited from "@/assets/images/excited.svg";
+import Happy from "@/assets/images/happy.svg";
+import Logo from "@/assets/images/logo.svg";
+import Worried from "@/assets/images/worried.svg";
+import { Bell, Settings } from "lucide-react-native";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import EmotionChartWrapper from "./components/EmotionChartWrapper";
-
-type LatestJournal = {
-  emotion_label: keyof typeof emotionMap;
-};
-
-// fake dữ liệu journal gần nhất
-const latestJournal: LatestJournal = {
-  emotion_label: "Hào hứng", // key phải khớp với emotionMap
-};
 
 export default function HomeScreen() {
-  const [fontsLoaded] = useFonts({
-    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
-    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
-    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
-    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
-    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
-    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
-    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
-    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
-    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
-    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
-  });
-  
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-  
-  if (!fontsLoaded) return null;
-  
-  const openDiary = () => {
-    router.push("/(tabs)/home/diary");
-  };
-  const openCommunity = () => {
-    router.push("/(tabs)/community");
-  };
-  const openAnalytic = () => {
-    router.push("/(tabs)/home/analytic");
-  };
+  const totalSteps = 10;
+  const currentStep = 7.5; // mock progress
+  const progressPercent = (currentStep / totalSteps) * 100;
+
+  const icons = [Angry, Worried, Confused, Happy, Excited];
   return (
-    <LinearGradient
-      colors={["#010440", "#020659", "#5204BF"]}
-      start={{ x: 1, y: 1 }}
-      end={{ x: 0, y: 0 }}
-      className="flex-1"
-    >
-      <View className="flex-1">
-        {/* Body */}
-        <ScrollView contentContainerStyle={{ paddingBottom: 40 }} className="flex-1 px-4 pt-2">
-          {/* Heading */}
-          <View>
-            <View className="w-full items-center px-2 mt-8">
-              <View className="w-full h-[60px] flex-row items-center justify-between rounded-2xl border border-[#6f04d9] bg-[#6f04d94d] p-2">
-                {/* User Info */}
-                <View className="flex-row items-center gap-2">
-                  <View className="px-2">
-                    <Text className="text-[12px] text-white font-[Poppins-Regular]">
-                      Tuesday, 1st January
-                    </Text>
-                    <Text className="text-[14px] text-white font-[Poppins-Bold]">
-                      user01234567
-                    </Text>
-                  </View>
-                </View>
-                <Bell width={28} height={28} color="white" />
-              </View>
-            </View>
-          </View>
-          {/* Emotion */}
-          <EmotionDisplay emotionLabel={latestJournal.emotion_label} />
-          <View>
-            <View className="flex-row justify-between w-full p-5 rounded-xl">
-              {/* Trồng cây */}
-              <TouchableOpacity 
-                className="w-[100px] p-2 items-center justify-center border border-[#5cb338] rounded-lg bg-[rgba(92,179,56,0.3)]"
-                onPress={() => router.push("/(tabs)/home/plant")}
-              >
-                <View className="flex-1 items-center justify-center">
-                  <Sprout size={24} color="#5cb338" />
-                  <Text className="text-center font-[Poppins-ExtraBold] text-[14px] text-[#5cb338]">
-                    Plant
-                  </Text>
-                </View>
-              </TouchableOpacity>
-
-              {/* Nhắc nhở */}
-              <TouchableOpacity 
-                className="w-[100px] h-[100px] p-2 items-center justify-center border border-[#c9c40b] rounded-lg bg-[rgba(201,196,11,0.3)]"
-                onPress={() => router.push("/(tabs)/home/remind")}
-              >
-                <View className="flex-1 items-center justify-center">
-                  <Bell width={24} height={24} color="#ece852" />
-                  <Text className="text-center font-[Poppins-ExtraBold] text-[14px] text-[#ece852]">
-                    Remind
-                  </Text>
-                </View>
-              </TouchableOpacity>
-
-              {/* Minigame */}
-              <TouchableOpacity 
-                className="w-[100px] h-[100px] p-2 items-center justify-center border border-[#e6a117] rounded-lg bg-[rgba(230,161,23,0.3)]"
-                onPress={() => router.push("/(tabs)/home/minigame")}
-              >
-                <View className="flex-1 items-center justify-center">
-                  <Gamepad2 size={24} color="#e6a117" />
-                  <Text className="text-center font-[Poppins-ExtraBold] text-[14px] text-[#e6a117]">
-                    Minigame
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-          </View>
-          {/* Analytic */}
-          <View className="mt-6">
-            <View className="flex-row justify-between">
-              <Text className="text-white font-[Poppins-Bold] text-base">Emotion</Text>
-                <TouchableOpacity onPress={openAnalytic}>
-                  <Text className="text-right text-sm font-[Poppins-SemiBold] text-[#8736D9]">
-                    View stats
-                  </Text>
-                </TouchableOpacity>
-            </View>
-            <View className="mt-6">
-              <EmotionChartWrapper type="year" />
-            </View>
-          </View>
-          {/* Diary */}
-          <View className="mt-6">
-            <View className="flex-row justify-between">
-              <Text className="text-white font-[Poppins-Bold] text-base">My recent diary</Text>
-                <TouchableOpacity onPress={openDiary}>
-                  <Text className="text-right text-sm font-[Poppins-SemiBold] text-[#8736D9]">
-                    View all
-                  </Text>
-                </TouchableOpacity>
-            </View>
-            <View className="flex-1">
-              <View className=" gap-2 rounded-xl mt-4 bg-white/10 border border-white/20 p-4">
-                <View className="w-full items-center self-stretch gap-2">
-                  <View className="flex-row self-stretch justify-between">
-                    <Text className="text-white text-[12px] font-[Poppins-Bold]">Hôm qua</Text>
-                    <HappyIcon width={20} height={20} className="overflow-hidden" />
-                  </View>
-                  <Text className="self-stretch font-[Poppins-Regular] text-base text-white">Tôi vui lắm</Text>
-                </View>
-
-                <View className="self-start rounded-full border border-[#6f04d9] bg-[#6f04d94d] px-3 py-0.5">
-                  <Text className="text-xs font-[Poppins-Bold] text-white">Gia đình</Text>
-                </View>
-              </View>
-            </View>
-          </View>
-
-          {/* Community */}
-          <View className="mt-6">
-            <View className="flex-row justify-between">
-              <Text className="text-white font-[Poppins-Bold] text-base">Posts from community</Text>
-                <TouchableOpacity onPress={openCommunity}>
-                  <Text className="text-right text-sm font-[Poppins-SemiBold] text-[#8736D9]">
-                    View all
-                  </Text>
-                </TouchableOpacity>
-            </View>
-            <View className="mt-4 p-4 rounded-2xl bg-white/10 border border-white/20 shadow-lg">
-              {/* Header */}
-              <View>
-                <Text className="text-white font-[Poppins-SemiBold] text-sm">
-                  user01234567
-                </Text>
-                <Text className="text-gray-300 text-xs mt-1 font-[Poppins-Regular]">
-                  12:20:20 26/4/2025
-                </Text>
-              </View>
-              {/* Content */}
-              <Text className="text-white text-base font-[Poppins-Regular] mt-3">Tôi vui lắm</Text>
-              {/* Interaction */}
-              <View className="flex-row mt-3 gap-6">
-                <View className="flex-row items-center gap-1">
-                  <Heart width={18} height={18} color="white" />
-                  <Text className="text-white text-sm font-[Poppins-Regular]">10</Text>
-                </View>
-                <View className="flex-row items-center gap-1">
-                  <MessageCircle width={18} height={18} color="white" />
-                  <Text className="text-white text-sm font-[Poppins-Regular]">10</Text>
-                </View>
-              </View>
-            </View>
-          </View>
-        </ScrollView>
+    <View className="flex-1 bg-[#FAF9FF]">
+      {/* Heading */}
+      <View className="w-full flex-row items-center justify-between py-4 px-4 border-b border-gray-200 bg-[#FAF9FF] mt-8">
+        <View className="flex-row items-center">
+          <Logo width={80} height={30} />
+          <Text className="font-[Poppins-Bold] text-2xl text-[#7F56D9] ml-2">
+            SOULSPACE
+          </Text>
+        </View>
+        <View className="flex-row items-center gap-4">
+          <Bell strokeWidth={1.5} />
+          <Settings strokeWidth={1.5} />
+        </View>
       </View>
-    </LinearGradient>
+
+      {/* Body */}
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="p-4">
+        {/* Greeting Card */}
+        <View className="flex-row justify-between items-center bg-[#7F56D9] rounded-2xl">
+          {/* Left side*/}
+          <View className="flex-1 pl-4 pt-4 pb-4">
+            <Text className="text-white font-[Poppins-Bold] text-2xl">
+              Hello, SE405
+            </Text>
+            <Text className="text-white mt-2 font-[Poppins-Regular] text-sm">
+              Hope you are enjoying your day. If not then we are here for you as
+              always.
+            </Text>
+            <TouchableOpacity className="mt-4 bg-white rounded-full px-4 py-2 self-start">
+              <Text className="text-[#7F56D9] font-[Poppins-SemiBold]">
+                Explore more
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Right side */}
+          <Decor width={100} height={170} />
+        </View>
+
+        {/* Progress */}
+        <Text className="text-black font-[Poppins-Bold] text-2xl mt-6">
+          How your day felt overall
+        </Text>
+        <View className="w-full items-center mt-6">
+          <View className="w-full h-6 bg-gray-200 rounded-full relative overflow-hidden">
+            {/* Thanh progress */}
+            <View
+              style={{ width: `${progressPercent}%` }}
+              className="absolute left-0 top-0 h-6 bg-[#7F56D9] rounded-full"
+            />
+          </View>
+
+          {/* Icon cảm xúc */}
+          <View className="flex-row justify-between w-full mt-[-25] px-2">
+            {icons.map((Icon, index) => (
+              <View
+                key={index}
+                className="w-10 h-10 rounded-full bg-yellow-100 items-center justify-center shadow"
+              >
+                <Icon width={20} height={20} />
+              </View>
+            ))}
+          </View>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
