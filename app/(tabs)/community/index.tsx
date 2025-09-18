@@ -1,26 +1,25 @@
-import { useFonts } from "expo-font";
-import { useCallback } from "react";
-import * as SplashScreen from "expo-splash-screen";
 import Heading from "@/components/Heading";
 import TagSelector from "@/components/TagSelector";
+import { useFonts } from "expo-font";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import {
+  EllipsisVertical,
   Heart,
   MessageCircle,
   Plus,
   SlidersHorizontal,
-  EllipsisVertical,
 } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Modal,
   Pressable,
   ScrollView,
   Text,
+  ToastAndroid,
   TouchableOpacity,
   View,
-  ToastAndroid,
 } from "react-native";
 
 export default function CommunityScreen() {
@@ -36,13 +35,13 @@ export default function CommunityScreen() {
     "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
     "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
   });
-          
+
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
       await SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
-          
+
   if (!fontsLoaded) return null;
   const router = useRouter();
 
@@ -141,7 +140,9 @@ export default function CommunityScreen() {
             className="flex-row justify-end items-center mb-4"
             onPress={() => setFilterVisible(true)}
           >
-            <Text className="text-white font-[Poppins-Bold] text-xs mr-2">Filter</Text>
+            <Text className="text-white font-[Poppins-Bold] text-xs mr-2">
+              Filter
+            </Text>
             <SlidersHorizontal width={20} height={20} color="white" />
           </TouchableOpacity>
 
@@ -249,7 +250,9 @@ export default function CommunityScreen() {
               className="mt-4 bg-[#6F04D9] py-2 rounded-xl"
               onPress={() => setFilterVisible(false)}
             >
-              <Text className="text-center text-white font-[Poppins-Bold]">Apply</Text>
+              <Text className="text-center text-white font-[Poppins-Bold]">
+                Apply
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -267,7 +270,9 @@ export default function CommunityScreen() {
             {selectedPost?.userId === currentUserId ? (
               <>
                 <Pressable onPress={handleCancel}>
-                  <Text className="text-red-500 text-lg font-[Poppins-Bold] text-center">Delete</Text>
+                  <Text className="text-red-500 text-lg font-[Poppins-Bold] text-center">
+                    Delete
+                  </Text>
                 </Pressable>
                 {/* <Pressable onPress={() => handleEdit(selectedPost.id)}>
                   <Text className="text-lg mt-2">Chỉnh sửa</Text>
@@ -296,7 +301,6 @@ export default function CommunityScreen() {
 
       <Modal
         transparent
-        animationType="fade"
         visible={showConfirm}
         onRequestClose={() => setShowConfirm(false)}
       >
@@ -310,13 +314,17 @@ export default function CommunityScreen() {
                 onPress={() => setShowConfirm(false)}
                 className="bg-gray-300 px-8 py-4 rounded-xl"
               >
-                <Text className="text-base font-[Poppins-SemiBold] text-gray-800">No</Text>
+                <Text className="text-base font-[Poppins-SemiBold] text-gray-800">
+                  No
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => handleDelete(selectedPost.id)}
                 className="bg-red-500 px-8 py-4 rounded-xl"
               >
-                <Text className="text-base font-[Poppins-SemiBold] text-white">Yes</Text>
+                <Text className="text-base font-[Poppins-SemiBold] text-white">
+                  Yes
+                </Text>
               </TouchableOpacity>
             </View>
           </View>

@@ -37,8 +37,7 @@ export default function RootLayout() {
         initialRouteName="(auth)/welcome"
         screenOptions={{
           headerShown: false,
-          animation: "fade",
-          animationDuration: 300,
+          animation: "slide_from_right",
           presentation: "card",
         }}
       >
