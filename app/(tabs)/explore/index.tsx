@@ -1,9 +1,9 @@
-import { useFonts } from "expo-font";
-import { useCallback } from "react";
-import * as SplashScreen from "expo-splash-screen";
 import Heading from "@/components/Heading";
+import { useFonts } from "expo-font";
 import { router } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { ChevronRight } from "lucide-react-native";
+import { useCallback } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 const cards = [
@@ -42,24 +42,27 @@ export default function ExploreScreen() {
     "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
     "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
   });
-            
+
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
       await SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
-            
+
   if (!fontsLoaded) return null;
   return (
     <View className="flex-1 bg-[#020659]">
       {/* Header */}
-      <Heading title="Explore" showBack={true} />
+      <Heading title="Explore" />
 
       {/* Body */}
-      <ScrollView className="flex-1 px-4" contentContainerStyle={{ paddingBottom: 20 }}>
+      <ScrollView
+        className="flex-1 px-4"
+        contentContainerStyle={{ paddingBottom: 20 }}
+      >
         {/* Test Result */}
         <View className="py-3 px-1">
-          <TouchableOpacity 
+          <TouchableOpacity
             className="w-full h-14 rounded-xl border border-white bg-white/15 px-3 justify-center"
             onPress={() => router.push("/(tabs)/explore/result")}
           >
@@ -86,7 +89,9 @@ export default function ExploreScreen() {
               <Text className="text-white text-base font-[Poppins-Bold] mb-1">
                 {item.title}
               </Text>
-              <Text className="text-gray-300 text-sm font-[Poppins-Regular]">{item.desc}</Text>
+              <Text className="text-gray-300 text-sm font-[Poppins-Regular]">
+                {item.desc}
+              </Text>
             </View>
             <TouchableOpacity
               onPress={() =>

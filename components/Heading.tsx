@@ -1,17 +1,17 @@
 import { useFonts } from "expo-font";
-import { useCallback } from "react";
+import { useRouter } from "expo-router"; // ✅ Dùng expo-router
 import * as SplashScreen from "expo-splash-screen";
-import { ArrowLeft } from "lucide-react-native";
-import React from "react";
+import { ArrowLeft, Bell, Settings } from "lucide-react-native";
+import React, { useCallback } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 type HeadingProps = {
   title: string;
-  showBack?: boolean;
-  onBackPress?: () => void;
 };
 
-const Heading: React.FC<HeadingProps> = ({ title, showBack = true, onBackPress }) => {
+const Heading: React.FC<HeadingProps> = ({ title }) => {
+  const router = useRouter();
+
   const [fontsLoaded] = useFonts({
     "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
     "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
@@ -23,23 +23,35 @@ const Heading: React.FC<HeadingProps> = ({ title, showBack = true, onBackPress }
     "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
     "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
   });
-                  
+
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
       await SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
-                  
+
   if (!fontsLoaded) return null;
-  
+
   return (
-    <View className="w-full flex-row items-center p-4 bg-[#020659] mt-4">
-      {showBack && (
-        <TouchableOpacity className="mr-4" onPress={onBackPress}>
-          <ArrowLeft color="#fff" size={24} />
+    <View
+      onLayout={onLayoutRootView}
+      className="w-full flex-row items-center justify-between py-4 px-4 border-b border-gray-200 bg-[#FAF9FF] mt-8"
+    >
+      <View className="flex-row items-center">
+        {/* Nút quay lại → quay về trang trước trong stack */}
+        <TouchableOpacity onPress={() => router.back()}>
+          <ArrowLeft width={40} height={30} />
         </TouchableOpacity>
-      )}
-      <Text className="text-white text-lg font-[Poppins-Bold]">{title}</Text>
+
+        <Text className="font-[Poppins-Bold] text-2xl text-[#7F56D9] ml-4">
+          {title || "SOULSPACE"}
+        </Text>
+      </View>
+
+      <View className="flex-row items-center gap-4">
+        <Bell strokeWidth={1.5} />
+        <Settings strokeWidth={1.5} />
+      </View>
     </View>
   );
 };
