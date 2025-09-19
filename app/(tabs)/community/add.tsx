@@ -1,37 +1,21 @@
-import { useFonts } from "expo-font";
-import { useCallback, useState, useRef } from "react";
-import * as SplashScreen from "expo-splash-screen";
+import { useState, useRef } from "react";
 import { router } from "expo-router";
-import { Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import type { KeyboardAwareScrollView as KeyboardAwareScrollViewType } from "react-native-keyboard-aware-scroll-view";
+import {
+  Modal,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
+import { X } from "lucide-react-native";
 
 export default function AddScreen() {
-  const [fontsLoaded] = useFonts({
-    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
-    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
-    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
-    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
-    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
-    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
-    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
-    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
-    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
-    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
-  });
-
-  const scrollViewRef = useRef<KeyboardAwareScrollViewType>(null);
   const textInputRef = useRef<TextInput>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [postContent, setPostContent] = useState("");
-
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-
-  if (!fontsLoaded) return null;
 
   const handleCancel = () => setShowConfirm(true);
 
@@ -44,41 +28,36 @@ export default function AddScreen() {
     router.push("/(tabs)/community");
   };
 
-  const handleContentSizeChange = ({ nativeEvent: { contentSize } }: { nativeEvent: { contentSize: { height: number } } }) => {
-    if (textInputRef.current && contentSize.height > 300) {
-      scrollViewRef.current?.scrollToFocusedInput(textInputRef.current);
-    }
-  };
-
   return (
-    <KeyboardAwareScrollView
-      ref={scrollViewRef}
-      style={{ flex: 1, backgroundColor: "#020659" }}
-      contentContainerStyle={{ flexGrow: 1, paddingBottom: 0 }}
-      extraScrollHeight={30}
-      enableAutomaticScroll
-      keyboardShouldPersistTaps="handled"
-      enableOnAndroid
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: "#FAF9FF" }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <View className="w-full px-3 py-8 gap-4">
-        {/* Header */}
-        <View className="flex-row items-center justify-between">
-          <TouchableOpacity onPress={handleCancel}>
-            <Text className="text-sm font-[Poppins-SemiBold] text-white">Cancel</Text>
-          </TouchableOpacity>
+      {/* Header */}
+      <View className="w-full px-4 py-4 mt-4 flex-row items-center justify-between border-b border-gray-200 bg-[#FAF9FF]">
+        <TouchableOpacity onPress={handleCancel}>
+          <X width={24} height={24} color="black" />
+        </TouchableOpacity>
 
-          <Text className="text-base font-[Poppins-Bold] text-white">Write a post</Text>
+        <Text className="text-base font-[Poppins-Bold] text-black">
+          Write a post
+        </Text>
 
-          <TouchableOpacity
-            disabled={!postContent}
-            className={`${!postContent ? "opacity-40" : ""}`}
-            onPress={handlePost}
-          >
-            <Text className="text-sm font-[Poppins-Bold] text-white">Post</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          disabled={!postContent}
+          className={`${!postContent ? "opacity-40" : ""}`}
+          onPress={handlePost}
+        >
+          <Text className="text-sm font-[Poppins-Bold] text-black">Post</Text>
+        </TouchableOpacity>
+      </View>
 
-        {/* Text Input */}
+      {/* Nội dung có thể scroll */}
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1, padding: 16 }}
+        keyboardShouldPersistTaps="handled"
+      >
         <TextInput
           ref={textInputRef}
           value={postContent}
@@ -88,16 +67,14 @@ export default function AddScreen() {
             minHeight: 300,
             fontSize: 16,
             fontFamily: "Poppins-Regular",
-            color: "white",
+            color: "black",
             textAlignVertical: "top",
           }}
           placeholder="Share on community...."
-          placeholderTextColor="#CCCCCC"
+          placeholderTextColor="#A2A2A2"
           multiline
-          textAlignVertical="top"
-          onContentSizeChange={handleContentSizeChange}
         />
-      </View>
+      </ScrollView>
 
       {/* Confirm Modal */}
       <Modal transparent animationType="fade" visible={showConfirm}>
@@ -111,18 +88,22 @@ export default function AddScreen() {
                 onPress={() => setShowConfirm(false)}
                 className="bg-gray-300 px-8 py-4 rounded-xl"
               >
-                <Text className="text-base font-[Poppins-SemiBold] text-gray-800">No</Text>
+                <Text className="text-base font-[Poppins-SemiBold] text-gray-800">
+                  No
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleConfirmCancel}
                 className="bg-red-500 px-8 py-4 rounded-xl"
               >
-                <Text className="text-base font-[Poppins-SemiBold] text-white">Yes</Text>
+                <Text className="text-base font-[Poppins-SemiBold] text-white">
+                  Yes
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
-    </KeyboardAwareScrollView>
+    </KeyboardAvoidingView>
   );
 }

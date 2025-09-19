@@ -122,9 +122,9 @@ export default function CommunityScreen() {
   };
 
   return (
-    <View className="flex-1 bg-[#020659]">
+    <View className="flex-1 bg-[#FAF9FF]">
       {/* Heading */}
-      <Heading title="Forum" showBack onBackPress={() => router.back()} />
+      <Heading title="Forum" />
 
       {/* Body */}
       <View className="flex-1 px-4 mt-4">
@@ -140,25 +140,25 @@ export default function CommunityScreen() {
             className="flex-row justify-end items-center mb-4"
             onPress={() => setFilterVisible(true)}
           >
-            <Text className="text-white font-[Poppins-Bold] text-xs mr-2">
+            <Text className="text-black font-[Poppins-Bold] text-xs mr-2">
               Filter
             </Text>
-            <SlidersHorizontal width={20} height={20} color="white" />
+            <SlidersHorizontal width={20} height={20} color="black" />
           </TouchableOpacity>
 
           {/* Posts */}
           {posts.map((post) => (
             <View
               key={post.id}
-              className="p-4 rounded-2xl bg-white/10 border border-white/20 shadow-lg"
+              className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#EEEEEE]"
             >
               {/* Header */}
               <View className="flex-row justify-between items-start">
                 <View>
-                  <Text className="text-white font-[Poppins-SemiBold] text-sm">
+                  <Text className="text-black font-[Poppins-SemiBold] text-sm">
                     {post.username}
                   </Text>
-                  <Text className="text-gray-300 font-[Poppins-Regular] text-xs mt-1">
+                  <Text className="text-[#7B7B7B] font-[Poppins-Regular] text-xs mt-1">
                     {post.createdAt}
                   </Text>
                 </View>
@@ -168,7 +168,7 @@ export default function CommunityScreen() {
                     setMenuVisible(true);
                   }}
                 >
-                  <EllipsisVertical width={20} height={20} color="white" />
+                  <EllipsisVertical width={20} height={20} color="black" />
                 </TouchableOpacity>
               </View>
 
@@ -177,7 +177,7 @@ export default function CommunityScreen() {
                 activeOpacity={0.8}
                 onPress={() => router.push("/(tabs)/community/comment")}
               >
-                <Text className="text-white text-base mt-3 font-[Poppins-Regular]">
+                <Text className="text-black text-base mt-3 font-[Poppins-Regular]">
                   {post.content}
                 </Text>
               </TouchableOpacity>
@@ -191,20 +191,28 @@ export default function CommunityScreen() {
                   <Heart
                     width={18}
                     height={18}
-                    color={post.isLiked ? "red" : "white"} // đổi màu khi like
+                    color={post.isLiked ? "red" : "black"} // đổi màu khi like
                     fill={post.isLiked ? "red" : "transparent"} // trái tim đầy
                   />
-                  <Text className="text-white text-sm font-[Poppins-Regular]">
+                  <Text className="text-black text-sm font-[Poppins-Regular]">
                     {post.likes}
                   </Text>
                 </TouchableOpacity>
 
-                <View className="flex-row items-center gap-1">
-                  <MessageCircle width={18} height={18} color="white" />
-                  <Text className="text-white text-sm font-[Poppins-Regular]">
-                    {post.comments}
-                  </Text>
-                </View>
+                <TouchableOpacity
+    className="flex-row items-center gap-1"
+    onPress={() =>
+      router.push({
+        pathname: "/(tabs)/community/comment",
+        params: { focusInput: "true" }, // 👈 truyền param
+      })
+    }
+  >
+    <MessageCircle width={18} height={18} color="black" />
+    <Text className="text-black text-sm font-[Poppins-Regular]">
+      {post.comments}
+    </Text>
+  </TouchableOpacity>
               </View>
             </View>
           ))}
@@ -213,17 +221,10 @@ export default function CommunityScreen() {
 
       {/* Floating Add Button */}
       <TouchableOpacity
-        className="absolute bottom-6 right-6 w-16 h-16 shadow-lg"
+        className="absolute bg-[#7F56D9] bottom-6 right-6 w-16 h-16 shadow-lg p-4 items-center rounded-full overflow-hidden"
         onPress={() => router.push("/(tabs)/community/confirm")}
       >
-        <LinearGradient
-          colors={["#8736D9", "#5204BF"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          className="p-4 items-center w-full rounded-full overflow-hidden"
-        >
-          <Plus width={24} height={24} color="white" />
-        </LinearGradient>
+        <Plus width={24} height={24} color="white" />
       </TouchableOpacity>
 
       {/* Filter Modal */}
@@ -247,7 +248,7 @@ export default function CommunityScreen() {
             />
             {/* Close Button */}
             <Pressable
-              className="mt-4 bg-[#6F04D9] py-2 rounded-xl"
+              className="mt-4 bg-[#7F56D9] py-2 rounded-xl"
               onPress={() => setFilterVisible(false)}
             >
               <Text className="text-center text-white font-[Poppins-Bold]">
@@ -311,7 +312,10 @@ export default function CommunityScreen() {
             </Text>
             <View className="flex-row gap-4">
               <TouchableOpacity
-                onPress={() => setShowConfirm(false)}
+                onPress={() => {
+                  setShowConfirm(false);
+                  setMenuVisible(false);
+                }}
                 className="bg-gray-300 px-8 py-4 rounded-xl"
               >
                 <Text className="text-base font-[Poppins-SemiBold] text-gray-800">

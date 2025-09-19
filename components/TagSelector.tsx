@@ -72,21 +72,30 @@ export default function GenericSelector({
 
   return (
     <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ flexDirection: "row", gap: 8 }}
-    >
-      {options.map((opt) => (
-        <TouchableOpacity
-          key={opt.id}
-          className={`px-4 py-2 rounded-full ${
-            isSelected(opt.id) ? "bg-purple-500" : "bg-[#A894C1]"
+  horizontal
+  showsHorizontalScrollIndicator={false}
+  contentContainerStyle={{ flexDirection: "row", gap: 8 }}
+>
+  {options.map((opt) => {
+    const selected = isSelected(opt.id);
+    return (
+      <TouchableOpacity
+        key={opt.id}
+        className={`px-4 py-2 rounded-full border ${
+          selected ? "border-[#7F56D9]" : "border-[#EEEEEE]"
+        }`}
+        onPress={() => toggleSelect(opt.id)}
+      >
+        <Text
+          className={`font-[Poppins-Regular] ${
+            selected ? "text-[#7F56D9]" : "text-black"
           }`}
-          onPress={() => toggleSelect(opt.id)}
         >
-          <Text className="text-white font-[Poppins-Regular]">{opt.name}</Text>
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
+          {opt.name}
+        </Text>
+      </TouchableOpacity>
+    );
+  })}
+</ScrollView>
   );
 }
