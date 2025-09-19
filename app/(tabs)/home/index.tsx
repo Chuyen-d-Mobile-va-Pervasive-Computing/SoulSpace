@@ -30,7 +30,7 @@ export default function HomeScreen() {
   const [activitiesY, setActivitiesY] = useState(0);
 
   const handleExploreMore = () => {
-    scrollRef.current?.scrollTo({ y: activitiesY - 20, animated: true });
+    scrollRef.current?.scrollTo({ y: activitiesY - 5, animated: true });
   };
   return (
     <View className="flex-1 bg-[#FAF9FF]">
@@ -107,10 +107,7 @@ export default function HomeScreen() {
             <MoodTrends />
           </View>
 
-          <View
-            onLayout={(e) => setActivitiesY(e.nativeEvent.layout.y)}
-            className="mb-6"
-          >
+          <View onLayout={(e) => setActivitiesY(e.nativeEvent.layout.y)}>
             <Text className="text-black font-[Poppins-Bold] text-2xl mt-6 mb-6">
               Activities you may like
             </Text>
@@ -119,20 +116,26 @@ export default function HomeScreen() {
                 <View className="flex-row w-full gap-4">
                   {/* Ảnh 1 */}
                   <View className="relative flex-1 items-center">
-                    <Activity1
-                      width={180}
-                      height={180}
-                      preserveAspectRatio="xMidYMid meet"
-                    />
-                    <TouchableOpacity className="absolute bottom-2 right-2 bg-[#3A6FE6] rounded-full p-3 shadow">
+                    <Activity2 width={180} height={180} />
+                    <TouchableOpacity
+                      className="absolute bottom-2 right-2 bg-[#FFB34D] rounded-full p-3 shadow"
+                      onPress={() => router.push("/(tabs)/home/remind")}
+                    >
                       <ArrowBigRight color="white" size={24} />
                     </TouchableOpacity>
                   </View>
 
                   {/* Ảnh 2 */}
                   <View className="relative flex-1 items-center">
-                    <Activity2 width={180} height={180} />
-                    <TouchableOpacity className="absolute bottom-2 right-2 bg-[#FFB34D] rounded-full p-3 shadow">
+                    <Activity1
+                      width={180}
+                      height={180}
+                      preserveAspectRatio="xMidYMid meet"
+                    />
+                    <TouchableOpacity
+                      className="absolute bottom-2 right-2 bg-[#3A6FE6] rounded-full p-3 shadow"
+                      onPress={() => router.push("/(tabs)/explore")}
+                    >
                       <ArrowBigRight color="white" size={24} />
                     </TouchableOpacity>
                   </View>
@@ -142,7 +145,10 @@ export default function HomeScreen() {
                   {/* Ảnh 3 */}
                   <View className="relative flex-1 items-center">
                     <Activity3 width={180} height={180} />
-                    <TouchableOpacity className="absolute bottom-2 right-2 bg-[#D15743] rounded-full p-3 shadow">
+                    <TouchableOpacity
+                      className="absolute bottom-2 right-2 bg-[#D15743] rounded-full p-3 shadow"
+                      onPress={() => router.push("/(tabs)/home/minigame")}
+                    >
                       <ArrowBigRight color="white" size={24} />
                     </TouchableOpacity>
                   </View>
