@@ -1,9 +1,9 @@
-import { useFonts } from "expo-font";
-import { useCallback } from "react";
-import * as SplashScreen from "expo-splash-screen";
 import Heading from "@/components/Heading";
+import { useFonts } from "expo-font";
 import { router } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { ChevronRight } from "lucide-react-native";
+import { useCallback } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 export default function TestResultTypeScreen() {
@@ -19,20 +19,23 @@ export default function TestResultTypeScreen() {
     "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
     "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
   });
-            
+
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
       await SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
-            
+
   if (!fontsLoaded) return null;
   return (
     <View className="flex-1 bg-[#020659]">
-      <Heading title="" showBack={true}  onBackPress={() => router.back()} />
+      <Heading title="" />
 
       {/* Body */}
-      <ScrollView className="flex-1 px-4" contentContainerStyle={{ paddingBottom: 20 }}>
+      <ScrollView
+        className="flex-1 px-4"
+        contentContainerStyle={{ paddingBottom: 20 }}
+      >
         {/* Test Result */}
         <View className="py-3 px-1 gap-4">
           <TouchableOpacity

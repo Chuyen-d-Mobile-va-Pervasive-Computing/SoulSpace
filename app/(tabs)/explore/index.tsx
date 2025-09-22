@@ -2,34 +2,16 @@ import Heading from "@/components/Heading";
 import { useFonts } from "expo-font";
 import { router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { ChevronRight } from "lucide-react-native";
 import { useCallback } from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
-
-const cards = [
-  {
-    title: "MBTI - Khám phá tính cách của bạn",
-    desc: "Bạn là người hướng nội hay hướng ngoại? ...",
-    image: require("@/assets/images/mbti.png"),
-  },
-  {
-    title: "PHQ-9 – Đo lường mức độ trầm cảm",
-    desc: "Cảm thấy buồn bã, mất động lực ...",
-    image: require("@/assets/images/phq.png"),
-  },
-  {
-    title: "GAD-7 – Đánh giá mức độ lo âu",
-    desc: "Thường xuyên lo lắng, bồn chồn ...",
-    image: require("@/assets/images/gad.png"),
-  },
-  {
-    title: "PSS – Đo mức độ căng thẳng",
-    desc: "Cuộc sống bận rộn khiến bạn cảm thấy áp lực? ...",
-    image: require("@/assets/images/pss.png"),
-  },
-];
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import MBTICard from "./components/ADHD";
+import GADCard from "./components/GAD";
+import PHQCard from "./components/PHQ";
+import PSSCard from "./components/PSS";
 
 export default function ExploreScreen() {
+  const percent = 24;
+
   const [fontsLoaded] = useFonts({
     "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
     "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
@@ -51,7 +33,7 @@ export default function ExploreScreen() {
 
   if (!fontsLoaded) return null;
   return (
-    <View className="flex-1 bg-[#020659]">
+    <View className="flex-1 bg-[#FAF9FF]">
       {/* Header */}
       <Heading title="Explore" />
 
@@ -60,54 +42,52 @@ export default function ExploreScreen() {
         className="flex-1 px-4"
         contentContainerStyle={{ paddingBottom: 20 }}
       >
+        {/* Description */}
+        <View className="pt-3">
+          <Text className="text-[#605D67] font-[Poppins-Bold] text-2xl">
+            Discover Yourself
+          </Text>
+          <Text className="text-[#605D67] font-[Poppins-Regular] text-sm mt-1">
+            Start your journey of self-understanding through engaging
+            psychological tests.
+          </Text>
+        </View>
+
         {/* Test Result */}
-        <View className="py-3 px-1">
+        <View className=" w-full pt-2">
           <TouchableOpacity
-            className="w-full h-14 rounded-xl border border-white bg-white/15 px-3 justify-center"
+            className="w-full rounded-xl border border-white bg-[#E0D7F9] p-4 justify-center"
             onPress={() => router.push("/(tabs)/explore/result")}
           >
-            <View className="flex-row items-center justify-between">
-              <Text className="text-white font-[Poppins-Bold] text-base">
-                Tests Performed
-              </Text>
-              <ChevronRight width={24} height={24} color="white" />
+            <Text className="text-[#7F56D9] font-[Poppins-Bold] text-xl">
+              MBTI Tests
+            </Text>
+            <View className="w-full flex-row items-center mt-3 mb-2 gap-2">
+              {/* Số % */}
+              <Text className="text-[#7F56D9] font-semibold">{percent}%</Text>
+
+              {/* Thanh progress */}
+              <View className="flex-1 h-4 bg-white rounded-full overflow-hidden mr-2">
+                <View
+                  className="h-4 bg-[#7F56D9]"
+                  style={{ width: `${percent}%` }}
+                />
+              </View>
             </View>
+
+            <Text className="text-[#7F56D9] font-[Poppins-Regular] text-base mt-2">
+              to complete
+            </Text>
           </TouchableOpacity>
         </View>
-        {/* Cards */}
-        {cards.map((item, idx) => (
-          <View
-            key={idx}
-            className="bg-[rgba(255,255,255,0.2)] rounded-xl p-3 mb-5"
-          >
-            <Image
-              source={item.image}
-              className="w-full h-32 rounded-lg"
-              resizeMode="cover"
-            />
-            <View className="my-2">
-              <Text className="text-white text-base font-[Poppins-Bold] mb-1">
-                {item.title}
-              </Text>
-              <Text className="text-gray-300 text-sm font-[Poppins-Regular]">
-                {item.desc}
-              </Text>
-            </View>
-            <TouchableOpacity
-              onPress={() =>
-                router.push({
-                  pathname: "/(tabs)/explore/test",
-                  params: { testType: item.title },
-                })
-              }
-              className="bg-[rgba(111,4,217,0.6)] rounded-lg py-3 items-center mt-2"
-            >
-              <Text className="text-white font-[Poppins-SemiBold] text-sm">
-                Do the questionnaire
-              </Text>
-            </TouchableOpacity>
-          </View>
-        ))}
+
+        <Text className="p-2 font-[Poppins-Bold] text-xl text-[#605D67] mb-2">
+          Explore Tests
+        </Text>
+        <MBTICard />
+        <PHQCard />
+        <GADCard />
+        <PSSCard />
       </ScrollView>
     </View>
   );
