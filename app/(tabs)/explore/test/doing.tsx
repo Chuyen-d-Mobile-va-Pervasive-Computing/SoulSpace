@@ -1,158 +1,139 @@
 import { useFonts } from "expo-font";
-import { useCallback } from "react";
-import * as SplashScreen from "expo-splash-screen";
-import Heading from "@/components/Heading";
-import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import React, { useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
-
-type Question = {
-  question: string;
-  options: string[];
-};
-
-type QuestionCardProps = {
-  index: number;
-  question: string;
-  options: string[];
-  value: number | null;           // đáp án đã chọn cho câu hỏi này
-  onSelect: (val: number) => void;
-};
-
-const QuestionCard: React.FC<QuestionCardProps> = ({
-  index,
-  question,
-  options,
-  value,
-  onSelect,
-}) => {
-  const [fontsLoaded] = useFonts({
-    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
-    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
-    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
-    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
-    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
-    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
-    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
-    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
-    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
-    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
-  });
-            
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-            
-  if (!fontsLoaded) return null;
-  return (
-    <View className="rounded-lg overflow-hidden bg-white/20 mb-5">
-      {/* Header */}
-      <View className="p-3 bg-white/30">
-        <Text className="text-[#ccc] text-sm font-[Poppins-Medium] text-center">
-          Câu hỏi {index + 1}/7
-        </Text>
-        <Text className="text-white text-base font-[Poppins-Medium] text-center">
-          {question}
-        </Text>
-      </View>
-
-      {/* Options */}
-      {options.map((item, i) => (
-        <Pressable
-          key={i}
-          onPress={() => onSelect(i)}
-          className="flex-row justify-between items-center h-12 px-3 border-t border-white/20"
-        >
-          <Text className="text-white text-base font-[Poppins-Medium]">{item}</Text>
-          <View
-            className={`w-6 h-6 rounded-full border-2 ${
-              value === i ? "border-[#6f04d9] bg-[#6f04d9]" : "border-white"
-            }`}
-          />
-        </Pressable>
-      ))}
-    </View>
-  );
-};
+import * as SplashScreen from "expo-splash-screen";
+import { ArrowLeft } from "lucide-react-native";
+import React, { useCallback, useState } from "react";
+import {
+  Pressable,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { questions } from "./data/questions";
 
 export default function TestDoingScreen() {
-  const questions: Question[] = [
-    {
-      question:
-        "Bạn thường cảm thấy tràn đầy năng lượng khi tham gia các hoạt động cùng nhiều người?",
-      options: ["Có", "Không", "Đôi khi", "Chưa chắc"],
-    },
-    {
-      question:
-        "Bạn ưu tiên dữ liệu thực tế hơn là trực giác khi ra quyết định?",
-      options: ["Có", "Không", "Đôi khi", "Chưa chắc"],
-    },
-  ];
-
-  // mỗi câu hỏi có 1 ô trong mảng answers (null nếu chưa chọn)
+  const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(
     Array(questions.length).fill(null)
   );
 
-  const handleSelect = (qIndex: number, val: number) => {
-    setAnswers((prev) => {
-      const next = [...prev];
-      next[qIndex] = val;
-      return next;
-    });
+  const [fontsLoaded] = useFonts({
+    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
+    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
+  });
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) await SplashScreen.hideAsync();
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) return null;
+
+  const total = questions.length;
+  const percent = Math.round(((current + 1) / total) * 100);
+
+  const handleSelect = (idx: number) => {
+    const updated = [...answers];
+    updated[current] = idx;
+    setAnswers(updated);
   };
 
-  const allAnswered = answers.every((a) => a !== null);
+  const nextQuestion = () => {
+    if (current < total - 1) setCurrent((c) => c + 1);
+    else router.push("/(tabs)/explore/test/done");
+  };
 
   return (
-    <View className="flex-1 bg-[#020659]">
+    <View className="flex-1 bg-[#FAF9FF]">
       {/* Header */}
-      <Heading title="" showBack onBackPress={() => router.back()} />
+      <View className="w-full flex-row items-center justify-between py-4 px-4 border-b border-gray-200 bg-[#FAF9FF] mt-8">
+        <View className="flex-row items-center">
+          <TouchableOpacity onPress={() => router.back()}>
+            <ArrowLeft width={28} height={28} />
+          </TouchableOpacity>
+          <Text className="font-[Poppins-Bold] text-xl text-[#7F56D9] ml-3">
+            PHQ-9 Test
+          </Text>
+        </View>
+
+        <View className="flex-row items-center">
+          <Text className="text-black text-lg font-[Poppins-Bold]">
+            {current + 1}
+          </Text>
+          <Text className="text-[#ADADAD] text-lg font-[Poppins-Bold]">
+            /{total}
+          </Text>
+        </View>
+      </View>
+
+      {/* Progress */}
+      <View className="h-2 bg-gray-200 mx-4 mt-3 rounded-full overflow-hidden">
+        <View
+          style={{ width: `${percent}%` }}
+          className="h-2 bg-[#7F56D9] rounded-full"
+        />
+      </View>
 
       {/* Body */}
       <ScrollView
-        className="flex-1 mt-4 px-3 py-8"
+        className="flex-1 mt-4 px-4"
         contentContainerStyle={{ paddingBottom: 24 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Mô tả */}
-        <Text className="text-white text-base font-[Poppins-Medium] text-center mb-5">
-          Bài trắc nghiệm MBTI giúp xác định kiểu tính cách dựa trên 4 nhóm đặc
-          điểm, từ đó hiểu cách bạn suy nghĩ, cảm nhận và tương tác với thế
-          giới.
+        <Text className="text-2xl font-[Poppins-Bold] text-[#605D67] mb-6">
+          {questions[current].question}
         </Text>
 
-        {/* Danh sách câu hỏi */}
-        {questions.map((q, idx) => (
-          <QuestionCard
-            key={idx}
-            index={idx}
-            question={q.question}
-            options={q.options}
-            value={answers[idx]}
-            onSelect={(val) => handleSelect(idx, val)}
-          />
-        ))}
-
-        {/* Footer Buttons */}
-        <View className="pb-6">
-          <Pressable
-            disabled={!allAnswered}
-            className={`${!allAnswered? "opacity-40": ""}`}
-            onPress={() => router.push("/(tabs)/explore/test/done")}
-          >
-            <LinearGradient
-              colors={["#8736D9", "#5204BF"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              className="py-3 items-center w-full rounded-2xl overflow-hidden"
+        {questions[current].options.map((opt, idx) => {
+          const selected = answers[current] === idx;
+          return (
+            <Pressable
+              key={idx}
+              onPress={() => handleSelect(idx)}
+              className={`flex-row justify-between items-center rounded-xl border px-4 py-3 mb-4 ${
+                selected
+                  ? "border-[#7F56D9] bg-[#EFE9FB]"
+                  : "border-gray-300 bg-white"
+              }`}
             >
-              <Text className="text-white font-[Poppins-Bold] text-base">Complete</Text>
-            </LinearGradient>
-          </Pressable>
+              <Text
+                className={`text-base font-[Poppins-Regular] ${
+                  selected ? "text-[#7F56D9]" : "text-gray-800"
+                }`}
+              >
+                {opt}
+              </Text>
+              <View
+                className={`w-6 h-6 rounded-full border-2 ${
+                  selected ? "bg-[#7F56D9] border-[#7F56D9]" : "border-gray-300"
+                }`}
+              />
+            </Pressable>
+          );
+        })}
+
+        {/* Footer */}
+        <View className="flex-row justify-between mt-6">
+          <TouchableOpacity
+            disabled={current === 0}
+            onPress={() => setCurrent((c) => c - 1)}
+            className={`h-14 rounded-xl flex-1 mr-2 items-center justify-center ${
+              current === 0 ? "bg-gray-300" : "bg-[#E0D7F9] "
+            }`}
+          >
+            <Text className="text-[#7F56D9] font-[Poppins-Bold] text-base">
+              Previous
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={nextQuestion}
+            className="bg-[#7F56D9] h-14 rounded-xl flex-1 ml-2 items-center justify-center"
+          >
+            <Text className="text-white font-[Poppins-Bold] text-base">
+              {current === total - 1 ? "Finish" : "Next"}
+            </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
