@@ -118,10 +118,14 @@ export default function TestDoingScreen() {
             disabled={current === 0}
             onPress={() => setCurrent((c) => c - 1)}
             className={`h-14 rounded-xl flex-1 mr-2 items-center justify-center ${
-              current === 0 ? "bg-gray-300" : "bg-[#E0D7F9] "
+              current === 0 ? "bg-gray-300" : "bg-[#E0D7F9]"
             }`}
           >
-            <Text className="text-[#7F56D9] font-[Poppins-Bold] text-base">
+            <Text
+              className={`font-[Poppins-Bold] text-base ${
+                current === 0 ? "text-white" : "text-[#7F56D9]"
+              }`}
+            >
               Previous
             </Text>
           </TouchableOpacity>
