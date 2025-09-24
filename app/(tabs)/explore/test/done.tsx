@@ -1,11 +1,12 @@
 import { useFonts } from "expo-font";
-import { useCallback } from "react";
-import * as SplashScreen from "expo-splash-screen";
 import { router } from "expo-router";
-import { X } from "lucide-react-native";
-import * as React from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
-import * as Progress from "react-native-progress";
+import * as SplashScreen from "expo-splash-screen";
+import { ArrowLeft, Check, X } from "lucide-react-native";
+import React, { useCallback } from "react";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+
+// Giữ splash screen hiển thị cho đến khi fonts được load
+SplashScreen.preventAutoHideAsync();
 
 export default function TestDoneScreen() {
   const [fontsLoaded] = useFonts({
@@ -20,77 +21,128 @@ export default function TestDoneScreen() {
     "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
     "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
   });
-            
+
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
       await SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
-            
-  if (!fontsLoaded) return null;
-  return (
-    <View className="flex-1 bg-[#020659]">
-      {/* Container */}
-      <View className="flex-1 items-center">
 
-        {/* Header */}
-        <View className="flex-row h-18 px-2 py-5 w-full overflow-hidden">
-            <Pressable onPress={() => router.push("/(tabs)/explore")}>
-                <X width={24} height={24} color="white" />
-            </Pressable>
+  if (!fontsLoaded) return null;
+
+  const score = 19;
+  const level =
+    score <= 4 ? "None" : score <= 14 ? "Mild to Moderate" : "Severe";
+  const percentage = (score / 27) * 100;
+
+  // Xác định màu thanh progress
+  const progressColor =
+    level === "Mild to Moderate"
+      ? "#B5A2E9" // Trung bình
+      : level === "Severe"
+        ? "#6F04D9" // Nặng
+        : "#C9B6F2"; // Nhẹ hơn cho None
+
+  return (
+    <View className="flex-1 bg-[#FAF9FF]" onLayout={onLayoutRootView}>
+      {/* Header */}
+      <View className="flex-row items-center justify-between py-4 px-4 border-b border-gray-200 mt-8">
+        <View className="flex-row items-center">
+          <TouchableOpacity onPress={() => router.push("/explore")}>
+            <ArrowLeft width={28} height={28} color="#000000" />
+          </TouchableOpacity>
+          <Text
+            className="ml-3 text-xl text-[#7F56D9]"
+            style={{ fontFamily: "Poppins-Bold" }}
+          >
+            PHQ-9 Test
+          </Text>
+        </View>
+      </View>
+
+      {/* Body */}
+      <ScrollView
+        className="flex-1 px-4 py-8"
+        contentContainerStyle={{ paddingBottom: 40 }}
+      >
+        {/* Kết quả PHQ-9 */}
+        <View className="bg-[#E0D7F9] rounded-3xl p-5 items-start">
+          <Text
+            className="text-5xl text-[#555555]"
+            style={{ fontFamily: "Poppins-Bold" }}
+          >
+            {score}
+          </Text>
+          <Text
+            className="mt-2 text-lg text-[#555555]"
+            style={{ fontFamily: "Poppins-SemiBold" }}
+          >
+            Your PHQ-9 Score
+          </Text>
+          <Text
+            className="text-base text-[#555555]"
+            style={{ fontFamily: "Poppins-Regular" }}
+          >
+            Depression level: {level}
+          </Text>
+
+          {/* Thang đo */}
+          <View className="flex-row justify-between w-full mt-4 px-2">
+            <Text className="text-xs text-[#6F04D9]">0–4: None</Text>
+            <Text className="text-xs text-[#6F04D9]">10–14: Moderate</Text>
+            <Text className="text-xs text-[#6F04D9]">15–27: Severe</Text>
+          </View>
+
+          {/* Thanh progress */}
+          <View className="h-3 w-full bg-white rounded-full mt-2 overflow-hidden">
+            <View
+              className="h-3"
+              style={{
+                width: `${percentage}%`,
+                backgroundColor: progressColor,
+              }}
+            />
+          </View>
         </View>
 
-        {/* Body */}
-        <ScrollView className="px-2 py-8 w-full" contentContainerStyle={{ paddingBottom: 80 }}>
-          <View className="px-2 items-center gap-5">
-            {/* Title */}
-            <Text className="text-white text-center text-[25px] font-[Poppins-Medium]">
-              Result
-            </Text>
-
-            {/* Score */}
-            <Text className="text-white text-center text-[48px] font-[Poppins-Bold]">15</Text>
-
-            {/* Progress */}
-            <View className="w-full items-center gap-2">
-              <Progress.Bar
-                progress={5/20}
-                width={350}
-                color="white"
-                borderRadius={10}
-              />              
-              <View className="flex-row justify-between w-full">
-                <Text className="text-xs text-white font-[Poppins-Regular]">Normal (0-10)</Text>
-                <Text className="text-xs text-white font-[Poppins-Regular]">Symptom</Text>
-                <Text className="text-xs text-white font-[Poppins-Regular]">Serious</Text>
-              </View>
-            </View>
-
-            {/* Description */}
-            <Text className="text-white text-sm w-full font-[Poppins-Regular]">
-              Your answer shows
-            </Text>
-
-            {/* Question Card */}
-            <View className="w-full rounded-lg bg-white/30 p-5 gap-2">
-              <Text className="text-white text-[15px] font-[Poppins-Bold] text-center">
-                The next steps
-              </Text>
-              <Text className="text-white text-[15px] font-[Poppins-Medium] text-left">
-                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-              </Text>
-            </View>
+        <View className="bg-white rounded-3xl p-5 mt-6">
+          <View className="bg-[#F7F4F2] p-2 rounded-full w-12 h-12 items-center justify-center mb-4">
+            <Check color={"#926247"} strokeWidth={2.75} />
           </View>
-        </ScrollView>
-      </View>
+          <Text className="font-[Poppins-Bold] text-base text-[#4F3422] mb-2">
+            Take a few minutes each day to practice deep breathing and calm your
+            mind.
+          </Text>
+        </View>
+
+        <View className="bg-white rounded-3xl p-5 mt-6">
+          <View className="bg-[#F7F4F2] p-2 rounded-full w-12 h-12 items-center justify-center mb-4">
+            <Check color={"#926247"} strokeWidth={2.75} />
+          </View>
+          <Text className="font-[Poppins-Bold] text-base text-[#4F3422] mb-2">
+            Reach out and connect with a mental health professional for support.
+          </Text>
+        </View>
+
+        <View className="bg-[#FF6B6B] rounded-3xl p-5 mt-6">
+          <View className="bg-[#FECECE] p-2 rounded-full w-12 h-12 items-center justify-center mb-4">
+            <X color={"#ffffff"} strokeWidth={2.75} />
+          </View>
+          <Text className="font-[Poppins-Bold] text-base text-[#ffffff] mb-2">
+            Don’t ignore your feelings—acknowledge them instead of pushing them
+            away.
+          </Text>
+        </View>
+
+        <View className="bg-[#FF6B6B] rounded-3xl p-5 mt-6">
+          <View className="bg-[#FECECE] p-2 rounded-full w-12 h-12 items-center justify-center mb-4">
+            <X color={"#ffffff"} strokeWidth={2.75} />
+          </View>
+          <Text className="font-[Poppins-Bold] text-base text-[#ffffff] mb-2">
+            Don’t overwork yourself; allow time for rest and recovery.
+          </Text>
+        </View>
+      </ScrollView>
     </View>
   );
-};
+}
