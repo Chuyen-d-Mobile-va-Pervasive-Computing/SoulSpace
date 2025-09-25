@@ -1,19 +1,17 @@
-import { useFonts } from "expo-font";
-import { useCallback } from "react";
-import * as SplashScreen from "expo-splash-screen";
+import CustomSwitch from "@/components/CustomSwitch";
 import Heading from "@/components/Heading";
-import { router } from "expo-router";
-import { ChevronRight } from "lucide-react-native";
-import { useState } from "react";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { useFonts } from "expo-font";
+import * as SplashScreen from "expo-splash-screen";
+import { Bell } from "lucide-react-native";
+import React, { useCallback, useState } from "react";
 import {
-  Modal,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 export default function AddScreen() {
   const [fontsLoaded] = useFonts({
@@ -28,196 +26,129 @@ export default function AddScreen() {
     "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
     "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
   });
-            
+
+  const [once, setOnce] = useState(true);
+  const [daily, setDaily] = useState(true);
+
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [time, setTime] = useState<Date>(new Date());
+
+  const toggleDay = (day: string) => {
+    if (selectedDays.includes(day)) {
+      setSelectedDays(selectedDays.filter((d) => d !== day));
+    } else {
+      setSelectedDays([...selectedDays, day]);
+    }
+  };
+
+  const days = ["M", "Tu", "W", "Th", "F", "Sa", "Su"];
+  const [showPicker, setShowPicker] = useState(false);
+
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
       await SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
-            
+
   if (!fontsLoaded) return null;
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [name, setName] = useState("");
-  const [time, setTime] = useState("");
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
-  const showDatePicker = () => {
-    setDatePickerVisibility(true);
-  };
-
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
-
-  const handleConfirm = (date: Date) => {
-    const hours = date.getHours().toString().padStart(2, "0");
-    const minutes = date.getMinutes().toString().padStart(2, "0");
-    setSelectedTime(`${hours}:${minutes}`);
-    hideDatePicker();
-  };
-
-  const handleCancel = () => {
-    setShowConfirm(true);
-  };
-
-  const handleConfirmCancel = () => {
-    setShowConfirm(false);
-    router.push("/(tabs)/home/remind");
-  };
-
-  const handlePost = () => {
-    router.push("/(tabs)/home/remind");
-  };
   return (
-    <View className="flex-1 bg-[#020659]">
-      <Heading
-        title="Add new reminder"
-        showBack={true}
-        onBackPress={() => router.back()}
-      />
+    <View className="flex-1 bg-[#FAF9FF]">
+      <Heading title="Add new reminder" />
 
       {/* Body */}
       <ScrollView
         className="flex-1 px-4"
         contentContainerStyle={{ paddingBottom: 40 }}
       >
-        <View className="py-3 px-1">
-          {/* Thời gian nhắc nhở */}
-          <TouchableOpacity
-            className="w-full h-14 rounded-xl border border-white/20 bg-white/10 px-4 justify-center mb-4"
-            onPress={showDatePicker}
-          >
-            <View className="flex-row items-center justify-between">
-              <Text className="text-white font-[Poppins-Bold] text-base">Time</Text>
-              <View className="flex-row items-center">
-                <Text className="text-[#BBBBBB] font-[Poppins-Medium] text-sm mr-1">
-                  {selectedTime ? selectedTime : "Select time"}
-                </Text>
-                <ChevronRight width={20} height={20} color="#BBBBBB" />
-              </View>
-            </View>
-          </TouchableOpacity>
-
-          {/* DateTime Picker */}
-          <DateTimePickerModal
-            isVisible={isDatePickerVisible}
-            mode="datetime"
-            onConfirm={handleConfirm}
-            onCancel={hideDatePicker}
-          />
-
-          <TouchableOpacity
-            className="w-full h-14 rounded-xl border border-white/20 bg-white/10 px-4 justify-center mb-4"
-            onPress={() => router.push("/(tabs)/home/remind/custom")}
-          >
-            <View className="flex-row items-center justify-between">
-              <Text className="text-white font-[Poppins-Bold] text-base">Repeat</Text>
-              <View className="flex-row items-center">
-                <ChevronRight width={20} height={20} color="#BBBBBB" />
-              </View>
-            </View>
-          </TouchableOpacity>
-
-          {/* Card: Custom reminder */}
-          <View className="rounded-2xl border border-white/20 bg-white/10 p-4 space-y-6 gap-4">
-            <Text className="text-base font-[Poppins-Bold] text-white">
-              Custom reminder
-            </Text>
-
-            {/* Input */}
-            <View className="space-y-2">
-              <Text className="text-sm font-[Poppins-SemiBold] text-white mb-2">
-                Reminder Name
+        {/* Time display */}
+        <View className="items-center mt-6">
+          {/* TODO: clock picker */}
+          <View className="w-64 h-64 mt-4 rounded-full border border-gray-300 items-center justify-center">
+            <View className="items-center mt-6">
+              <Text
+                className="text-3xl font-bold text-purple-600 mb-4"
+                onPress={() => setShowPicker(true)}
+              >
+                {time.getHours().toString().padStart(2, "0")}:
+                {time.getMinutes().toString().padStart(2, "0")}
               </Text>
-              <TextInput
-                className="h-14 w-full rounded-xl font-[Poppins-Regular] border border-white/20 bg-white/15 px-3 text-white"
-                placeholder="Input reminder name..."
-                placeholderTextColor="#ccc"
-                maxLength={30}
-              />
-              <Text className="self-stretch text-right font-[Poppins-Regular] text-xs text-gray-400">
-                0/30
-              </Text>
-            </View>
-
-            {/* Input: Cụm từ nhắc nhở */}
-            <View className="space-y-2">
-              <Text className="text-sm font-[Poppins-SemiBold] text-white mb-2">
-                Reminder Phrase
-              </Text>
-              <TextInput
-                className="min-h-[100px] w-full font-[Poppins-Regular] rounded-xl border border-white/20 bg-white/15 px-3 py-2 text-white"
-                placeholder="Input reminder phrase..."
-                placeholderTextColor="#ccc"
-                maxLength={200}
-                multiline
-                numberOfLines={4}
-                textAlignVertical="top"
-              />
-              <Text className="self-stretch font-[Poppins-Regular] text-right text-xs text-gray-400">
-                0/200
-              </Text>
+              {showPicker && (
+                <DateTimePicker
+                  value={time}
+                  mode="time"
+                  is24Hour={true}
+                  display="clock"
+                  onChange={(_, selectedDate) => {
+                    setShowPicker(false);
+                    if (selectedDate) {
+                      setTime(selectedDate);
+                    }
+                  }}
+                />
+              )}
             </View>
           </View>
+        </View>
 
-          <View className="pt-4 flex-row space-x-3 gap-2">
-            <TouchableOpacity 
-              onPress={handleCancel}
-              className="flex-1 h-14 rounded-xl border border-red-400/40 bg-red-500/20 justify-center items-center"
-            >
-              <Text className="text-red-400 font-bold text-base">
-                Delete
-              </Text>
-            </TouchableOpacity>
+        {/* Title */}
+        <TextInput
+          placeholder="Enter reminder title ..."
+          className="bg-white rounded-xl px-4 py-3 mt-6 border border-gray-200"
+        />
 
-            <TouchableOpacity 
-              disabled={!name || !time}
-              className={`flex-1 h-14 rounded-xl border border-green-400/40 bg-green-500/20 justify-center items-center ${!name || !time ? "opacity-40" : ""}`}
-              onPress={handlePost}
-            >
-              <Text className="text-green-400 font-bold text-base">
-                Add
-              </Text>
-            </TouchableOpacity>
+        {/* Description */}
+        <TextInput
+          placeholder="Enter reminder description ..."
+          className="bg-white rounded-xl px-4 py-3 mt-4 border border-gray-200"
+          multiline
+          numberOfLines={3}
+        />
+
+        {/* Repeat */}
+        <View className="bg-white rounded-2xl mt-6 p-4">
+          <View className="flex-row items-center mb-4">
+            <Bell size={18} color="#7F56D9" />
+            <Text className="ml-2 font-semibold text-base">Repeat</Text>
+          </View>
+
+          {/* Days */}
+          <View className="flex-row justify-between mb-4">
+            {days.map((d) => {
+              const active = selectedDays.includes(d);
+              return (
+                <TouchableOpacity
+                  key={d}
+                  onPress={() => toggleDay(d)}
+                  className={`w-9 h-9 rounded-full border items-center justify-center ${
+                    active
+                      ? "bg-[#7F56D9] border-[#7F56D9]"
+                      : "border-[#7F56D9]"
+                  }`}
+                >
+                  <Text
+                    className={`text-sm ${
+                      active ? "text-white" : "text-[#7F56D9]"
+                    }`}
+                  >
+                    {d}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {/* Once / Daily */}
+          <View className="flex-row items-center justify-between border-t border-gray-200 py-3">
+            <Text className="text-base">Once</Text>
+            <CustomSwitch value={once} onValueChange={setOnce} />
+          </View>
+          <View className="flex-row items-center justify-between border-t border-gray-200 py-3">
+            <Text className="text-base">Daily</Text>
+            <CustomSwitch value={daily} onValueChange={setDaily} />
           </View>
         </View>
       </ScrollView>
-
-      <Modal
-        transparent
-        animationType="fade"
-        visible={showConfirm}
-        onRequestClose={() => setShowConfirm(false)}
-      >
-        <View className="flex-1 bg-black/60 justify-center items-center">
-          <View className="bg-white w-4/5 rounded-2xl p-6 items-center">
-            <Text className="text-lg font-[Poppins-SemiBold] mb-6 text-gray-800">
-              Are you sure you want to discard this reminder?
-            </Text>
-      
-            <View className="flex-row gap-4">
-              <TouchableOpacity
-                onPress={() => setShowConfirm(false)}
-                className="bg-gray-300 px-8 py-4 rounded-xl"
-              >
-                <Text className="text-base font-[Poppins-SemiBold] text-gray-800">
-                  No
-                </Text>
-              </TouchableOpacity>
-      
-              <TouchableOpacity
-                onPress={handleConfirmCancel}
-                className="bg-red-500 px-8 py-4 rounded-xl"
-              >
-                <Text className="text-base font-[Poppins-SemiBold] text-white">
-                  Yes
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
