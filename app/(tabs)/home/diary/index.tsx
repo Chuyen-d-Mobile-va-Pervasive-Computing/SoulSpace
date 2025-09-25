@@ -1,11 +1,11 @@
-import React, { useMemo, useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import React, { useMemo, useRef, useState } from "react";
+import { View, Text, TouchableOpacity, ScrollView, Animated, Easing } from "react-native";
 import dayjs from "dayjs";
 import { router } from "expo-router";
 import Heading from "@/components/Heading";
 import HappyIcon from "@/assets/images/happy.svg";
 import AngryIcon from "@/assets/images/angry.svg";
-import {Plus } from "lucide-react-native";
+import { Plus } from "lucide-react-native";
 
 interface Entry {
   created_at: string;
@@ -27,8 +27,22 @@ export default function Calendar({ entries = mockEntries }: { entries?: Entry[] 
   const year = currentDate.year();
   const month = currentDate.month();
   const daysInMonth = currentDate.daysInMonth();
-
   const firstDayOfWeek = dayjs(new Date(year, month, 1)).day(); // 0=Sun..6=Sat
+
+  // Animation state
+  const animValue = useRef(new Animated.Value(0)).current;
+  const [direction, setDirection] = useState<"next" | "prev">("next");
+
+  const triggerAnim = (dir: "next" | "prev") => {
+    setDirection(dir);
+    animValue.setValue(0);
+    Animated.timing(animValue, {
+      toValue: 1,
+      duration: 300,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start();
+  };
 
   const entryMap = useMemo(() => {
     const map: Record<number, Entry["mood"]> = {};
@@ -43,28 +57,60 @@ export default function Calendar({ entries = mockEntries }: { entries?: Entry[] 
 
   const cellWidth = `${100 / 7}%`;
 
-  const goPrev = () => setCurrentDate((p) => p.subtract(1, "month"));
-  const goNext = () => setCurrentDate((p) => p.add(1, "month"));
+  const goPrev = () => {
+    triggerAnim("prev");
+    setCurrentDate((p) => p.subtract(1, "month"));
+  };
+
+  const goNext = () => {
+    triggerAnim("next");
+    setCurrentDate((p) => p.add(1, "month"));
+  };
 
   const goCreate = (day: number) => {
     const dateStr = dayjs(new Date(year, month, day)).format("YYYY-MM-DD");
     router.push(`/(tabs)/diary?date=${dateStr}`);
   };
 
+  // Anim translate
+  const translateX = animValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: direction === "next" ? [50, 0] : [-50, 0],
+  });
+  const opacity = animValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+  });
+
   return (
     <View className="flex-1 bg-[#FAF9FF]">
       <Heading title="Diary" />
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         {/* header */}
-        <View className="flex-row justify-between items-center px-4 py-2 mb-8 rounded-full bg-[#7F56D9]">
+        <Animated.View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingHorizontal: 16,
+            paddingVertical: 8,
+            marginBottom: 32,
+            borderRadius: 12,
+            backgroundColor: "#7F56D9",
+            opacity,
+            transform: [{ translateX }],
+          }}
+        >
           <TouchableOpacity onPress={goPrev}>
-            <Text className="text-lg font-[Poppins-Bold] text-white">{"<"}</Text>
+            <Text className="text-3xl font-[Poppins-Regular] text-white">{"<"}</Text>
           </TouchableOpacity>
-          <Text className="text-lg font-[Poppins-Bold] text-white">{currentDate.format("MMMM YYYY")}</Text>
+          <Text className="text-lg font-[Poppins-Regular] text-white">
+            {currentDate.format("MMMM YYYY")}
+          </Text>
           <TouchableOpacity onPress={goNext}>
-            <Text className="text-lg font-[Poppins-Bold] text-white">{">"}</Text>
+            <Text className="text-3xl font-[Poppins-Regular] text-white">{">"}</Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
 
         {/* week labels */}
         <View className="flex-row mb-1.5">
@@ -80,7 +126,14 @@ export default function Calendar({ entries = mockEntries }: { entries?: Entry[] 
         </View>
 
         {/* dates grid */}
-        <View className="flex-row flex-wrap">
+        <Animated.View
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            transform: [{ translateX }],
+            opacity,
+          }}
+        >
           {/* empty offsets */}
           {Array.from({ length: firstDayOfWeek }).map((_, i) => (
             <View
@@ -95,12 +148,12 @@ export default function Calendar({ entries = mockEntries }: { entries?: Entry[] 
             const mood = entryMap[day];
             const dateObj = dayjs(new Date(year, month, day));
             const isToday = dayjs().isSame(dateObj, "day");
-            const isFuture = dateObj.isAfter(dayjs(), "day"); // kiểm tra ngày trong tương lai
+            const isFuture = dateObj.isAfter(dayjs(), "day"); // future
 
             return (
               <TouchableOpacity
                 key={day}
-                disabled={isFuture} // disable click cho ngày sau hôm nay
+                disabled={isFuture}
                 onPress={() => !mood && !isFuture && goCreate(day)}
                 className="items-center justify-center"
                 style={{ width: cellWidth, height: 60 }}
@@ -125,7 +178,7 @@ export default function Calendar({ entries = mockEntries }: { entries?: Entry[] 
                   <Text className="text-xs text-gray-400 font-[Poppins-Regular]">{day}</Text>
                 ) : (
                   <View className="items-center">
-                    <View className="bg-[#F0EAFF] border border-[#E0D7F9] rounded-full p-2 mb-1">
+                    <View className="bg-[#F0EAFF] border-[5px] border-[#E0D7F9] rounded-full p-2 mb-1">
                       <Plus width={18} height={18} color={"#7F56D9"} />
                     </View>
                     <Text className="text-xs text-gray-600 font-[Poppins-Regular]">{day}</Text>
@@ -134,14 +187,13 @@ export default function Calendar({ entries = mockEntries }: { entries?: Entry[] 
               </TouchableOpacity>
             );
           })}
-        </View>
+        </Animated.View>
+
         {/* History */}
-        <View className="flex-1 w-full gap-2.5 px-4">
-          <View>
-            <Text className="text-black text-base font-[Poppins-SemiBold]">History</Text>
-          </View>
-          <TouchableOpacity 
-            className="w-full flex-row items-center gap-3 rounded-xl border border-[#f4f4f4] bg-white p-4 shadow-md"
+        <View className="flex-1 w-full gap-2.5 px-4 mt-6">
+          <Text className="text-black text-base font-[Poppins-SemiBold]">History</Text>
+          <TouchableOpacity
+            className="w-full flex-row items-center gap-3 rounded-xl border-[2px] border-[#f4f4f4] bg-white p-4 shadow-md"
             onPress={() => router.push("/(tabs)/home/diary/detail")}
           >
             <AngryIcon width={43} height={43} />

@@ -248,7 +248,7 @@ export default function DiaryNextScreen() {
           {/* Save button */}
           <TouchableOpacity
             disabled={!thoughts}
-            className={`w-full h-12 rounded-xl items-center justify-center ${
+            className={`w-full h-16 rounded-xl items-center justify-center ${
               !thoughts ? "opacity-40 bg-[#7F56D9]" : "bg-[#7F56D9]"
             }`}
             onPress={handleSave}

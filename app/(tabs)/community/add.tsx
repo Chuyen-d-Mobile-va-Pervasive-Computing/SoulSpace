@@ -39,7 +39,7 @@ export default function AddScreen() {
           <X width={24} height={24} color="black" />
         </TouchableOpacity>
 
-        <Text className="text-base font-[Poppins-Bold] text-black">
+        <Text className="text-lg font-[Poppins-Bold] text-black">
           Write a post
         </Text>
 
@@ -48,7 +48,7 @@ export default function AddScreen() {
           className={`${!postContent ? "opacity-40" : ""}`}
           onPress={handlePost}
         >
-          <Text className="text-sm font-[Poppins-Bold] text-black">Post</Text>
+          <Text className="text-base font-[Poppins-Bold] text-black">Post</Text>
         </TouchableOpacity>
       </View>
 
