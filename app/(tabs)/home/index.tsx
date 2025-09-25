@@ -156,7 +156,10 @@ export default function HomeScreen() {
                   {/* Ảnh 4 */}
                   <View className="relative flex-1 items-center">
                     <Activity4 width={180} height={180} />
-                    <TouchableOpacity className="absolute bottom-2 right-2 bg-[#4CAADD] rounded-full p-3 shadow">
+                    <TouchableOpacity 
+                      className="absolute bottom-2 right-2 bg-[#4CAADD] rounded-full p-3 shadow"
+                      onPress={() => router.push("/(tabs)/home/diary")}
+                    >
                       <ArrowBigRight color="white" size={24} />
                     </TouchableOpacity>
                   </View>

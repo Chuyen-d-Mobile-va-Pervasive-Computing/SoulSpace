@@ -1,20 +1,17 @@
-import { useState } from "react";
-import { ScrollView, Text, TouchableOpacity } from "react-native";
-import { useFonts } from "expo-font";
-import { useCallback } from "react";
-import * as SplashScreen from "expo-splash-screen";
-import AngryIcon from "@/assets/images/angry.svg";
+import React, { useState } from "react";
+import { ScrollView, View, Text } from "react-native";
 import AnnoyIcon from "@/assets/images/annoy.svg";
+import AngryIcon from "@/assets/images/angry.svg";
 import CalmIcon from "@/assets/images/calm.svg";
 import ChillIcon from "@/assets/images/chill.svg";
-import ConfusedIcon from "@/assets/images/confused.svg";
-import EmbarrassedIcon from "@/assets/images/embarrassed.svg";
 import ExcitedIcon from "@/assets/images/excited.svg";
+import ConfusedIcon from "@/assets/images/confused.svg";
 import HappyIcon from "@/assets/images/happy.svg";
-import SadIcon from "@/assets/images/sad.svg";
+import EmbarrassedIcon from "@/assets/images/embarrassed.svg";
 import WorriedIcon from "@/assets/images/worried.svg";
+import SadIcon from "@/assets/images/sad.svg";
 
-const emotions = [
+const emotionList = [
   { id: 1, name: "Happy", icon: HappyIcon },
   { id: 2, name: "Sad", icon: SadIcon },
   { id: 3, name: "Angry", icon: AngryIcon },
@@ -24,8 +21,11 @@ const emotions = [
   { id: 7, name: "Confused", icon: ConfusedIcon },
   { id: 8, name: "Embarrassed", icon: EmbarrassedIcon },
   { id: 9, name: "Excited", icon: ExcitedIcon },
-  { id: 10, name: "Worried", icon: WorriedIcon }
+  { id: 10, name: "Worried", icon: WorriedIcon },
 ];
+
+const ITEM_HEIGHT = 100; // Height of each emotion item
+const VISIBLE_ITEMS = 5; // Number of visible items
 
 export default function EmotionPicker({
   onSelect,
@@ -33,48 +33,60 @@ export default function EmotionPicker({
   onSelect: (emotion: { id: number; name: string; icon: any }) => void;
 }) {
   const [selected, setSelected] = useState<number | null>(null);
-  const [fontsLoaded] = useFonts({
-    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
-    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
-    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
-    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
-    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
-    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
-    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
-    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
-    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
-    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
-  });
-            
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-            
-  if (!fontsLoaded) return null;
 
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-3">
-      {emotions.map((emotion) => {
-        const Icon = emotion.icon;
-        const isActive = selected === emotion.id;
-        return (
-          <TouchableOpacity
-            key={emotion.id}
-            className={`mx-1 p-3 rounded-xl items-center justify-center ${
-              isActive ? "bg-purple-300" : "bg-gray-100"
-            }`}
-            onPress={() => {
-              setSelected(emotion.id);
-              onSelect(emotion); // trả về object
-            }}
-          >
-            <Icon width={32} height={32} />
-            <Text className="text-xs mt-1 font-[Poppins-Regular]">{emotion.name}</Text>
-          </TouchableOpacity>
-        );
-      })}
-    </ScrollView>
+    <View className="relative items-center w-full" style={{ height: ITEM_HEIGHT * VISIBLE_ITEMS }}>
+      {/* Highlight bar */}
+      <View
+        className="absolute left-0 right-0 rounded-full border-2 border-purple-400"
+        style={{
+          top: (ITEM_HEIGHT * VISIBLE_ITEMS) / 2 - ITEM_HEIGHT / 2, // cố định ở giữa
+          height: ITEM_HEIGHT,
+          backgroundColor: "rgba(147, 112, 219, 0.1)",
+          zIndex: 1,
+        }}
+      />
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        snapToInterval={ITEM_HEIGHT}
+        decelerationRate="fast"
+        contentContainerStyle={{
+          paddingVertical: (ITEM_HEIGHT * (VISIBLE_ITEMS - 1)) / 2,
+        }}
+        onScroll={(event) => {
+          const offsetY = event.nativeEvent.contentOffset.y;
+          const index = Math.round(offsetY / ITEM_HEIGHT);
+          if (index >= 0 && index < emotionList.length) {
+            setSelected(emotionList[index].id);
+            onSelect(emotionList[index]);
+          }
+        }}
+        scrollEventThrottle={16}
+      >
+        {emotionList.map((emotion) => {
+          const Icon = emotion.icon;
+          const isActive = selected === emotion.id;
+          return (
+            <View
+              key={emotion.id}
+              style={{
+                height: ITEM_HEIGHT,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              className={`px-4 w-full ${isActive ? "opacity-100" : "opacity-50"}`}
+            >
+              <View className="flex-row items-center justify-between w-full">
+                <Text className="text-sm font-[Poppins-Medium] text-black">
+                  {emotion.name}
+                </Text>
+                <Icon width={48} height={48} />
+              </View>
+            </View>
+          );
+        })}
+      </ScrollView>
+    </View>
   );
 }

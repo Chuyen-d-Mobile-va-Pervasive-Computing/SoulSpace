@@ -1,7 +1,6 @@
 import Heading from "@/components/Heading";
 import TagSelector from "@/components/TagSelector";
 import { useFonts } from "expo-font";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import {
@@ -23,26 +22,6 @@ import {
 } from "react-native";
 
 export default function CommunityScreen() {
-  const [fontsLoaded] = useFonts({
-    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
-    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
-    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
-    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
-    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
-    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
-    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
-    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
-    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
-    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
-  });
-
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-
-  if (!fontsLoaded) return null;
   const router = useRouter();
 
   const currentUserId = "u1";
@@ -200,19 +179,19 @@ export default function CommunityScreen() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-    className="flex-row items-center gap-1"
-    onPress={() =>
-      router.push({
-        pathname: "/(tabs)/community/comment",
-        params: { focusInput: "true" }, // 👈 truyền param
-      })
-    }
-  >
-    <MessageCircle width={18} height={18} color="black" />
-    <Text className="text-black text-sm font-[Poppins-Regular]">
-      {post.comments}
-    </Text>
-  </TouchableOpacity>
+                  className="flex-row items-center gap-1"
+                  onPress={() =>
+                    router.push({
+                      pathname: "/(tabs)/community/comment",
+                      params: { focusInput: "true" }, // 👈 truyền param
+                    })
+                  }
+                >
+                  <MessageCircle width={18} height={18} color="black" />
+                  <Text className="text-black text-sm font-[Poppins-Regular]">
+                    {post.comments}
+                  </Text>
+                </TouchableOpacity>
               </View>
             </View>
           ))}
