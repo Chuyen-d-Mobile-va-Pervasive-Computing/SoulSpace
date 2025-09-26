@@ -1,6 +1,3 @@
-import { useFonts } from "expo-font";
-import { useCallback } from "react";
-import * as SplashScreen from "expo-splash-screen";
 import { useState } from "react";
 import { ScrollView, Text, TouchableOpacity } from "react-native";
 
@@ -47,55 +44,34 @@ export default function GenericSelector({
   const isSelected = (id: number | string) =>
     multiSelect
       ? (selected as Option[]).some((s) => s.id === id)
-      : (selected as Option | null)?.id === id;
-
-  const [fontsLoaded] = useFonts({
-    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
-    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
-    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
-    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
-    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
-    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
-    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
-    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
-    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
-    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
-  });
-            
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-            
-  if (!fontsLoaded) return null;  
+      : (selected as Option | null)?.id === id; 
 
   return (
     <ScrollView
-  horizontal
-  showsHorizontalScrollIndicator={false}
-  contentContainerStyle={{ flexDirection: "row", gap: 8 }}
->
-  {options.map((opt) => {
-    const selected = isSelected(opt.id);
-    return (
-      <TouchableOpacity
-        key={opt.id}
-        className={`px-4 py-2 rounded-full border ${
-          selected ? "border-[#7F56D9]" : "border-[#EEEEEE]"
-        }`}
-        onPress={() => toggleSelect(opt.id)}
-      >
-        <Text
-          className={`font-[Poppins-Regular] ${
-            selected ? "text-[#7F56D9]" : "text-black"
-          }`}
-        >
-          {opt.name}
-        </Text>
-      </TouchableOpacity>
-    );
-  })}
-</ScrollView>
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={{ flexDirection: "row", gap: 8 }}
+    >
+      {options.map((opt) => {
+        const selected = isSelected(opt.id);
+        return (
+          <TouchableOpacity
+            key={opt.id}
+            className={`px-4 py-2 rounded-full border ${
+              selected ? "border-[#7F56D9]" : "border-[#EEEEEE]"
+            }`}
+            onPress={() => toggleSelect(opt.id)}
+          >
+            <Text
+              className={`font-[Poppins-Regular] ${
+                selected ? "text-[#7F56D9]" : "text-black"
+              }`}
+            >
+              {opt.name}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </ScrollView>
   );
 }

@@ -134,10 +134,10 @@ export default function CommunityScreen() {
               {/* Header */}
               <View className="flex-row justify-between items-start">
                 <View>
-                  <Text className="text-black font-[Poppins-SemiBold] text-sm">
+                  <Text className="text-black font-[Poppins-SemiBold] text-base">
                     {post.username}
                   </Text>
-                  <Text className="text-[#7B7B7B] font-[Poppins-Regular] text-xs mt-1">
+                  <Text className="text-[#7B7B7B] font-[Poppins-Regular] text-sm mt-1">
                     {post.createdAt}
                   </Text>
                 </View>
@@ -156,7 +156,7 @@ export default function CommunityScreen() {
                 activeOpacity={0.8}
                 onPress={() => router.push("/(tabs)/community/comment")}
               >
-                <Text className="text-black text-base mt-3 font-[Poppins-Regular]">
+                <Text className="text-base mt-3 font-[Poppins-Regular]">
                   {post.content}
                 </Text>
               </TouchableOpacity>

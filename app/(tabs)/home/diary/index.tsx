@@ -191,7 +191,7 @@ export default function Calendar({ entries = mockEntries }: { entries?: Entry[] 
 
         {/* History */}
         <View className="flex-1 w-full gap-2.5 px-4 mt-6">
-          <Text className="text-black text-base font-[Poppins-SemiBold]">History</Text>
+          <Text className="text-black text-lg font-[Poppins-SemiBold]">History</Text>
           <TouchableOpacity
             className="w-full flex-row items-center gap-3 rounded-xl border-[2px] border-[#f4f4f4] bg-white p-4 shadow-md"
             onPress={() => router.push("/(tabs)/home/diary/detail")}
@@ -204,7 +204,7 @@ export default function Calendar({ entries = mockEntries }: { entries?: Entry[] 
               <Text
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                className="mt-1 text-[14px] h-[16px] leading-4 font-[Poppins-Regular] text-[#72777a]"
+                className="mt-1 text-[16px] h-[22px] font-[Poppins-Regular] text-[#736B66]"
               >
                 I felt really angry, and I am still learning ...
               </Text>
