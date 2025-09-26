@@ -5,7 +5,7 @@ import { ScrollView, Text, View } from "react-native";
 
 export default function CommentScreen() {
   return (
-    <View className="flex-1 bg-[#FAF6FF]">
+    <View className="flex-1 bg-[#FAF9FF]">
       <Heading title="Light Bearer" />
       
       <ScrollView

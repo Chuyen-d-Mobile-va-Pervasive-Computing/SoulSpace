@@ -6,7 +6,7 @@ import { ScrollView, Text, View } from "react-native";
 
 export default function ShareScreen() {
   return (
-    <View className="flex-1 bg-[#FAF6FF]">
+    <View className="flex-1 bg-[#FAF9FF]">
       <Heading title="Spreading Smile" />
       
       <ScrollView
