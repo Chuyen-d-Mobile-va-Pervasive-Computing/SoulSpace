@@ -1,6 +1,7 @@
+// File: AddScreen.js (hoặc file tương ứng của bạn)
+import CircularTimeSelector from "@/components/CircularTimeSelector";
 import CustomSwitch from "@/components/CustomSwitch";
 import Heading from "@/components/Heading";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { Bell } from "lucide-react-native";
@@ -12,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler"; // <-- IMPORT GESTURE HANDLER
 
 export default function AddScreen() {
   const [fontsLoaded] = useFonts({
@@ -29,9 +31,12 @@ export default function AddScreen() {
 
   const [once, setOnce] = useState(true);
   const [daily, setDaily] = useState(true);
-
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
-  const [time, setTime] = useState<Date>(new Date());
+
+  // State thời gian vẫn như cũ
+  const [time, setTime] = useState(() => {
+    return new Date();
+  });
 
   const toggleDay = (day: string) => {
     if (selectedDays.includes(day)) {
@@ -42,7 +47,6 @@ export default function AddScreen() {
   };
 
   const days = ["M", "Tu", "W", "Th", "F", "Sa", "Su"];
-  const [showPicker, setShowPicker] = useState(false);
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) {
@@ -53,102 +57,97 @@ export default function AddScreen() {
   if (!fontsLoaded) return null;
 
   return (
-    <View className="flex-1 bg-[#FAF9FF]">
-      <Heading title="Add new reminder" />
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View className="flex-1 bg-[#FAF9FF]">
+        <Heading title="Add new reminder" />
 
-      {/* Body */}
-      <ScrollView
-        className="flex-1 px-4"
-        contentContainerStyle={{ paddingBottom: 40 }}
-      >
-        {/* Time display */}
-        <View className="items-center mt-6">
-          {/* TODO: clock picker */}
-          <View className="w-64 h-64 mt-4 rounded-full border border-gray-300 items-center justify-center">
-            <View className="items-center mt-6">
-              <Text
-                className="text-3xl font-bold text-purple-600 mb-4"
-                onPress={() => setShowPicker(true)}
-              >
-                {time.getHours().toString().padStart(2, "0")}:
-                {time.getMinutes().toString().padStart(2, "0")}
+        {/* Body */}
+        <ScrollView
+          className="flex-1 px-4"
+          contentContainerStyle={{ paddingBottom: 40 }}
+        >
+          <TouchableOpacity>
+            <Text className="text-[#7F56D9] font-[Poppins-Bold] text-lg text-right">
+              Save
+            </Text>
+          </TouchableOpacity>
+          {/* Time display */}
+
+          <View className="items-center mt-4">
+            <CircularTimeSelector time={time} setTime={setTime} />
+          </View>
+
+          {/* Title */}
+          <View className="mt-8">
+            <Text className="text-lg font-[Poppins-SemiBold] text-gray-700 mb-2">
+              Title
+            </Text>
+            <TextInput
+              placeholder="Enter reminder title ..."
+              className="bg-white rounded-xl px-4 py-3 border border-gray-200 text-base font-[Poppins-Regular]"
+            />
+          </View>
+
+          {/* Description */}
+          <View className="mt-4">
+            <Text className="text-lg font-[Poppins-SemiBold] text-gray-700 mb-2">
+              Description
+            </Text>
+            <TextInput
+              placeholder="Enter reminder description ..."
+              className="bg-white rounded-xl px-4 py-3 border border-gray-200 text-base font-[Poppins-Regular]"
+              multiline
+              style={{ minHeight: 80, textAlignVertical: "top" }}
+            />
+          </View>
+
+          {/* Repeat */}
+          <View className="bg-white rounded-2xl mt-6 p-4">
+            <View className="flex-row items-center mb-4">
+              <Bell size={18} color="#7F56D9" />
+              <Text className="ml-2 font-[Poppins-SemiBold] text-base">
+                Repeat
               </Text>
-              {showPicker && (
-                <DateTimePicker
-                  value={time}
-                  mode="time"
-                  is24Hour={true}
-                  display="clock"
-                  onChange={(_, selectedDate) => {
-                    setShowPicker(false);
-                    if (selectedDate) {
-                      setTime(selectedDate);
-                    }
-                  }}
-                />
-              )}
             </View>
-          </View>
-        </View>
 
-        {/* Title */}
-        <TextInput
-          placeholder="Enter reminder title ..."
-          className="bg-white rounded-xl px-4 py-3 mt-6 border border-gray-200"
-        />
-
-        {/* Description */}
-        <TextInput
-          placeholder="Enter reminder description ..."
-          className="bg-white rounded-xl px-4 py-3 mt-4 border border-gray-200"
-          multiline
-          numberOfLines={3}
-        />
-
-        {/* Repeat */}
-        <View className="bg-white rounded-2xl mt-6 p-4">
-          <View className="flex-row items-center mb-4">
-            <Bell size={18} color="#7F56D9" />
-            <Text className="ml-2 font-semibold text-base">Repeat</Text>
-          </View>
-
-          {/* Days */}
-          <View className="flex-row justify-between mb-4">
-            {days.map((d) => {
-              const active = selectedDays.includes(d);
-              return (
-                <TouchableOpacity
-                  key={d}
-                  onPress={() => toggleDay(d)}
-                  className={`w-9 h-9 rounded-full border items-center justify-center ${
-                    active
-                      ? "bg-[#7F56D9] border-[#7F56D9]"
-                      : "border-[#7F56D9]"
-                  }`}
-                >
-                  <Text
-                    className={`text-sm ${
-                      active ? "text-white" : "text-[#7F56D9]"
+            {/* Days */}
+            <View className="flex-row justify-between mb-4">
+              {days.map((d) => {
+                const active = selectedDays.includes(d);
+                return (
+                  <TouchableOpacity
+                    key={d}
+                    onPress={() => toggleDay(d)}
+                    className={`w-9 h-9 rounded-full border items-center justify-center ${
+                      active
+                        ? "bg-[#7F56D9] border-[#7F56D9]"
+                        : "border-[#7F56D9]"
                     }`}
                   >
-                    {d}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+                    <Text
+                      className={`text-sm font-[Poppins-Regular] ${
+                        active ? "text-white" : "text-[#7F56D9]"
+                      }`}
+                    >
+                      {d}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
 
-          {/* Once / Daily */}
-          <View className="flex-row items-center justify-between border-t border-gray-200 py-3">
-            <Text className="text-base">Once</Text>
-            <CustomSwitch value={once} onValueChange={setOnce} />
+            {/* Once / Daily */}
+            <View className="flex-row items-center justify-between border-t border-gray-200 py-3">
+              <Text className="text-base font-[Poppins-Regular]">Once</Text>
+              <CustomSwitch value={once} onValueChange={setOnce} />
+            </View>
+            <View className="flex-row items-center justify-between border-t border-gray-200 py-3">
+              <Text className="text-base font-[Poppins-Regular]">Daily</Text>
+              <CustomSwitch value={daily} onValueChange={setDaily} />
+            </View>
           </View>
-          <View className="flex-row items-center justify-between border-t border-gray-200 py-3">
-            <Text className="text-base">Daily</Text>
-            <CustomSwitch value={daily} onValueChange={setDaily} />
-          </View>
-        </View>
-      </ScrollView>
-    </View>
+        </ScrollView>
+      </View>
+    </GestureHandlerRootView>
   );
 }
