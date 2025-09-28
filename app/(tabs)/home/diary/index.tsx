@@ -23,14 +23,14 @@ const mockEntries: Entry[] = [
 ];
 
 export default function Calendar({ entries = mockEntries }: { entries?: Entry[] }) {
-  const [currentDate, setCurrentDate] = useState(dayjs()); // today
+  const [currentDate, setCurrentDate] = useState(dayjs());
   const year = currentDate.year();
   const month = currentDate.month();
   const daysInMonth = currentDate.daysInMonth();
   const firstDayOfWeek = dayjs(new Date(year, month, 1)).day(); // 0=Sun..6=Sat
 
   // Animation state
-  const animValue = useRef(new Animated.Value(0)).current;
+  const animValue = useRef(new Animated.Value(1)).current;
   const [direction, setDirection] = useState<"next" | "prev">("next");
 
   const triggerAnim = (dir: "next" | "prev") => {
@@ -87,7 +87,7 @@ export default function Calendar({ entries = mockEntries }: { entries?: Entry[] 
       <Heading title="Diary" />
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         {/* header */}
-        <Animated.View
+        <View
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
@@ -97,8 +97,6 @@ export default function Calendar({ entries = mockEntries }: { entries?: Entry[] 
             marginBottom: 32,
             borderRadius: 12,
             backgroundColor: "#7F56D9",
-            opacity,
-            transform: [{ translateX }],
           }}
         >
           <TouchableOpacity onPress={goPrev}>
@@ -110,7 +108,7 @@ export default function Calendar({ entries = mockEntries }: { entries?: Entry[] 
           <TouchableOpacity onPress={goNext}>
             <Text className="text-3xl font-[Poppins-Regular] text-white">{">"}</Text>
           </TouchableOpacity>
-        </Animated.View>
+        </View>
 
         {/* week labels */}
         <View className="flex-row mb-1.5">
@@ -148,7 +146,7 @@ export default function Calendar({ entries = mockEntries }: { entries?: Entry[] 
             const mood = entryMap[day];
             const dateObj = dayjs(new Date(year, month, day));
             const isToday = dayjs().isSame(dateObj, "day");
-            const isFuture = dateObj.isAfter(dayjs(), "day"); // future
+            const isFuture = dateObj.isAfter(dayjs(), "day");
 
             return (
               <TouchableOpacity
