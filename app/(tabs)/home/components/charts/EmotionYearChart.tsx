@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import { Dimensions, View } from "react-native";
 import { BarChart } from "react-native-chart-kit";
-import { useFonts } from "expo-font";
-import { useCallback } from "react";
-import * as SplashScreen from "expo-splash-screen";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -12,26 +9,6 @@ const EmotionYearChart = () => {
 
   const labels = ["Happy", "Sad", "Chill", "Angry", "Calm", "Excited", "Annoy"];
   const data = [50, 30, 40, 70, 20, 90, 60, 40, 30, 80, 55, 65];
-    const [fontsLoaded] = useFonts({
-      "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
-      "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
-      "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
-      "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
-      "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
-      "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
-      "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
-      "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
-      "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
-      "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
-    });
-              
-    const onLayoutRootView = useCallback(async () => {
-      if (fontsLoaded) {
-        await SplashScreen.hideAsync();
-      }
-    }, [fontsLoaded]);
-              
-    if (!fontsLoaded) return null;
 
   return (
     <View>
@@ -46,21 +23,21 @@ const EmotionYearChart = () => {
         yAxisSuffix=""
         fromZero
         chartConfig={{
-          backgroundColor: "#1e1e2d",
-          backgroundGradientFrom: "#1e1e2d",
-          backgroundGradientTo: "#1e1e2d",
+          backgroundColor: "#fff",
+          backgroundGradientFrom: "#fff",
+          backgroundGradientTo: "#fff",
           decimalPlaces: 0,
-          color: (opacity = 1) => `rgba(135, 54, 217, ${opacity})`,
-          labelColor: () => "#fff",
+          color: (opacity = 1) => `rgba(127, 86, 217, ${opacity})`,
+          labelColor: (opacity = 1) => `rgba(127, 86, 217, ${opacity})`,
           propsForLabels: {
-            fontFamily: "Poppins-SemiBold",
+            fontFamily: "Poppins-Regular",
             fontSize: 10,
           },
         }}
         showValuesOnTopOfBars
         withInnerLines={false}
         withHorizontalLabels
-        style={{ borderRadius: 16 }}
+        style={{ borderRadius: 12 }}
       />
     </View>
   );

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Dimensions, Text, TouchableOpacity, View } from "react-native";
 import { LineChart } from "react-native-chart-kit";
+import { router } from "expo-router";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -53,28 +54,41 @@ export default function MoodTrends() {
       </View>
 
       {/* Chart */}
-      <LineChart
-        data={data}
-        width={screenWidth - 40}
-        height={220}
-        fromZero
-        yAxisInterval={1}
-        chartConfig={{
-          backgroundGradientFrom: "#fff",
-          backgroundGradientTo: "#fff",
-          color: (opacity = 1) => `rgba(127, 86, 217, ${opacity})`,
-          labelColor: (opacity = 1) => `rgba(127, 86, 217, ${opacity})`,
-          propsForDots: {
-            r: "5",
-            strokeWidth: "2",
-            stroke: "#7F56D9",
-          },
-        }}
-        bezier
-        style={{
-          borderRadius: 16,
-        }}
-      />
+      <View className="relative">
+        <LineChart
+          data={data}
+          width={screenWidth - 40}
+          height={220}
+          fromZero
+          yAxisInterval={1}
+          chartConfig={{
+            backgroundGradientFrom: "#fff",
+            backgroundGradientTo: "#fff",
+            color: (opacity = 1) => `rgba(127, 86, 217, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(127, 86, 217, ${opacity})`,
+            propsForDots: {
+              r: "5",
+              strokeWidth: "2",
+              stroke: "#7F56D9",
+            },
+          }}
+          bezier
+          style={{
+            borderRadius: 16,
+          }}
+        />
+
+        {/* button */}
+        <TouchableOpacity
+          onPress={() => router.push("/(tabs)/home/analytic")}
+          activeOpacity={0.7}
+          className="absolute top-14 right-2 bg-purple-100 px-5 py-3 rounded-full"
+        >
+          <Text className="text-purple-500 text-xs font-[Poppins-Bold]">
+            →
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

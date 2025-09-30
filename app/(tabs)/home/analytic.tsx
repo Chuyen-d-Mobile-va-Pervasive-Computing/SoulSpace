@@ -1,10 +1,5 @@
-import { useFonts } from "expo-font";
-import { useCallback } from "react";
-import * as SplashScreen from "expo-splash-screen";
 import Heading from "@/components/Heading";
 import WeekMonthYearSelector from "@/components/WeekMonthYearSelector";
-import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
 import React, { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import EmotionChartWrapper from "./components/EmotionChartWrapper";
@@ -14,49 +9,29 @@ import PositiveEmotionStat from "./components/charts/PositiveEmotionStat";
 import TotalDiaryStat from "./components/charts/TotalDiaryStat";
 
 export default function AnalyticScreen() {
-  const [fontsLoaded] = useFonts({
-    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
-    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
-    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
-    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
-    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
-    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
-    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
-    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
-    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
-    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
-  });
-            
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-            
-  if (!fontsLoaded) return null;
   const [tab, setTab] = useState<"week" | "month" | "year">("week");
 
   return (
-    <View className="flex-1 bg-white">
-      <Heading title="Analytic" showBack={true} onBackPress={() => router.back()} />
+    <View className="flex-1 bg-[#FAF9FF]">
+      <Heading title="Analytic" />
      
         <ScrollView 
           contentContainerStyle={{ paddingBottom: 40 }}
           className="flex-1 px-4 mt-4"
         >
           {/* Tabs */}
-          <View className="flex-row mb-4">
+          <View className="flex-row mb-4 bg-purple-100 rounded-full overflow-hidden">
             {["week", "month", "year"].map((t) => (
               <TouchableOpacity
                 key={t}
                 onPress={() => setTab(t as any)}
-                className={`flex-1 py-2 rounded-lg mx-1 ${
-                  tab === t ? "bg-[#5204BF]/30" : "bg-gray-200"
+                className={`flex-1 py-2 ${
+                  tab === t ? "bg-[#7F56D9]" : "bg-purple-100"
                 }`}
               >
                 <Text
                   className={`text-center font-[Poppins-Bold] ${
-                    tab === t ? "text-white" : "text-gray-700"
+                    tab === t ? "text-white" : "text-[#7F56D9]"
                   }`}
                 >
                   {t.toUpperCase()}
@@ -121,7 +96,6 @@ export default function AnalyticScreen() {
             )}
           </View>
         </ScrollView>
-      
     </View>
   );
 }

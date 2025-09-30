@@ -1,10 +1,7 @@
-import { useFonts } from "expo-font";
-import { useCallback } from "react";
-import * as SplashScreen from "expo-splash-screen";
 import { Picker } from "@react-native-picker/picker";
-import { CalendarDays } from "lucide-react-native";
-import React, { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { CalendarDays, ChevronDown } from "lucide-react-native";
+import React, { useMemo, useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
 
 type Props = {
   mode: "week" | "month" | "year";
@@ -16,6 +13,24 @@ export default function WeekMonthYearSelector({ mode, onChange }: Props) {
   const [selectedYear, setSelectedYear] = useState(now.getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
   const [selectedWeekIndex, setSelectedWeekIndex] = useState(0);
+
+  const months = useMemo(
+    () => [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ],
+    []
+  );
 
   // Hàm sinh N tuần gần nhất
   const generateLastNWeeks = (n: number = 12) => {
@@ -44,7 +59,7 @@ export default function WeekMonthYearSelector({ mode, onChange }: Props) {
     return weeks;
   };
 
-  const weeks = generateLastNWeeks(12);
+  const weeks = useMemo(() => generateLastNWeeks(12), []);
 
   // khi chọn tuần
   const handleSelectWeek = (index: number) => {
@@ -69,107 +84,116 @@ export default function WeekMonthYearSelector({ mode, onChange }: Props) {
     onChange({ start, end });
   };
 
-  const [fontsLoaded] = useFonts({
-    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
-    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
-    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
-    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
-    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
-    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
-    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
-    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
-    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
-    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
-  });
-            
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-            
-  if (!fontsLoaded) return null;
+  const visibleLabel =
+    mode === "week"
+      ? weeks[selectedWeekIndex]?.label ?? ""
+      : mode === "month"
+      ? months[selectedMonth]
+      : String(selectedYear);
+
+  const containerWidth = mode === "year" ? 140 : mode === "week" ? 200 : 190;
 
   return (
-    <View className="w-full items-center mb-4">
-      {mode === "week" && (
-        <View className="w-[230px] h-[48px] flex-row items-center bg-[#5204BF]/30 rounded-lg px-2">
-          <CalendarDays size={18} color="white" style={{ marginRight: 6 }} />
-          {/* Picker */}
+    <View style={styles.wrapper}>
+      <View style={[styles.outerContainer, { width: containerWidth }]}>
+        <CalendarDays size={18} color="#7F56D9" style={{ marginRight: 0, marginLeft: 4 }} />
+
+        <View style={styles.centerDisplay}>
+          <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={styles.centerLabel}
+          >
+            {visibleLabel}
+          </Text>
+          <ChevronDown size={16} color="#7F56D9" style={{ marginLeft: 8 }} />
+        </View>
+
+        {mode === "week" && (
           <Picker
             selectedValue={selectedWeekIndex}
             onValueChange={handleSelectWeek}
-            dropdownIconColor="white"
-            style={styles.picker}
+            mode="dropdown"
+            dropdownIconColor="transparent"
+            style={styles.invisiblePicker}
           >
             {weeks.map((w, i) => (
-              <Picker.Item key={i} label={w.label} value={i} style={styles.pickerItem}/>
+              <Picker.Item key={i} label={w.label} value={i} style={styles.pickerItem} />
             ))}
           </Picker>
-        </View>
-      )}
+        )}
 
-      {mode === "month" && (
-        <View className="w-[210px] h-[48px] flex-row items-center bg-[#5204BF]/30 rounded-lg px-2">
-          <CalendarDays size={18} color="white" style={{ marginRight: 6 }} />
-          {/* Picker */}
+        {mode === "month" && (
           <Picker
             selectedValue={selectedMonth}
             onValueChange={handleSelectMonth}
-            dropdownIconColor="white"
-            style={styles.picker}
+            mode="dropdown"
+            dropdownIconColor="transparent"
+            style={styles.invisiblePicker}
           >
-            {[
-              "January",
-              "February",
-              "March",
-              "April",
-              "May",
-              "June",
-              "July",
-              "August",
-              "September",
-              "October",
-              "November",
-              "December",
-            ].map((month, i) => (
-              <Picker.Item key={i} label={month} value={i} />
+            {months.map((m, i) => (
+              <Picker.Item key={i} label={m} value={i} style={styles.pickerItem} />
             ))}
           </Picker>
-        </View>
-      )}
+        )}
 
-      {mode === "year" && (
-        <View className="w-[150px] h-[48px] flex-row items-center bg-[#5204BF]/30 rounded-lg px-2">
-          <CalendarDays size={18} color="white" style={{ marginRight: 6 }} />
-          {/* Picker */}
+        {mode === "year" && (
           <Picker
             selectedValue={selectedYear}
             onValueChange={handleSelectYear}
-            dropdownIconColor="white"
-            style={styles.picker}
+            mode="dropdown"
+            dropdownIconColor="transparent"
+            style={styles.invisiblePicker}
           >
             {Array.from({ length: 10 }, (_, i) => {
               const year = new Date().getFullYear() - i;
-              return <Picker.Item key={year} label={year.toString()} value={year} />;
+              return <Picker.Item key={year} label={String(year)} value={year} style={styles.pickerItem} />;
             })}
           </Picker>
-        </View>
-      )}
+        )}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  picker: {
+  wrapper: {
+    width: "100%",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  outerContainer: {
+    backgroundColor: "white",
+    borderRadius: 20,
+    height: 38,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    elevation: 3,
+  },
+  centerDisplay: {
     flex: 1,
-    color: "white",
-    textAlign: "center", // căn giữa text (Android)
-    paddingVertical: 0,
-    marginVertical: -6, // giảm chiều cao mặc định
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  centerLabel: {
+    color: "#7F56D9",
+    fontSize: 15,
+    fontFamily: "Poppins-Medium",
+    textAlign: "center",
+    maxWidth: "75%",
+  },
+  invisiblePicker: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    opacity: 0,
   },
   pickerItem: {
-    fontFamily: "Poppins-Bold",
+    fontFamily: "Poppins-Regular",
     fontSize: 14,
   },
 });

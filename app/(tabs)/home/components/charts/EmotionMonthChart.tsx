@@ -21,23 +21,24 @@ const EmotionMonthChart = () => {
         height={220}
         yAxisLabel=""
         yAxisSuffix=""
+        yAxisInterval={1}
         fromZero
         chartConfig={{
-          backgroundColor: "#1e1e2d",
-          backgroundGradientFrom: "#1e1e2d",
-          backgroundGradientTo: "#1e1e2d",
+          backgroundColor: "#fff",
+          backgroundGradientFrom: "#fff",
+          backgroundGradientTo: "#fff",
           decimalPlaces: 0,
-          color: (opacity = 1) => `rgba(135, 54, 217, ${opacity})`,
-          labelColor: () => "#fff",
+          color: (opacity = 1) => `rgba(127, 86, 217, ${opacity})`,
+          labelColor: (opacity = 1) => `rgba(127, 86, 217, ${opacity})`,
           propsForLabels: {
-            fontFamily: "Poppins-SemiBold",
+            fontFamily: "Poppins-Regular",
             fontSize: 10,
           },
         }}
         showValuesOnTopOfBars
         withInnerLines={false}
         withHorizontalLabels
-        style={{ borderRadius: 16 }}
+        style={{ borderRadius: 12 }}
       />
 
       {/* Fake touch zones */}
@@ -70,7 +71,7 @@ const EmotionMonthChart = () => {
               (selected.index + 0.5) *
                 ((screenWidth - 40) / data.length) -
               40,
-            backgroundColor: "#8736D9",
+            backgroundColor: "#7F56D9",
             padding: 6,
             borderRadius: 6,
           }}

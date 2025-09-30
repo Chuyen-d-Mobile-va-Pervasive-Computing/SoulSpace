@@ -19,20 +19,24 @@ const EmotionLineChart = () => {
         }}
         width={screenWidth - 40}
         height={220}
-        yAxisLabel=""
+        fromZero
+        yAxisInterval={1}
         chartConfig={{
-          backgroundColor: "#1e1e2d",
-          backgroundGradientFrom: "#1e1e2d",
-          backgroundGradientTo: "#1e1e2d",
+          backgroundColor: "#fff",
+          backgroundGradientFrom: "#fff",
+          backgroundGradientTo: "#fff",
           decimalPlaces: 0,
-          color: (opacity = 1) => `rgba(135, 54, 217, ${opacity})`,
-          labelColor: () => "#fff",
+          color: (opacity = 1) => `rgba(127, 86, 217, ${opacity})`,
+          labelColor: (opacity = 1) => `rgba(127, 86, 217, ${opacity})`,
           propsForLabels: {
-            fontFamily: "Poppins-SemiBold",
+            fontFamily: "Poppins-Regular",
             fontSize: 10,
           },
         }}
         bezier
+        style={{
+          borderRadius: 12,
+        }}
         decorator={() =>
           selected ? (
             <View
@@ -40,7 +44,7 @@ const EmotionLineChart = () => {
                 position: "absolute",
                 top: 40,
                 left: labels.indexOf(selected.day) * ((screenWidth - 40) / labels.length) - 20,
-                backgroundColor: "#8736D9",
+                backgroundColor: "#7F56D9",
                 padding: 6,
                 borderRadius: 6,
               }}
