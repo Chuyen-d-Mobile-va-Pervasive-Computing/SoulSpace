@@ -25,14 +25,6 @@ export default function ExploreLayout() {
         name="/app/(tabs)/explore/result/index"
         options={{ title: "Lịch sử loại bài test" }}
       />
-      <Stack.Screen
-        name="/app/(tabs)/explore/result/tests"
-        options={{ title: "Lịch sử các bài test" }}
-      />
-      <Stack.Screen
-        name="/app/(tabs)/explore/result/detail"
-        options={{ title: "Chi tiết bài test" }}
-      />
     </Stack>
   );
 }
