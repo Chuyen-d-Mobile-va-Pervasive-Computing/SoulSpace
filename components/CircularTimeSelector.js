@@ -292,7 +292,7 @@ export default function CircularTimeSelector({ time, setTime }) {
           left: "50%",
           transform: [
             { translateX: -CENTER_CIRCLE_RADIUS },
-            { translateY: -CENTER_CIRCLE_RADIUS + 58 },
+            { translateY: -CENTER_CIRCLE_RADIUS + 50 },
           ],
         }}
         onPress={() => setMode((m) => (m === "hour" ? "minute" : "hour"))}
