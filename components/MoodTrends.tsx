@@ -1,14 +1,23 @@
-import { useState } from "react";
-import { Dimensions, Text, TouchableOpacity, View } from "react-native";
-import { LineChart } from "react-native-chart-kit";
 import { router } from "expo-router";
+import { useState } from "react";
+import {
+  Dimensions,
+  Pressable,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { LineChart } from "react-native-chart-kit";
 
 const screenWidth = Dimensions.get("window").width;
+
+// thêm map cảm xúc cho trục Y
+const emotions = ["Angry", "Worried", "Neutral", "Happy", "Excited"];
 
 const mockData = {
   week: {
     labels: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-    datasets: [{ data: [2, 3, 1, 4, 3, 2, 1] }],
+    datasets: [{ data: [2, 3, 2, 5, 3, 2, 1] }], // dữ liệu 1–5
   },
   month: {
     labels: ["W1", "W2", "W3", "W4"],
@@ -53,23 +62,43 @@ export default function MoodTrends() {
         </View>
       </View>
 
-      {/* Chart */}
-      <View className="relative">
+      {/* Chart bọc bằng Pressable */}
+      <Pressable
+        onPress={() =>
+          router.push({
+            pathname: "/(tabs)/home/analytic",
+            params: { tab: filter },
+          })
+        }
+      >
         <LineChart
           data={data}
           width={screenWidth - 40}
           height={220}
           fromZero
           yAxisInterval={1}
+          formatYLabel={(value) =>
+            emotions[Math.round(Number(value)) - 1] ?? ""
+          }
           chartConfig={{
-            backgroundGradientFrom: "#fff",
-            backgroundGradientTo: "#fff",
-            color: (opacity = 1) => `rgba(127, 86, 217, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(127, 86, 217, ${opacity})`,
+            backgroundGradientFrom: "#FFFFFF",
+            backgroundGradientTo: "#FFFFFF",
+            decimalPlaces: 0,
+            color: () => "#7F56D9", // line luôn tím đặc
+            strokeWidth: 1.5,
+            labelColor: () => "#9E9E9E",
+            fillShadowGradient: "#7F56D9", // bắt đầu bằng tím
+            fillShadowGradientFrom: "#7F56D9", // trên: tím
+            fillShadowGradientTo: "#FFFFFF", // dưới: trắng
+            fillShadowGradientOpacity: 0.3, // đậm ở trên
+            propsForBackgroundLines: {
+              stroke: "#EDEDED",
+            },
             propsForDots: {
               r: "5",
               strokeWidth: "2",
               stroke: "#7F56D9",
+              fill: "#FFFFFF", // dot trắng
             },
           }}
           bezier
@@ -77,18 +106,7 @@ export default function MoodTrends() {
             borderRadius: 16,
           }}
         />
-
-        {/* button */}
-        <TouchableOpacity
-          onPress={() => router.push("/(tabs)/home/analytic")}
-          activeOpacity={0.7}
-          className="absolute top-14 right-2 bg-purple-100 px-5 py-3 rounded-full"
-        >
-          <Text className="text-purple-500 text-xs font-[Poppins-Bold]">
-            →
-          </Text>
-        </TouchableOpacity>
-      </View>
+      </Pressable>
     </View>
   );
 }

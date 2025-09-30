@@ -1,7 +1,11 @@
-import SadIcon from "@/assets/images/sad.svg";
 import StatCard from "./StatCard";
 
-export default function NegativeEmotionStat({ period, value, percent, trend }: {
+export default function NegativeEmotionStat({
+  period,
+  value,
+  percent,
+  trend,
+}: {
   period: string; // "week" | "month" | "year"
   value: string;
   percent: string;
@@ -13,9 +17,7 @@ export default function NegativeEmotionStat({ period, value, percent, trend }: {
       value={value}
       percent={percent}
       change={trend}
-      icon={<SadIcon width={28} height={28} />}
-      bg="bg-[rgba(239,68,68,0.08)]"
-      border="border-[rgba(239,68,68,0.5)]"
+      bg="bg-[#ffffff]"
       compareText={`compare to last ${period}`}
     />
   );
