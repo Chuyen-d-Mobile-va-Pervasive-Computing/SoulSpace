@@ -85,25 +85,30 @@ export default function HomeScreen() {
             How are you feeling today ?
           </Text>
           <View className="w-full items-center mt-6">
-            <View className="w-full h-6 bg-gray-200 rounded-full relative overflow-hidden">
-              {/* Thanh progress */}
-              <View
-                style={{ width: `${progressPercent}%` }}
-                className="absolute left-0 top-0 h-6 bg-[#7F56D9] rounded-full"
-              />
-            </View>
-
-            {/* Icon cảm xúc */}
-            <View className="flex-row justify-between w-full mt-[-25] px-2">
-              {icons.map((Icon, index) => (
+            <TouchableOpacity
+              className="w-full"
+              activeOpacity={0.8}
+              onPress={() => router.push("/(tabs)/home/diary")}
+            >
+              <View className="w-full h-6 bg-gray-200 rounded-full relative overflow-hidden">
+                {/* Thanh progress */}
                 <View
-                  key={index}
-                  className="w-10 h-10 rounded-full bg-yellow-100 items-center justify-center shadow"
-                >
-                  <Icon width={20} height={20} />
-                </View>
-              ))}
-            </View>
+                  style={{ width: `${progressPercent}%` }}
+                  className="absolute left-0 top-0 h-6 bg-[#7F56D9] rounded-full"
+                />
+              </View>
+              {/* Icon cảm xúc */}
+              <View className="flex-row justify-between w-full mt-[-25] px-2">
+                {icons.map((Icon, index) => (
+                  <View
+                    key={index}
+                    className="w-10 h-10 rounded-full bg-yellow-100 items-center justify-center shadow"
+                  >
+                    <Icon width={20} height={20} />
+                  </View>
+                ))}
+              </View>
+            </TouchableOpacity>
             <MoodTrends />
           </View>
 
@@ -156,7 +161,7 @@ export default function HomeScreen() {
                   {/* Ảnh 4 */}
                   <View className="relative flex-1 items-center">
                     <Activity4 width={180} height={180} />
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       className="absolute bottom-2 right-2 bg-[#4CAADD] rounded-full p-3 shadow"
                       onPress={() => router.push("/(tabs)/home/diary")}
                     >
