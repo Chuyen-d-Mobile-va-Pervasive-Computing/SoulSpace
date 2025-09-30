@@ -60,7 +60,7 @@ export default function ExploreScreen() {
             onPress={() => router.push("/(tabs)/explore/result")}
           >
             <Text className="text-[#7F56D9] font-[Poppins-Bold] text-xl">
-              MBTI Tests
+              Tests
             </Text>
             <View className="w-full flex-row items-center mt-3 mb-2 gap-2">
               {/* Số % */}

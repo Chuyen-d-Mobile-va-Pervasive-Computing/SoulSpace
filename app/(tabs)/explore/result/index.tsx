@@ -2,7 +2,7 @@ import Heading from "@/components/Heading";
 import { useFonts } from "expo-font";
 import { router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { ChevronRight } from "lucide-react-native";
+import { BookCheck } from "lucide-react-native";
 import { useCallback } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
@@ -28,8 +28,8 @@ export default function TestResultTypeScreen() {
 
   if (!fontsLoaded) return null;
   return (
-    <View className="flex-1 bg-[#020659]">
-      <Heading title="" />
+    <View className="flex-1 bg-[#FAF9FF]">
+      <Heading title="Test done" />
 
       {/* Body */}
       <ScrollView
@@ -37,18 +37,47 @@ export default function TestResultTypeScreen() {
         contentContainerStyle={{ paddingBottom: 20 }}
       >
         {/* Test Result */}
-        <View className="py-3 px-1 gap-4">
-          <TouchableOpacity
-            className="w-full h-14 rounded-xl border border-white bg-white/15 px-3 justify-center"
-            onPress={() => router.push("/(tabs)/explore/result/tests")}
-          >
-            <View className="flex-row items-center justify-between">
-              <Text className="text-white font-[Poppins-Bold] text-base">
-                MBTI
-              </Text>
-              <ChevronRight width={24} height={24} color="white" />
+        <View className="py-3 px-1">
+          <View className="w-full rounded-2xl bg-white px-4 py-4 shadow">
+            <View className="flex-row justify-between items-center">
+              {/* Left */}
+              <View className="flex-row items-center gap-3">
+                <View className="bg-purple-100 p-3 rounded-xl">
+                  <BookCheck color="#7F56D9" />
+                </View>
+                <View>
+                  <Text className="font-[Poppins-Bold] text-xl text-black">
+                    PHQ-10
+                  </Text>
+                  <Text className="font-[Poppins-Regular] text-xs text-gray-500">
+                    Completed on April 26, 2025
+                  </Text>
+                </View>
+              </View>
+
+              {/* Right */}
+              <View className="items-end">
+                <View className="bg-[#FFE9F2] px-3 py-1 rounded-full mb-2">
+                  <Text className="text-base font-[Poppins-SemiBold] text-[#F43F5E]">
+                    Severe
+                  </Text>
+                </View>
+              </View>
             </View>
-          </TouchableOpacity>
+
+            <View className="flex-row justify-between items-center mt-4">
+              <Text className="text-3xl font-[Poppins-Bold] text-black">
+                19/20
+              </Text>
+              <TouchableOpacity
+                onPress={() => router.push("/(tabs)/explore/test/done")}
+              >
+                <Text className="text-sm font-[Poppins-SemiBold] text-[#7F56D9]">
+                  View results
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
       </ScrollView>
     </View>
