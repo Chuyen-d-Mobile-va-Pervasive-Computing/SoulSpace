@@ -119,7 +119,7 @@ export default function MinigameScreen() {
                 {/* Minigame 3 */}
                 <TouchableOpacity
                     activeOpacity={0.8}
-                    onPress={() => router.push("/(tabs)/home/minigame/comment")}
+                    onPress={() => router.push("/(tabs)/home/minigame/crossword")}
                 >
                     <View className="w-full p-2 overflow-hidden">
                         <View className="flex-1">

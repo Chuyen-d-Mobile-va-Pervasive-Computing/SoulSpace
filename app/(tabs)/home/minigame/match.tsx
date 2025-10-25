@@ -90,7 +90,7 @@ export default function MatchWordScreen() {
     const toLearn = total - learnedCount;
 
     return (
-        <View className="flex-1 bg-[#F6F6F6] justify-between">
+        <View className="flex-1 bg-[#FAF9FF] justify-between">
             <Heading title={`${learnedCount}/${total}`} />
 
             {/* Progress bar */}

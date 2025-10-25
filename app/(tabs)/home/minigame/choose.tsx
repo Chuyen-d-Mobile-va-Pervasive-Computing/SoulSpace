@@ -119,7 +119,7 @@ export default function QuizFlashcardScreen() {
     );
 
   return (
-    <View className="flex-1 bg-[#F6F6F6]">
+    <View className="flex-1 bg-[#FAF9FF]">
         {/* Header */}
         <Heading title={`${currentIndex + 1}/${total}`} />
 

@@ -44,7 +44,7 @@ const Heading: React.FC<HeadingProps> = ({ title }) => {
         </TouchableOpacity>
 
         <Text className="font-[Poppins-Bold] text-2xl text-[#7F56D9] ml-4">
-          {title || "SOULSPACE"}
+          {title}
         </Text>
       </View>
 
