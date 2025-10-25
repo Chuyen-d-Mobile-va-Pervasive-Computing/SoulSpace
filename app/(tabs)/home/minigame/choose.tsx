@@ -150,7 +150,7 @@ export default function QuizFlashcardScreen() {
                 if (checked && option === currentQuestion.correctAnswer) bgColor = "#D5FFD9";
                 else if (checked && isSelected && option !== currentQuestion.correctAnswer)
                 bgColor = "#FEE2E2";
-                else if (isSelected) bgColor = "#378CE7";
+                else if (isSelected) bgColor = "#7F56D9";
 
                 let textColor =
                 isSelected && !checked ? "#fff" : checked && option === currentQuestion.correctAnswer

@@ -1,16 +1,17 @@
-import { useState, useRef } from "react";
 import { router } from "expo-router";
+import { X } from "lucide-react-native";
+import { useRef, useState } from "react";
 import {
+  KeyboardAvoidingView,
   Modal,
+  Platform,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
 } from "react-native";
-import { X } from "lucide-react-native";
 
 export default function AddScreen() {
   const textInputRef = useRef<TextInput>(null);
@@ -78,31 +79,33 @@ export default function AddScreen() {
 
       {/* Confirm Modal */}
       <Modal transparent animationType="fade" visible={showConfirm}>
-        <View className="flex-1 bg-black/60 justify-center items-center">
-          <View className="bg-white w-4/5 rounded-2xl p-6 items-center">
-            <Text className="text-lg font-[Poppins-SemiBold] mb-6 text-gray-800">
-              Are you sure you want to discard this post?
-            </Text>
-            <View className="flex-row gap-4">
-              <TouchableOpacity
-                onPress={() => setShowConfirm(false)}
-                className="bg-gray-300 px-8 py-4 rounded-xl"
-              >
-                <Text className="text-base font-[Poppins-SemiBold] text-gray-800">
-                  No
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleConfirmCancel}
-                className="bg-red-500 px-8 py-4 rounded-xl"
-              >
-                <Text className="text-base font-[Poppins-SemiBold] text-white">
-                  Yes
-                </Text>
-              </TouchableOpacity>
+        <TouchableWithoutFeedback onPress={() => setShowConfirm(false)}>
+          <View className="flex-1 bg-black/60 justify-center items-center">
+            <View className="bg-white w-4/5 rounded-2xl p-6 items-center">
+              <Text className="text-lg font-[Poppins-SemiBold] mb-6 text-gray-800">
+                Are you sure you want to discard this post?
+              </Text>
+              <View className="flex-row gap-4">
+                <TouchableOpacity
+                  onPress={() => setShowConfirm(false)}
+                  className="bg-gray-300 px-8 py-4 rounded-xl"
+                >
+                  <Text className="text-base font-[Poppins-SemiBold] text-gray-800">
+                    No
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleConfirmCancel}
+                  className="bg-red-500 px-8 py-4 rounded-xl"
+                >
+                  <Text className="text-base font-[Poppins-SemiBold] text-white">
+                    Yes
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
     </KeyboardAvoidingView>
   );

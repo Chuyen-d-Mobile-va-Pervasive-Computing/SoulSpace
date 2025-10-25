@@ -126,7 +126,7 @@ export default function MatchWordScreen() {
                                     isWrong
                                     ? "bg-[#FCA5A5]"
                                     : selected
-                                    ? "bg-[#378CE7]"
+                                    ? "bg-[#7F56D9]"
                                     : "bg-[#E0D7F9]"
                                 }`}
                             >
@@ -157,7 +157,7 @@ export default function MatchWordScreen() {
                                     isWrong
                                     ? "bg-[#FCA5A5]"
                                     : selected
-                                    ? "bg-[#378CE7]"
+                                    ? "bg-[#7F56D9]"
                                     : "bg-[#E0D7F9]"
                                 }`}
                             >

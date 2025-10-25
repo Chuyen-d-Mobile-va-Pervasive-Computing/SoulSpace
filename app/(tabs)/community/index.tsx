@@ -1,8 +1,6 @@
 import Heading from "@/components/Heading";
 import TagSelector from "@/components/TagSelector";
-import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
 import {
   EllipsisVertical,
   Heart,
@@ -10,7 +8,7 @@ import {
   Plus,
   SlidersHorizontal,
 } from "lucide-react-native";
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import {
   Modal,
   Pressable,
@@ -18,6 +16,7 @@ import {
   Text,
   ToastAndroid,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 
@@ -213,29 +212,31 @@ export default function CommunityScreen() {
         animationType="slide"
         onRequestClose={() => setFilterVisible(false)}
       >
-        <View className="flex-1 bg-black/50 items-center justify-center">
-          <View className="w-80 bg-white p-6 rounded-2xl">
-            <Text className="text-lg font-[Poppins-Bold] mb-4">Sort</Text>
-            <TagSelector
-              options={[
-                { id: 2025, name: "2025" },
-                { id: 2024, name: "2024" },
-                { id: 2023, name: "2023" },
-              ]}
-              multiSelect={false}
-              onChange={(ids) => console.log("Years:", ids)}
-            />
-            {/* Close Button */}
-            <Pressable
-              className="mt-4 bg-[#7F56D9] py-2 rounded-xl"
-              onPress={() => setFilterVisible(false)}
-            >
-              <Text className="text-center text-white font-[Poppins-Bold]">
-                Apply
-              </Text>
-            </Pressable>
+        <TouchableWithoutFeedback onPress={() => setFilterVisible(false)}>
+          <View className="flex-1 bg-black/50 items-center justify-center">
+            <View className="w-80 bg-white p-6 rounded-2xl">
+              <Text className="text-lg font-[Poppins-Bold] mb-4">Sort</Text>
+              <TagSelector
+                options={[
+                  { id: 2025, name: "2025" },
+                  { id: 2024, name: "2024" },
+                  { id: 2023, name: "2023" },
+                ]}
+                multiSelect={false}
+                onChange={(ids) => console.log("Years:", ids)}
+              />
+              {/* Close Button */}
+              <Pressable
+                className="mt-4 bg-[#7F56D9] py-2 rounded-xl"
+                onPress={() => setFilterVisible(false)}
+              >
+                <Text className="text-center text-white font-[Poppins-Bold]">
+                  Apply
+                </Text>
+              </Pressable>
+            </View>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
 
       {/* Menu Modal */}
@@ -284,34 +285,41 @@ export default function CommunityScreen() {
         visible={showConfirm}
         onRequestClose={() => setShowConfirm(false)}
       >
-        <View className="flex-1 bg-black/60 justify-center items-center">
-          <View className="bg-white w-4/5 rounded-2xl p-6 items-center">
-            <Text className="text-lg font-[Poppins-SemiBold] mb-6 text-gray-800">
-              Are you sure you want to delete this post?
-            </Text>
-            <View className="flex-row gap-4">
-              <TouchableOpacity
-                onPress={() => {
-                  setShowConfirm(false);
-                  setMenuVisible(false);
-                }}
-                className="bg-gray-300 px-8 py-4 rounded-xl"
-              >
-                <Text className="text-base font-[Poppins-SemiBold] text-gray-800">
-                  No
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => handleDelete(selectedPost.id)}
-                className="bg-red-500 px-8 py-4 rounded-xl"
-              >
-                <Text className="text-base font-[Poppins-SemiBold] text-white">
-                  Yes
-                </Text>
-              </TouchableOpacity>
+        <TouchableWithoutFeedback 
+          onPress={() => {
+            setShowConfirm(false)
+            setMenuVisible(false)
+          }}
+        >
+          <View className="flex-1 bg-black/60 justify-center items-center">
+            <View className="bg-white w-4/5 rounded-2xl p-6 items-center">
+              <Text className="text-lg font-[Poppins-SemiBold] mb-6 text-gray-800">
+                Are you sure you want to delete this post?
+              </Text>
+              <View className="flex-row gap-4">
+                <TouchableOpacity
+                  onPress={() => {
+                    setShowConfirm(false);
+                    setMenuVisible(false);
+                  }}
+                  className="bg-gray-300 px-8 py-4 rounded-xl"
+                >
+                  <Text className="text-base font-[Poppins-SemiBold] text-gray-800">
+                    No
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => handleDelete(selectedPost.id)}
+                  className="bg-red-500 px-8 py-4 rounded-xl"
+                >
+                  <Text className="text-base font-[Poppins-SemiBold] text-white">
+                    Yes
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
     </View>
   );
