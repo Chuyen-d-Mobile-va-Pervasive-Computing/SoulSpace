@@ -1,11 +1,9 @@
-// File: AddScreen.js (hoặc file tương ứng của bạn)
 import CircularTimeSelector from "@/components/CircularTimeSelector";
 import CustomSwitch from "@/components/CustomSwitch";
 import Heading from "@/components/Heading";
-import { useFonts } from "expo-font";
-import * as SplashScreen from "expo-splash-screen";
+import { router } from "expo-router";
 import { Bell } from "lucide-react-native";
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import {
   ScrollView,
   Text,
@@ -13,21 +11,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler"; // <-- IMPORT GESTURE HANDLER
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function AddScreen() {
-  const [fontsLoaded] = useFonts({
-    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
-    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
-    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
-    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
-    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
-    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
-    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
-    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
-    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
-    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
-  });
 
   const [once, setOnce] = useState(true);
   const [daily, setDaily] = useState(true);
@@ -48,14 +34,6 @@ export default function AddScreen() {
 
   const days = ["M", "Tu", "W", "Th", "F", "Sa", "Su"];
 
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-
-  if (!fontsLoaded) return null;
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View className="flex-1 bg-[#FAF9FF]">
@@ -66,7 +44,7 @@ export default function AddScreen() {
           className="flex-1 px-4"
           contentContainerStyle={{ paddingBottom: 40 }}
         >
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/(tabs)/home/remind")}>
             <Text className="text-[#7F56D9] font-[Poppins-Bold] text-lg text-right">
               Save
             </Text>

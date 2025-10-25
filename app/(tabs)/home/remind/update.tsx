@@ -1,214 +1,136 @@
-import { useFonts } from "expo-font";
-import { useCallback } from "react";
-import * as SplashScreen from "expo-splash-screen";
+import CircularTimeSelector from "@/components/CircularTimeSelector";
+import CustomSwitch from "@/components/CustomSwitch";
 import Heading from "@/components/Heading";
 import { router } from "expo-router";
-import { ChevronRight } from "lucide-react-native";
-import { useState } from "react";
+import { Bell } from "lucide-react-native";
+import React, { useState } from "react";
 import {
-  Modal,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { GestureHandlerRootView } from "react-native-gesture-handler"; // <-- IMPORT GESTURE HANDLER
 
 export default function UpdateScreen() {
-  const [fontsLoaded] = useFonts({
-    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
-    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
-    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
-    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
-    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
-    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
-    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
-    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
-    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
-    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
+  const [once, setOnce] = useState(true);
+  const [daily, setDaily] = useState(true);
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+
+  // State thời gian vẫn như cũ
+  const [time, setTime] = useState(() => {
+    return new Date();
   });
-            
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
+
+  const toggleDay = (day: string) => {
+    if (selectedDays.includes(day)) {
+      setSelectedDays(selectedDays.filter((d) => d !== day));
+    } else {
+      setSelectedDays([...selectedDays, day]);
     }
-  }, [fontsLoaded]);
-            
-  if (!fontsLoaded) return null;
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [name, setName] = useState("");
-  const [time, setTime] = useState("");
-  const [phrase, setPhrase] = useState("");
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
-
-  const showDatePicker = () => {
-    setDatePickerVisibility(true);
   };
 
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
+  const days = ["M", "Tu", "W", "Th", "F", "Sa", "Su"];
 
-  const handleConfirm = (date: Date) => {
-    const hours = date.getHours().toString().padStart(2, "0");
-    const minutes = date.getMinutes().toString().padStart(2, "0");
-    setSelectedTime(`${hours}:${minutes}`);
-    hideDatePicker();
-  };
-
-  const handleCancel = () => {
-    setShowConfirm(true);
-  };
-
-  const handleConfirmCancel = () => {
-    setShowConfirm(false);
-    router.push("/(tabs)/home/remind");
-  };
-
-  const handlePost = () => {
-    router.push("/(tabs)/home/remind");
-  };
   return (
-    <View className="flex-1 bg-[#020659]">
-      <Heading
-        title="Update reminder"
-        showBack={true}
-        onBackPress={() => router.back()}
-      />
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View className="flex-1 bg-[#FAF9FF]">
+        <Heading title="Update new reminder" />
 
-      {/* Body */}
-      <ScrollView
-        className="flex-1 px-4"
-        contentContainerStyle={{ paddingBottom: 40 }}
-      >
-        <View className="py-3 px-1">
-          {/* Thời gian nhắc nhở */}
-          <TouchableOpacity
-            className="w-full h-14 rounded-xl border border-white/20 bg-white/10 px-4 justify-center mb-4"
-            onPress={showDatePicker}
-          >
-            <View className="flex-row items-center justify-between">
-              <Text className="text-white font-[Poppins-Bold] text-base">Time</Text>
-              <View className="flex-row items-center">
-                <Text className="text-[#BBBBBB] font-[Poppins-Medium] text-sm mr-1">
-                  {selectedTime ? selectedTime : "Select time"}
-                </Text>
-                <ChevronRight width={20} height={20} color="#BBBBBB" />
-              </View>
-            </View>
+        {/* Body */}
+        <ScrollView
+          className="flex-1 px-4"
+          contentContainerStyle={{ paddingBottom: 40 }}
+        >
+          <TouchableOpacity onPress={() => router.push("/(tabs)/home/remind")}>
+            <Text className="text-[#7F56D9] font-[Poppins-Bold] text-lg text-right">
+              Save
+            </Text>
           </TouchableOpacity>
+          {/* Time display */}
 
-          {/* DateTime Picker */}
-          <DateTimePickerModal
-            isVisible={isDatePickerVisible}
-            mode="time"
-            onConfirm={handleConfirm}
-            onCancel={hideDatePicker}
-          />
+          <View className="items-center mt-4">
+            <CircularTimeSelector time={time} setTime={setTime} />
+          </View>
 
-          {/* Card: Custom reminder */}
-          <View className="rounded-2xl border border-white/20 bg-white/10 p-4 space-y-6 gap-4">
-            <Text className="text-base font-[Poppins-Bold] text-white">
-              Custom reminder
+          {/* Title */}
+          <View className="mt-8">
+            <Text className="text-lg font-[Poppins-SemiBold] text-gray-700 mb-2">
+              Title
             </Text>
-
-            {/* Input */}
-            <View className="space-y-2">
-              <Text className="text-sm font-[Poppins-SemiBold] text-white mb-2">
-                Reminder Name
-              </Text>
-              <TextInput
-                className="h-14 w-full rounded-xl border border-white/20 bg-white/15 px-3 text-white"
-                value={name}
-                onChangeText={setName}
-                placeholderTextColor="#ccc"
-                maxLength={30}
-              />
-              <Text className="self-stretch text-right font-[Poppins-Regular] text-xs text-gray-400">
-                0/30
-              </Text>
-            </View>
-
-            {/* Input: Cụm từ nhắc nhở */}
-            <View className="space-y-2">
-              <Text className="text-sm font-[Poppins-SemiBold] text-white mb-2">
-                Reminder Phrase
-              </Text>
-              <TextInput
-                className="min-h-[100px] w-full rounded-xl border border-white/20 bg-white/15 px-3 py-2 text-white"
-                value={phrase}
-                onChangeText={setPhrase}
-                placeholderTextColor="#ccc"
-                maxLength={200}
-                multiline
-                numberOfLines={4}
-                textAlignVertical="top"
-              />
-              <Text className="self-stretch font-[Poppins-Regular] text-right text-xs text-gray-400">
-                0/200
-              </Text>
-            </View>
+            <TextInput
+              value={title}
+              onChangeText={setTitle}
+              placeholder="Enter reminder title ..."
+              className="bg-white rounded-xl px-4 py-3 border border-gray-200 text-base font-[Poppins-Regular]"
+            />
           </View>
 
-          <View className="pt-4 flex-row space-x-3 gap-2">
-            <TouchableOpacity 
-              onPress={handleCancel}
-              className="flex-1 h-14 rounded-xl border border-red-400/40 bg-red-500/20 justify-center items-center"
-            >
-              <Text className="text-red-400 font-[Poppins-Bold] text-base">
-                Delete
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              disabled={!name || !time}
-              className={`flex-1 h-14 rounded-xl border border-green-400/40 bg-green-500/20 justify-center items-center ${!name || !time ? "opacity-40" : ""}`}
-              onPress={handlePost}
-            >
-              <Text className="text-green-400 font-[Poppins-Bold] text-base">
-                Update
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
-
-      <Modal
-        transparent
-        animationType="fade"
-        visible={showConfirm}
-        onRequestClose={() => setShowConfirm(false)}
-      >
-        <View className="flex-1 bg-black/60 justify-center items-center">
-          <View className="bg-white w-4/5 rounded-2xl p-6 items-center">
-            <Text className="text-lg font-[Poppins-SemiBold] mb-6 text-gray-800">
-              Are you sure you want to discard this reminder?
+          {/* Description */}
+          <View className="mt-4">
+            <Text className="text-lg font-[Poppins-SemiBold] text-gray-700 mb-2">
+              Description
             </Text>
-      
-            <View className="flex-row gap-4">
-              <TouchableOpacity
-                onPress={() => setShowConfirm(false)}
-                className="bg-gray-300 px-8 py-4 rounded-xl"
-              >
-                <Text className="text-base font-[Poppins-SemiBold] text-gray-800">
-                  No
-                </Text>
-              </TouchableOpacity>
-      
-              <TouchableOpacity
-                onPress={handleConfirmCancel}
-                className="bg-red-500 px-8 py-4 rounded-xl"
-              >
-                <Text className="text-base font-[Poppins-SemiBold] text-white">
-                  Yes
-                </Text>
-              </TouchableOpacity>
+            <TextInput
+              value={description}
+              onChangeText={setDescription}
+              placeholder="Enter reminder description ..."
+              className="bg-white rounded-xl px-4 py-3 border border-gray-200 text-base font-[Poppins-Regular]"
+              multiline
+              style={{ minHeight: 80, textAlignVertical: "top" }}
+            />
+          </View>
+
+          {/* Repeat */}
+          <View className="bg-white rounded-2xl mt-6 p-4">
+            <View className="flex-row items-center mb-4">
+              <Bell size={18} color="#7F56D9" />
+              <Text className="ml-2 font-[Poppins-SemiBold] text-base">
+                Repeat
+              </Text>
+            </View>
+
+            {/* Days */}
+            <View className="flex-row justify-between mb-4">
+              {days.map((d) => {
+                const active = selectedDays.includes(d);
+                return (
+                  <TouchableOpacity
+                    key={d}
+                    onPress={() => toggleDay(d)}
+                    className={`w-9 h-9 rounded-full border items-center justify-center ${
+                      active
+                        ? "bg-[#7F56D9] border-[#7F56D9]"
+                        : "border-[#7F56D9]"
+                    }`}
+                  >
+                    <Text
+                      className={`text-sm font-[Poppins-Regular] ${
+                        active ? "text-white" : "text-[#7F56D9]"
+                      }`}
+                    >
+                      {d}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {/* Once / Daily */}
+            <View className="flex-row items-center justify-between border-t border-gray-200 py-3">
+              <Text className="text-base font-[Poppins-Regular]">Once</Text>
+              <CustomSwitch value={once} onValueChange={setOnce} />
+            </View>
+            <View className="flex-row items-center justify-between border-t border-gray-200 py-3">
+              <Text className="text-base font-[Poppins-Regular]">Daily</Text>
+              <CustomSwitch value={daily} onValueChange={setDaily} />
             </View>
           </View>
-        </View>
-      </Modal>
-    </View>
+        </ScrollView>
+      </View>
+    </GestureHandlerRootView>
   );
 }
