@@ -1,10 +1,10 @@
+import Minigame from "@/assets/images/minigame.svg";
 import Heading from "@/components/Heading";
 import { router } from "expo-router";
 import { HandHeart, Heart, Radar, Rainbow, Sun, SunMoon } from "lucide-react-native";
 import React from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import * as Progress from "react-native-progress";
-import Minigame from "@/assets/images/minigame.svg";
 
 export default function MinigameScreen() {
     return (
@@ -31,7 +31,7 @@ export default function MinigameScreen() {
                 {/* Minigame 1 */}
                 <TouchableOpacity
                     activeOpacity={0.8}
-                    onPress={() => router.push("/(tabs)/home/minigame/write")}
+                    onPress={() => router.push("/(tabs)/home/minigame/choose")}
                 >
                     <View className="w-full p-2 overflow-hidden">
                         <View className="flex-1">
@@ -75,7 +75,7 @@ export default function MinigameScreen() {
                 {/* Minigame 2 */}
                 <TouchableOpacity
                     activeOpacity={0.8}
-                    onPress={() => router.push("/(tabs)/home/minigame/share")}
+                    onPress={() => router.push("/(tabs)/home/minigame/match")}
                 >
                     <View className="w-full p-2 overflow-hidden">
                         <View className="flex-1">

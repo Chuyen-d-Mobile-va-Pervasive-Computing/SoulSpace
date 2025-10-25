@@ -17,6 +17,8 @@ export default function HomeLayout() {
       <Stack.Screen name="minigame/write" options={{ title: "Viết bài" }} />
       <Stack.Screen name="minigame/share" options={{ title: "Chia sẻ bài" }} />
       <Stack.Screen name="minigame/comment" options={{ title: "Bình luận bài" }} />
+      <Stack.Screen name="minigame/choose" options={{ title: "Chọn đáp án đúng" }} />
+      <Stack.Screen name="minigame/match" options={{ title: "Nối đáp án" }} />
       <Stack.Screen name="plant/index" options={{ title: "Trồng cây" }} />
       <Stack.Screen name="plant/list" options={{ title: "Danh sách hành động" }} />
       <Stack.Screen name="plant/action" options={{ title: "Thực hiện hành động" }} />

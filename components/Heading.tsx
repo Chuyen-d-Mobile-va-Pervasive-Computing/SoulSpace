@@ -1,7 +1,7 @@
 import { useFonts } from "expo-font";
 import { useRouter } from "expo-router"; // ✅ Dùng expo-router
 import * as SplashScreen from "expo-splash-screen";
-import { ArrowLeft, Bell, Settings } from "lucide-react-native";
+import { ArrowLeft } from "lucide-react-native";
 import React, { useCallback } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
@@ -48,10 +48,10 @@ const Heading: React.FC<HeadingProps> = ({ title }) => {
         </Text>
       </View>
 
-      <View className="flex-row items-center gap-4">
+      {/* <View className="flex-row items-center gap-4">
         <Bell strokeWidth={1.5} />
         <Settings strokeWidth={1.5} />
-      </View>
+      </View> */}
     </View>
   );
 };
