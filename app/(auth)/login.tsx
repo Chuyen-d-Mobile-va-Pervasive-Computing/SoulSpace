@@ -1,4 +1,5 @@
-// app/(auth)/login.tsx
+"use client";
+
 import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -11,12 +12,20 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
 export default function LoginScreen() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  // Load Poppins font
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const [fontsLoaded] = useFonts({
     "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
     "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
@@ -31,20 +40,51 @@ export default function LoginScreen() {
   });
 
   const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
+    if (fontsLoaded) await SplashScreen.hideAsync();
   }, [fontsLoaded]);
 
   if (!fontsLoaded) return null;
 
-  const handleSignIn = () => {
-    router.replace("/(tabs)/home");
+  const handleSignIn = async () => {
+    if (!email || !password) {
+      Alert.alert("Notice", "Please fill in your email and password");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE}/api/v1/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.detail || "Login failed");
+      }
+
+      // Lưu token vào AsyncStorage
+      await AsyncStorage.setItem("access_token", data.access_token);
+      await AsyncStorage.setItem("username", data.username);
+      await AsyncStorage.setItem("role", data.role);
+
+      Alert.alert("Login successfully", `Welcom ${data.username} to SoulSpace!`);
+      router.replace("/(tabs)/home");
+    } catch (error: any) {
+      Alert.alert("Login error", error.message || "An error has occurred");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      {/* phần trên */}
+    <SafeAreaView className="flex-1 bg-white" onLayout={onLayoutRootView}>
+      {/* Phần trên */}
       <View className="bg-[#B5A2E9] rounded-b-[70%] pb-[20%] -mx-40 pl-40 pr-40 pt-20">
         {/* Nút back */}
         <View className="px-4">
@@ -55,6 +95,7 @@ export default function LoginScreen() {
             <ChevronLeft size={30} color="#000000" />
           </TouchableOpacity>
         </View>
+
         <View className="w-full">
           {/* Title */}
           <View className="px-6 mt-24">
@@ -72,9 +113,12 @@ export default function LoginScreen() {
               Email Address
             </Text>
             <TextInput
+              value={email}
+              onChangeText={setEmail}
               placeholder="Enter your email"
               placeholderTextColor="#ccc"
               className="w-full h-16 bg-white rounded-xl px-4 mb-4 font-[Poppins-Regular]"
+              autoCapitalize="none"
             />
 
             {/* Password */}
@@ -83,6 +127,8 @@ export default function LoginScreen() {
             </Text>
             <View className="w-full h-16 bg-white rounded-xl px-4 flex-row items-center">
               <TextInput
+                value={password}
+                onChangeText={setPassword}
                 placeholder="Enter your password"
                 placeholderTextColor="#ccc"
                 secureTextEntry={!showPassword}
@@ -96,30 +142,34 @@ export default function LoginScreen() {
                 )}
               </Pressable>
             </View>
-            <View>
-              <TouchableOpacity
-                onPress={() => router.push("/(auth)/forgot-pw")}
-                className="self-end mt-2"
-              >
-                <Text className="text-[#ffffff] font-[Poppins-Italic]">
-                  Forgot Password?
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              onPress={() => router.push("/(auth)/forgot-pw")}
+              className="self-end mt-2"
+            >
+              <Text className="text-[#ffffff] font-[Poppins-Italic]">
+                Forgot Password?
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
 
-      {/* phần dưới */}
+      {/* Phần dưới */}
       <View className="flex-1 px-6 pt-10">
-        {/* Login Button */}
         <TouchableOpacity
           onPress={handleSignIn}
-          className="bg-[#7F56D9] h-16 rounded-xl items-center justify-center"
+          disabled={loading}
+          className={`h-16 rounded-xl items-center justify-center ${
+            loading ? "bg-[#A08CE2]" : "bg-[#7F56D9]"
+          }`}
         >
-          <Text className="text-white font-[Poppins-Bold] text-base">
-            Login
-          </Text>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text className="text-white font-[Poppins-Bold] text-base">
+              Login
+            </Text>
+          )}
         </TouchableOpacity>
 
         {/* Register */}
