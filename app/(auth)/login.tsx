@@ -4,7 +4,7 @@ import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { ChevronLeft, Eye, EyeOff } from "lucide-react-native";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Pressable,
   SafeAreaView,
@@ -25,6 +25,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkingToken, setCheckingToken] = useState(true);
 
   const [fontsLoaded] = useFonts({
     "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
@@ -39,11 +40,42 @@ export default function LoginScreen() {
     "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
   });
 
+  // Tự động redirect nếu đã có token
+  // useEffect(() => {
+  //   const checkToken = async () => {
+  //     try {
+  //       const token = await AsyncStorage.getItem("access_token");
+  //       if (token) {
+  //         router.replace("/(tabs)/home");
+  //         return;
+  //       }
+  //     } catch (err) {
+  //       console.log("Token check error:", err);
+  //     } finally {
+  //       setCheckingToken(false);
+  //     }
+  //   };
+  //   checkToken();
+  // }, []);
+
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) await SplashScreen.hideAsync();
   }, [fontsLoaded]);
 
   if (!fontsLoaded) return null;
+
+  // Hàm parse lỗi từ backend
+  const parseErrorDetail = (data: any): string => {
+    if (!data) return "An unknown error occurred.";
+
+    if (typeof data.detail === "string") return data.detail;
+
+    if (Array.isArray(data.detail) && data.detail.length > 0) {
+      return data.detail[0].msg || "Invalid input.";
+    }
+
+    return "Login failed.";
+  };
 
   const handleSignIn = async () => {
     if (!email || !password) {
@@ -62,10 +94,11 @@ export default function LoginScreen() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => null);
 
       if (!response.ok) {
-        throw new Error(data?.detail || "Login failed");
+        const msg = parseErrorDetail(data);
+        throw new Error(msg);
       }
 
       // Lưu token vào AsyncStorage
@@ -73,10 +106,11 @@ export default function LoginScreen() {
       await AsyncStorage.setItem("username", data.username);
       await AsyncStorage.setItem("role", data.role);
 
-      Alert.alert("Login successfully", `Welcom ${data.username} to SoulSpace!`);
+      Alert.alert("Success", `Welcome ${data.username} to SoulSpace!`);
       router.replace("/(tabs)/home");
     } catch (error: any) {
-      Alert.alert("Login error", error.message || "An error has occurred");
+      console.log("Login error:", error);
+      Alert.alert("Login Error", error.message || "Unable to connect to server.");
     } finally {
       setLoading(false);
     }
@@ -84,9 +118,9 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" onLayout={onLayoutRootView}>
-      {/* Phần trên */}
+      {/* Header */}
       <View className="bg-[#B5A2E9] rounded-b-[70%] pb-[20%] -mx-40 pl-40 pr-40 pt-20">
-        {/* Nút back */}
+        {/* Back */}
         <View className="px-4">
           <TouchableOpacity
             onPress={() => router.back()}
@@ -119,6 +153,7 @@ export default function LoginScreen() {
               placeholderTextColor="#ccc"
               className="w-full h-16 bg-white rounded-xl px-4 mb-4 font-[Poppins-Regular]"
               autoCapitalize="none"
+              keyboardType="email-address"
             />
 
             {/* Password */}
@@ -154,7 +189,7 @@ export default function LoginScreen() {
         </View>
       </View>
 
-      {/* Phần dưới */}
+      {/* Footer */}
       <View className="flex-1 px-6 pt-10">
         <TouchableOpacity
           onPress={handleSignIn}
