@@ -1,43 +1,44 @@
 import Heading from "@/components/Heading";
-import { useFonts } from "expo-font";
 import { router } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
-import { useCallback } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import MBTICard from "./components/ADHD";
-import GADCard from "./components/GAD";
-import PHQCard from "./components/PHQ";
-import PSSCard from "./components/PSS";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
+const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
 export default function ExploreScreen() {
+  const [tests, setTests] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const percent = 24;
 
-  const [fontsLoaded] = useFonts({
-    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
-    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
-    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
-    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
-    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
-    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
-    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
-    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
-    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
-    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
-  });
+  useEffect(() => {
+    const fetchTests = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/tests`);
+        const data = await res.json();
+        setTests(data);
+      } catch (error) {
+        console.error("Error fetching tests:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTests();
+  }, []);
 
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
+  const bgColors = ["#D9D8FF", "#BEC8CF", "#AFCEE8", "#AFE8E1"];
+  const btnColors = ["#8130C8", "#01101C", "#066BBE", "#2DA800"];
 
-  if (!fontsLoaded) return null;
   return (
     <View className="flex-1 bg-[#FAF9FF]">
-      {/* Header */}
       <Heading title="Explore" />
 
-      {/* Body */}
       <ScrollView
         className="flex-1 px-4"
         contentContainerStyle={{ paddingBottom: 20 }}
@@ -53,8 +54,8 @@ export default function ExploreScreen() {
           </Text>
         </View>
 
-        {/* Test Result */}
-        <View className=" w-full pt-2">
+        {/* Test Progress Card */}
+        <View className="w-full pt-2">
           <TouchableOpacity
             className="w-full rounded-xl border border-white bg-[#E0D7F9] p-4 justify-center"
             onPress={() => router.push("/(tabs)/explore/result")}
@@ -63,10 +64,8 @@ export default function ExploreScreen() {
               Tests
             </Text>
             <View className="w-full flex-row items-center mt-3 mb-2 gap-2">
-              {/* Số % */}
               <Text className="text-[#7F56D9] font-semibold">{percent}%</Text>
 
-              {/* Thanh progress */}
               <View className="flex-1 h-4 bg-white rounded-full overflow-hidden mr-2">
                 <View
                   className="h-4 bg-[#7F56D9]"
@@ -84,10 +83,64 @@ export default function ExploreScreen() {
         <Text className="p-2 font-[Poppins-Bold] text-xl text-[#605D67] mb-2">
           Explore Tests
         </Text>
-        <MBTICard />
-        <PHQCard />
-        <GADCard />
-        <PSSCard />
+
+        {loading ? (
+          <ActivityIndicator size="large" color="#7F56D9" />
+        ) : (
+          tests.map((test, index) => {
+            const bgColor = bgColors[index % bgColors.length];
+            const btnColor = btnColors[index % btnColors.length];
+            const isEven = index % 2 === 1; // test 2,4,6... hình bên phải
+
+            return (
+              <View
+                key={test._id}
+                className="flex-row items-center rounded-2xl p-4 mb-4"
+                style={{
+                  backgroundColor: bgColor,
+                  flexDirection: isEven ? "row-reverse" : "row",
+                }}
+              >
+                {/* Nội dung text + nút */}
+                <View
+                  className={`flex-1 ${isEven ? "pl-10" : "pr-3"} justify-center`}
+                >
+                  <Text className="text-black text-lg font-[Poppins-SemiBold] mb-3">
+                    {test.test_code}
+                  </Text>
+
+                  <TouchableOpacity
+                    style={{ backgroundColor: btnColor }}
+                    className="px-6 py-2 rounded-full max-w-[80px] items-center"
+                    onPress={() =>
+                      router.push({
+                        pathname: "/(tabs)/explore/test",
+                        params: { test: JSON.stringify(test) },
+                      })
+                    }
+                  >
+                    <Text className="text-white font-[Poppins-SemiBold]">
+                      Test
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Ảnh minh họa */}
+                <Image
+                  source={{ uri: test.image_url }}
+                  style={{
+                    width: 100,
+                    height: 80,
+                    borderRadius: 12,
+                    marginLeft: isEven ? 0 : 100,
+                    marginRight: isEven ? 100 : 0,
+                  }}
+                  resizeMode="cover"
+                />
+              </View>
+            );
+          })
+        )}
       </ScrollView>
     </View>
   );

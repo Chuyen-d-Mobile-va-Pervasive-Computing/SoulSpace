@@ -1,41 +1,33 @@
-import Mock from "@/assets/images/mock.svg";
 import Heading from "@/components/Heading";
-import { useFonts } from "expo-font";
 import { router, useLocalSearchParams } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
 import { CheckCheck, Clock, Grip } from "lucide-react-native";
-import React, { useCallback } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import CircularProgress from "../components/CircularProgress";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 export default function TestInfoScreen() {
   const percentage = 25;
+  const { test } = useLocalSearchParams<{ test: string }>();
+  const parsedTest = test ? JSON.parse(test) : null;
 
-  const [fontsLoaded] = useFonts({
-    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
-    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
-    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
-    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
-    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
-    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
-    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
-    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
-    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
-    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
-  });
+  if (!parsedTest) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <Text className="text-gray-500 text-lg">No test data found</Text>
+      </View>
+    );
+  }
 
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-
-  if (!fontsLoaded) return null;
-  const { testType } = useLocalSearchParams<{ testType?: string }>();
+  const {
+    test_code,
+    test_name,
+    description,
+    num_questions,
+    image_url,
+  } = parsedTest;
 
   return (
     <View className="flex-1 bg-[#FAF9FF]">
-      <Heading title="Test Information" />
+      <Heading title={test_code} />
 
       <ScrollView
         className="flex-1 px-4"
@@ -44,25 +36,23 @@ export default function TestInfoScreen() {
         <View className="flex-1 gap-4">
           {/* Ảnh minh họa */}
           <View className="w-full items-center mt-2">
-            <Mock width={200} height={200} />
+            <Image
+              source={{ uri: image_url }}
+              style={{ width: 200, height: 200, borderRadius: 16 }}
+              resizeMode="cover"
+            />
           </View>
           {/* Nội dung */}
           <View className="w-full flex-row self-stretch inline-flex justify-between items-center">
             <View>
-              <Text className="text-[#605D67] text-3xl font-[Poppins-Bold]">
-                Feeling low or losing
-              </Text>
-              <Text className="text-[#605D67] text-3xl font-[Poppins-Bold]">
-                interest?
+              <Text className="text-[#605D67] text-xl font-[Poppins-Bold]">
+                {test_name}
               </Text>
             </View>
             <CircularProgress percentage={percentage} />
           </View>
           <Text className="text-[#605D67] font-[Poppins-Regular] text-base">
-            This test helps you reflect on mood changes and signs of depression.
-            It offers a simple way to notice patterns in your emotions and
-            energy levels. By completing it, you can gain clearer insights into
-            your overall well-being.
+           {description}
           </Text>
 
           {/* Estimate time */}
@@ -91,7 +81,7 @@ export default function TestInfoScreen() {
               </Text>
             </View>
             <Text className="text-[#FF4267] text-base font-[Poppins-Regular]">
-              10 questions
+              {num_questions}
             </Text>
           </View>
 
@@ -113,7 +103,12 @@ export default function TestInfoScreen() {
           <View className="flex-row justify-center mt-4">
             <TouchableOpacity
               className="bg-[#7F56D9] h-16 rounded-xl items-center justify-center w-1/2"
-              onPress={() => router.push("/(tabs)/explore/test/doing")}
+              onPress={() => 
+                router.push({
+                  pathname: "/(tabs)/explore/test/doing",
+                  params: { test_code: parsedTest.test_code },
+                })
+              }
             >
               <Text className="text-white font-[Poppins-Bold] text-base">
                 Start Test Now
