@@ -1,8 +1,16 @@
-import Heading from "@/components/Heading";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import { ChevronRight, CircleUserRound, Lock, LogOut } from "lucide-react-native";
 import { useState } from "react";
-import { Modal, ScrollView, Text, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
+import {
+  Modal,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
+import { ChevronRight, CircleUserRound, Lock, LogOut } from "lucide-react-native";
+import Heading from "@/components/Heading";
 
 export default function Settingscreen() {
   const [showConfirm, setShowConfirm] = useState(false);
@@ -11,9 +19,15 @@ export default function Settingscreen() {
     setShowConfirm(true);
   };
 
-  const handleConfirmCancel = () => {
-    setShowConfirm(false);
-    router.push("/(auth)/login");
+  // Xoá token & username khi logout
+  const handleConfirmCancel = async () => {
+    try {
+      await AsyncStorage.multiRemove(["access_token", "username", "role"]);
+      setShowConfirm(false);
+      router.replace("/(auth)/login");
+    } catch (err) {
+      console.log("Logout error:", err);
+    }
   };
   return (
     <View className="flex-1 bg-[#FAF9FF]">

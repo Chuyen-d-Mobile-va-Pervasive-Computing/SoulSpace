@@ -41,22 +41,22 @@ export default function LoginScreen() {
   });
 
   // Tự động redirect nếu đã có token
-  // useEffect(() => {
-  //   const checkToken = async () => {
-  //     try {
-  //       const token = await AsyncStorage.getItem("access_token");
-  //       if (token) {
-  //         router.replace("/(tabs)/home");
-  //         return;
-  //       }
-  //     } catch (err) {
-  //       console.log("Token check error:", err);
-  //     } finally {
-  //       setCheckingToken(false);
-  //     }
-  //   };
-  //   checkToken();
-  // }, []);
+  useEffect(() => {
+    const checkToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem("access_token");
+        if (token) {
+          router.replace("/(tabs)/home");
+          return;
+        }
+      } catch (err) {
+        console.log("Token check error:", err);
+      } finally {
+        setCheckingToken(false);
+      }
+    };
+    checkToken();
+  }, []);
 
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) await SplashScreen.hideAsync();
