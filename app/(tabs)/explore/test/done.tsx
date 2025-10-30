@@ -1,61 +1,76 @@
-import { useFonts } from "expo-font";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { ArrowLeft, Check, X } from "lucide-react-native";
-import React, { useCallback } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ArrowLeft, Check } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
+import {
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+  ActivityIndicator,
+} from "react-native";
 
-// Giữ splash screen hiển thị cho đến khi fonts được load
 SplashScreen.preventAutoHideAsync();
 
 export default function TestDoneScreen() {
-  const [fontsLoaded] = useFonts({
-    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
-    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
-    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
-    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
-    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
-    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
-    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
-    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
-    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
-    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
-  });
+  const { result } = useLocalSearchParams<{ result?: string }>();
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
+  useEffect(() => {
+    if (result) {
+      try {
+        const parsed = JSON.parse(result);
+        setData(parsed);
+      } catch (err) {
+        console.warn("⚠️ Failed to parse result:", err);
+      }
     }
-  }, [fontsLoaded]);
+    setLoading(false);
+  }, [result]);
 
-  if (!fontsLoaded) return null;
+  if (loading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-[#FAF9FF]">
+        <ActivityIndicator size="large" color="#7F56D9" />
+        <Text className="mt-3 text-[#7F56D9] font-[Poppins-SemiBold]">
+          Loading your result...
+        </Text>
+      </View>
+    );
+  }
 
-  const score = 19;
-  const level =
-    score <= 4 ? "None" : score <= 14 ? "Mild to Moderate" : "Severe";
+  if (!data) {
+    return (
+      <View className="flex-1 items-center justify-center bg-[#FAF9FF]">
+        <Text className="text-gray-500 text-base">No result found.</Text>
+      </View>
+    );
+  }
+
+  const score = data.total_score ?? 0;
+  const level = data.severity_level || "Unknown";
   const percentage = (score / 27) * 100;
-
-  // Xác định màu thanh progress
   const progressColor =
-    level === "Mild to Moderate"
-      ? "#B5A2E9" // Trung bình
-      : level === "Severe"
-        ? "#6F04D9" // Nặng
-        : "#C9B6F2"; // Nhẹ hơn cho None
+    level.includes("Mild") || level.includes("Moderate")
+      ? "#B5A2E9"
+      : level.includes("Severe")
+      ? "#6F04D9"
+      : "#C9B6F2";
 
   return (
-    <View className="flex-1 bg-[#FAF9FF]" onLayout={onLayoutRootView}>
+    <View className="flex-1 bg-[#FAF9FF]">
       {/* Header */}
       <View className="flex-row items-center justify-between py-4 px-4 border-b border-gray-200 mt-8">
         <View className="flex-row items-center">
-          <TouchableOpacity onPress={() => router.push("/explore")}>
+          <TouchableOpacity onPress={() => router.push("/(tabs)/explore")}>
             <ArrowLeft width={28} height={28} color="#000000" />
           </TouchableOpacity>
           <Text
             className="ml-3 text-xl text-[#7F56D9]"
             style={{ fontFamily: "Poppins-Bold" }}
           >
-            PHQ-9 Test
+            {data.test_code} Results
           </Text>
         </View>
       </View>
@@ -65,7 +80,7 @@ export default function TestDoneScreen() {
         className="flex-1 px-4 py-8"
         contentContainerStyle={{ paddingBottom: 40 }}
       >
-        {/* Kết quả PHQ-9 */}
+        {/* Kết quả */}
         <View className="bg-[#E0D7F9] rounded-3xl p-5 items-start">
           <Text
             className="text-5xl text-[#555555]"
@@ -77,7 +92,7 @@ export default function TestDoneScreen() {
             className="mt-2 text-lg text-[#555555]"
             style={{ fontFamily: "Poppins-SemiBold" }}
           >
-            Your PHQ-9 Score
+            Your {data.test_code} Score
           </Text>
           <Text
             className="text-base text-[#555555]"
@@ -86,14 +101,13 @@ export default function TestDoneScreen() {
             Depression level: {level}
           </Text>
 
-          {/* Thang đo */}
+          {/* Thanh progress */}
           <View className="flex-row justify-between w-full mt-4 px-2">
             <Text className="text-xs text-[#6F04D9]">0–4: None</Text>
             <Text className="text-xs text-[#6F04D9]">10–14: Moderate</Text>
             <Text className="text-xs text-[#6F04D9]">15–27: Severe</Text>
           </View>
 
-          {/* Thanh progress */}
           <View className="h-3 w-full bg-white rounded-full mt-2 overflow-hidden">
             <View
               className="h-3"
@@ -105,43 +119,26 @@ export default function TestDoneScreen() {
           </View>
         </View>
 
-        <View className="bg-white rounded-3xl p-5 mt-6">
-          <View className="bg-[#F7F4F2] p-2 rounded-full w-12 h-12 items-center justify-center mb-4">
-            <Check color={"#926247"} strokeWidth={2.75} />
+        {/* Gợi ý */}
+        {data.guidance_notes ? (
+          <View className="bg-white rounded-3xl p-5 mt-6">
+            <View className="bg-[#F7F4F2] p-2 rounded-full w-12 h-12 items-center justify-center mb-4">
+              <Check color={"#926247"} strokeWidth={2.75} />
+            </View>
+            <Text className="text-[#4F3422] font-[Poppins-SemiBold] text-base">
+              {data.guidance_notes}
+            </Text>
           </View>
-          <Text className="font-[Poppins-Bold] text-base text-[#4F3422] mb-2">
-            Take a few minutes each day to practice deep breathing and calm your
-            mind.
-          </Text>
-        </View>
-
-        <View className="bg-white rounded-3xl p-5 mt-6">
-          <View className="bg-[#F7F4F2] p-2 rounded-full w-12 h-12 items-center justify-center mb-4">
-            <Check color={"#926247"} strokeWidth={2.75} />
+        ) : (
+          <View className="bg-white rounded-3xl p-5 mt-6">
+            <View className="bg-[#F7F4F2] p-2 rounded-full w-12 h-12 items-center justify-center mb-4">
+              <Check color={"#926247"} strokeWidth={2.75} />
+            </View>
+            <Text className="font-[Poppins-Bold] text-base text-[#4F3422] mb-2">
+              Take a few minutes each day to practice deep breathing.
+            </Text>
           </View>
-          <Text className="font-[Poppins-Bold] text-base text-[#4F3422] mb-2">
-            Reach out and connect with a mental health professional for support.
-          </Text>
-        </View>
-
-        <View className="bg-[#FF6B6B] rounded-3xl p-5 mt-6">
-          <View className="bg-[#FECECE] p-2 rounded-full w-12 h-12 items-center justify-center mb-4">
-            <X color={"#ffffff"} strokeWidth={2.75} />
-          </View>
-          <Text className="font-[Poppins-Bold] text-base text-[#ffffff] mb-2">
-            Don’t ignore your feelings—acknowledge them instead of pushing them
-            away.
-          </Text>
-        </View>
-
-        <View className="bg-[#FF6B6B] rounded-3xl p-5 mt-6">
-          <View className="bg-[#FECECE] p-2 rounded-full w-12 h-12 items-center justify-center mb-4">
-            <X color={"#ffffff"} strokeWidth={2.75} />
-          </View>
-          <Text className="font-[Poppins-Bold] text-base text-[#ffffff] mb-2">
-            Don’t overwork yourself; allow time for rest and recovery.
-          </Text>
-        </View>
+        )}
       </ScrollView>
     </View>
   );
