@@ -1,97 +1,154 @@
 import CustomSwitch from "@/components/CustomSwitch";
-import Heading from "@/components/Heading";
-import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
-import { Pencil, PlusCircle } from "lucide-react-native";
-import React, { useCallback, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Pencil, PlusCircle, ArrowLeft } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+  ToastAndroid
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const initialReminders = [
-  {
-    id: 1,
-    title: "Write journal",
-    time: "07:00 PM",
-    active: true,
-  },
-  {
-    id: 2,
-    title: "Write journal",
-    time: "07:00 PM",
-    active: true,
-  },
-  {
-    id: 3,
-    title: "Drink water",
-    time: "07:00 AM, 09:00 AM, 2 PM",
-    active: false,
-  },
-  {
-    id: 4,
-    title: "Drink water",
-    time: "07:00 AM, 09:00 AM, 2 PM",
-    active: true,
-  },
-  {
-    id: 5,
-    title: "Drink water",
-    time: "07:00 AM, 09:00 AM, 2 PM",
-    active: false,
-  },
-  {
-    id: 6,
-    title: "Drink water",
-    time: "07:00 AM, 09:00 AM, 2 PM",
-    active: false,
-  },
-];
+const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
 export default function RemindScreen() {
-  const [fontsLoaded] = useFonts({
-    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
-    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
-    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
-    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
-    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
-    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
-    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
-    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
-    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
-    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
-  });
-
-  const [reminders, setReminders] = useState(initialReminders);
-
+  const [reminders, setReminders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
+  useEffect(() => {
+    const fetchReminders = async () => {
+      try {
+        setLoading(true);
+        const token = await AsyncStorage.getItem("access_token");
+        if (!token) {
+          console.log("No token found");
+          setLoading(false);
+          return;
+        }
 
-  if (!fontsLoaded) return null;
+        const response = await fetch(`${API_BASE}/api/v1/reminders`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
 
-  // Hàm toggle trạng thái
-  const toggleReminder = (id: number) => {
-    setReminders((prev) =>
-      prev.map((reminder) =>
-        reminder.id === id
-          ? { ...reminder, active: !reminder.active }
-          : reminder
-      )
+        const data = await response.json();
+        if (!response.ok) {
+          console.error("Error fetching reminders:", data);
+          setReminders([]);
+          return;
+        }
+
+        const formatted = data.map((r: any) => ({
+          _id: r.id || r._id,
+          title: r.title,
+          time: r.time_of_day,
+          active: r.is_active,
+        }));
+
+        setReminders(formatted);
+      } catch (error) {
+        console.error("Fetch reminders failed:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReminders();
+  }, []);
+
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-[#FAF9FF]">
+        <ActivityIndicator size="large" color="#7F56D9" />
+        <Text className="mt-2 text-[#7F56D9] font-[Poppins-Regular]">
+          Loading reminders...
+        </Text>
+      </View>
     );
+  }
+
+  const toggleReminder = async (id: string) => {
+    try {
+      const current = reminders.find((r) => r._id === id);
+      if (!current) return;
+
+      setReminders((prev) =>
+        prev.map((item) =>
+          item._id === id ? { ...item, active: !item.active } : item
+        )
+      );
+
+      const token = await AsyncStorage.getItem("access_token");
+      if (!token) {
+        console.log("No access token found");
+        ToastAndroid.show("No access token found", ToastAndroid.SHORT);
+        return;
+      }
+
+      const response = await fetch(`${API_BASE}/api/v1/reminders/toggle/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ is_active: !current.active }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("❌ Toggle failed:", data);
+        setReminders((prev) =>
+          prev.map((item) =>
+            item._id === id ? { ...item, active: current.active } : item
+          )
+        );
+        ToastAndroid.show(
+          data?.detail?.[0]?.msg || "Toggle failed!",
+          ToastAndroid.SHORT
+        );
+        return;
+      }
+
+      console.log("✅ Toggle success:", data);
+      ToastAndroid.show(
+        !current.active
+          ? "Reminder activated"
+          : "Reminder deactivated",
+        ToastAndroid.SHORT
+      );
+    } catch (error) {
+      console.error("❌ Toggle error:", error);
+      ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT);
+    }
   };
 
   return (
     <View className="flex-1 bg-[#FAF9FF]">
-      <Heading title="Remind" />
+      <View className="flex-row items-center justify-between py-4 px-4 border-b border-gray-200 mt-8">
+        <View className="flex-row items-center">
+          <TouchableOpacity onPress={() => router.push("/(tabs)/home")}>
+            <ArrowLeft width={36} height={36} />
+          </TouchableOpacity>
+          <Text
+            className="ml-3 text-2xl text-[#7F56D9]"
+            style={{ fontFamily: "Poppins-Bold" }}
+          >
+            Remind
+          </Text>
+        </View>
+      </View>
 
       <ScrollView
         contentContainerStyle={{ paddingBottom: 40 }}
         className="flex-1 px-4 pt-2"
       >
-        {/* Button create reminder */}
         <TouchableOpacity
           className="flex-row items-center justify-center mb-4"
           onPress={() => router.push("/(tabs)/home/remind/add")}
@@ -102,10 +159,10 @@ export default function RemindScreen() {
           </Text>
         </TouchableOpacity>
 
-        {/* List reminders */}
+        {/* Danh sách reminders */}
         {reminders.map((item) => (
           <TouchableOpacity
-            key={item.id}
+            key={item._id}
             className="flex-row items-center justify-between bg-white rounded-2xl p-4 mb-3 shadow-sm"
             onPress={() => router.push("/(tabs)/home/remind/update")}
             activeOpacity={0.8}
@@ -125,10 +182,9 @@ export default function RemindScreen() {
               </View>
             </View>
 
-            {/* Right - toggle */}
             <CustomSwitch
               value={item.active}
-              onValueChange={() => toggleReminder(item.id)}
+              onValueChange={() => toggleReminder(item._id)}
             />
           </TouchableOpacity>
         ))}

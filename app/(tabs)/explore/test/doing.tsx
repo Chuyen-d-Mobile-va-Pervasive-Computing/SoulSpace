@@ -57,9 +57,9 @@ export default function TestDoingScreen() {
         },
         body: JSON.stringify({ test_code, answers: updatedAnswers }),
       });
-      console.log("✅ Progress saved");
+      console.log("Progress saved");
     } catch (err) {
-      console.warn("⚠️ Error saving progress:", err);
+      console.warn("Error saving progress:", err);
     }
   }, 2000);
 

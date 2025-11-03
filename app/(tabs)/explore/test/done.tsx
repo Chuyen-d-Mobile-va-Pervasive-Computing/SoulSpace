@@ -23,7 +23,7 @@ export default function TestDoneScreen() {
         const parsed = JSON.parse(result);
         setData(parsed);
       } catch (err) {
-        console.warn("⚠️ Failed to parse result:", err);
+        console.warn("Failed to parse result:", err);
       }
     }
     setLoading(false);
@@ -139,6 +139,23 @@ export default function TestDoneScreen() {
             </Text>
           </View>
         )}
+
+        <TouchableOpacity
+          onPress={() => {
+            router.push({
+              pathname: "/(tabs)/explore/test",
+              params: {
+                test_code: data.test_code,
+                progress: data.progress,
+              },
+            });
+          }}
+          className="mt-6 items-center justify-center bg-white rounded-3xl p-4 border border-[#7F56D9]"
+        >
+          <Text className="text-[#7F56D9] font-[Poppins-SemiBold]">
+            Back to Test Info
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );

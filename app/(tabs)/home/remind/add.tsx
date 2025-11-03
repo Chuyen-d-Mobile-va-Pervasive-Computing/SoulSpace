@@ -5,24 +5,28 @@ import { router } from "expo-router";
 import { Bell } from "lucide-react-native";
 import React, { useState } from "react";
 import {
+  Alert,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
+const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
+
 export default function AddScreen() {
-
   const [once, setOnce] = useState(true);
-  const [daily, setDaily] = useState(true);
+  const [daily, setDaily] = useState(false);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
-
-  // State thời gian vẫn như cũ
-  const [time, setTime] = useState(() => {
-    return new Date();
-  });
+  const [title, setTitle] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errorDetail, setErrorDetail] = useState<any>(null);
+  const [time, setTime] = useState(() => new Date());
+  const days = ["M", "Tu", "W", "Th", "F", "Sa", "Su"];
 
   const toggleDay = (day: string) => {
     if (selectedDays.includes(day)) {
@@ -32,24 +36,82 @@ export default function AddScreen() {
     }
   };
 
-  const days = ["M", "Tu", "W", "Th", "F", "Sa", "Su"];
+  const handleSave = async () => {
+    setLoading(true);
+    setErrorDetail(null);
+
+    try {
+      const repeat_type = once ? "once" : daily ? "daily" : "custom";
+
+      const hours = time.getHours().toString().padStart(2, "0");
+      const minutes = time.getMinutes().toString().padStart(2, "0");
+      const time_of_day = `${hours}:${minutes}`;
+
+      let repeat_days: number[] = [];
+
+      if (repeat_type === "daily") {
+        repeat_days = [0, 1, 2, 3, 4, 5, 6];
+      } else if (repeat_type === "custom") {
+        repeat_days = selectedDays.map((d) => days.indexOf(d));
+      }
+
+      const token = await AsyncStorage.getItem("access_token");
+      if (!token) {
+        Alert.alert("Error", "No access token found!");
+        return;
+      }
+
+      const body: any = {
+        title,
+        message,
+        time_of_day,
+        repeat_type,
+      };
+
+      if (repeat_days.length > 0) {
+        body.repeat_days = repeat_days;
+      }
+
+      const response = await fetch(`${API_BASE}/api/v1/reminders`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErrorDetail(data.detail);
+        return;
+      }
+
+      Alert.alert("Success", "Reminder added successfully!");
+      router.push("/(tabs)/home/remind");
+    } catch (error: any) {
+      Alert.alert("Error", "Something went wrong!");
+      console.log("Error creating reminder:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View className="flex-1 bg-[#FAF9FF]">
         <Heading title="Add new reminder" />
 
-        {/* Body */}
         <ScrollView
           className="flex-1 px-4"
           contentContainerStyle={{ paddingBottom: 40 }}
         >
-          <TouchableOpacity onPress={() => router.push("/(tabs)/home/remind")}>
+          <TouchableOpacity disabled={loading} onPress={handleSave}>
             <Text className="text-[#7F56D9] font-[Poppins-Bold] text-lg text-right">
-              Save
+              {loading ? "Saving..." : "Save"}
             </Text>
           </TouchableOpacity>
-          {/* Time display */}
 
           <View className="items-center mt-4">
             <CircularTimeSelector time={time} setTime={setTime} />
@@ -62,6 +124,8 @@ export default function AddScreen() {
             </Text>
             <TextInput
               placeholder="Enter reminder title ..."
+              value={title}
+              onChangeText={setTitle}
               className="bg-white rounded-xl px-4 py-3 border border-gray-200 text-base font-[Poppins-Regular]"
             />
           </View>
@@ -73,6 +137,8 @@ export default function AddScreen() {
             </Text>
             <TextInput
               placeholder="Enter reminder description ..."
+              value={message}
+              onChangeText={setMessage}
               className="bg-white rounded-xl px-4 py-3 border border-gray-200 text-base font-[Poppins-Regular]"
               multiline
               style={{ minHeight: 80, textAlignVertical: "top" }}
@@ -124,6 +190,19 @@ export default function AddScreen() {
               <CustomSwitch value={daily} onValueChange={setDaily} />
             </View>
           </View>
+
+          {errorDetail && Array.isArray(errorDetail) && (
+            <View className="bg-red-100 border border-red-300 rounded-xl mt-6 p-3">
+              {errorDetail.map((err: any, idx: number) => (
+                <Text
+                  key={idx}
+                  className="text-red-700 text-sm font-[Poppins-Regular]"
+                >
+                  {err.loc?.join(". ")}: {err.msg}
+                </Text>
+              ))}
+            </View>
+          )}
         </ScrollView>
       </View>
     </GestureHandlerRootView>

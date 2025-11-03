@@ -1,13 +1,70 @@
-import Heading from "@/components/Heading";
-import { router, useLocalSearchParams } from "expo-router";
-import { CheckCheck, Clock, Grip } from "lucide-react-native";
+import { router, useLocalSearchParams, useFocusEffect } from "expo-router";
+import { CheckCheck, Clock, Grip, ArrowLeft } from "lucide-react-native";
 import CircularProgress from "../components/CircularProgress";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useState, useCallback, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
 export default function TestInfoScreen() {
-  const percentage = 25;
-  const { test } = useLocalSearchParams<{ test: string }>();
-  const parsedTest = test ? JSON.parse(test) : null;
+  const [progress, setProgress] = useState(0);
+  const [parsedTest, setParsedTest] = useState<any>(null);
+  const { progress: progressParam } = useLocalSearchParams();
+  useEffect(() => {
+    if (progressParam) setProgress(Number(progressParam));
+  }, [progressParam]);
+
+  const { test, justCompleted } = useLocalSearchParams<{
+    test?: string;
+    justCompleted?: string;
+  }>();
+
+  useEffect(() => {
+    if (test) {
+      try {
+        const parsed = JSON.parse(test);
+        setParsedTest(parsed);
+        AsyncStorage.setItem("lastTest", test);
+      } catch (e) {
+        console.warn("Failed to parse test:", e);
+      }
+    } else {
+      AsyncStorage.getItem("lastTest").then((saved) => {
+        if (saved) setParsedTest(JSON.parse(saved));
+      });
+    }
+  }, [test]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchProgress = async () => {
+        try {
+          if (!parsedTest?.test_code) return;
+
+          const userData = await AsyncStorage.getItem("user");
+          if (!userData) return;
+          const user = JSON.parse(userData);
+          const userId = user._id;
+
+          const res = await fetch(
+            `${API_BASE}/api/v1/tests/${parsedTest.test_code}/progress?user_id=${userId}`,
+            { headers: { accept: "application/json" } }
+          );
+
+          const data = await res.json();
+          console.log("Progress API response:", data);
+
+          const newProgress = data?.progress ?? data?.progress_percent ?? 0;
+          setProgress(Number(newProgress));
+        } catch (err) {
+          console.warn("Error fetching progress:", err);
+        }
+      };
+
+      fetchProgress();
+    }, [parsedTest?.test_code, justCompleted])
+  );
 
   if (!parsedTest) {
     return (
@@ -27,7 +84,19 @@ export default function TestInfoScreen() {
 
   return (
     <View className="flex-1 bg-[#FAF9FF]">
-      <Heading title={test_code} />
+      <View className="flex-row items-center justify-between py-4 px-4 border-b border-gray-200 mt-8">
+        <View className="flex-row items-center">
+          <TouchableOpacity onPress={() => router.push("/(tabs)/explore")}>
+            <ArrowLeft width={28} height={28} color="#000000" />
+          </TouchableOpacity>
+          <Text
+            className="ml-3 text-xl text-[#7F56D9]"
+            style={{ fontFamily: "Poppins-Bold" }}
+          >
+            {test_code}
+          </Text>
+        </View>
+      </View>
 
       <ScrollView
         className="flex-1 px-4"
@@ -49,10 +118,10 @@ export default function TestInfoScreen() {
                 {test_name}
               </Text>
             </View>
-            <CircularProgress percentage={percentage} />
+            <CircularProgress percentage={progress} />
           </View>
           <Text className="text-[#605D67] font-[Poppins-Regular] text-base">
-           {description}
+            {description}
           </Text>
 
           {/* Estimate time */}
