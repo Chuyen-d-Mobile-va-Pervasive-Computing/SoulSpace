@@ -122,7 +122,7 @@ export default function TestDoingScreen() {
       if (res.status === 201) {
         router.push({
           pathname: "/(tabs)/explore/test/done",
-          params: { result: JSON.stringify(result) },
+          params: { result: JSON.stringify(result), source: "doing" },
         });
       } else {
         Alert.alert("Error", "Failed to submit test");

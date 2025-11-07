@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
@@ -20,17 +21,33 @@ export default function ExploreScreen() {
   useEffect(() => {
     const fetchTests = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/v1/tests`);
+        const token = await AsyncStorage.getItem("access_token");
+        const res = await fetch(`${API_BASE}/api/v1/tests`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+        });
+
         const data = await res.json();
-        setTests(data);
+        console.log("API /tests response:", data);
+
+        if (Array.isArray(data)) {
+          setTests(data);
+        } else {
+          console.warn("Unexpected API response:", data);
+          setTests([]);
+        }
       } catch (error) {
         console.error("Error fetching tests:", error);
+        setTests([]);
       } finally {
         setLoading(false);
       }
     };
-    fetchTests();
-  }, []);
+
+      fetchTests();
+    }, []);
 
   const bgColors = ["#D9D8FF", "#BEC8CF", "#AFCEE8", "#AFE8E1"];
   const btnColors = ["#8130C8", "#01101C", "#066BBE", "#2DA800"];
@@ -86,11 +103,11 @@ export default function ExploreScreen() {
 
         {loading ? (
           <ActivityIndicator size="large" color="#7F56D9" />
-        ) : (
+        ) : Array.isArray(tests) && tests.length > 0 ? (
           tests.map((test, index) => {
             const bgColor = bgColors[index % bgColors.length];
             const btnColor = btnColors[index % btnColors.length];
-            const isEven = index % 2 === 1; // test 2,4,6... hình bên phải
+            const isEven = index % 2 === 1;
 
             return (
               <View
@@ -101,7 +118,6 @@ export default function ExploreScreen() {
                   flexDirection: isEven ? "row-reverse" : "row",
                 }}
               >
-                {/* Nội dung text + nút */}
                 <View
                   className={`flex-1 ${isEven ? "pl-10" : "pr-3"} justify-center`}
                 >
@@ -119,13 +135,10 @@ export default function ExploreScreen() {
                       })
                     }
                   >
-                    <Text className="text-white font-[Poppins-SemiBold]">
-                      Test
-                    </Text>
+                    <Text className="text-white font-[Poppins-SemiBold]">Test</Text>
                   </TouchableOpacity>
                 </View>
 
-                {/* Ảnh minh họa */}
                 <Image
                   source={{ uri: test.image_url }}
                   style={{
@@ -140,7 +153,11 @@ export default function ExploreScreen() {
               </View>
             );
           })
-        )}
+        ) : (
+          <Text className="text-center text-gray-500 mt-4">
+            No tests available.
+          </Text>
+        )} 
       </ScrollView>
     </View>
   );

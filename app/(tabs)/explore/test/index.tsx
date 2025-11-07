@@ -10,11 +10,6 @@ const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 export default function TestInfoScreen() {
   const [progress, setProgress] = useState(0);
   const [parsedTest, setParsedTest] = useState<any>(null);
-  const { progress: progressParam } = useLocalSearchParams();
-  useEffect(() => {
-    if (progressParam) setProgress(Number(progressParam));
-  }, [progressParam]);
-
   const { test, justCompleted } = useLocalSearchParams<{
     test?: string;
     justCompleted?: string;
@@ -38,32 +33,36 @@ export default function TestInfoScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      const fetchProgress = async () => {
+      const fetchTestList = async () => {
         try {
-          if (!parsedTest?.test_code) return;
+          const token = await AsyncStorage.getItem("token");
 
-          const userData = await AsyncStorage.getItem("user");
-          if (!userData) return;
-          const user = JSON.parse(userData);
-          const userId = user._id;
+          const res = await fetch(`${API_BASE}/api/v1/tests`, {
+            headers: {
+              accept: "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
-          const res = await fetch(
-            `${API_BASE}/api/v1/tests/${parsedTest.test_code}/progress?user_id=${userId}`,
-            { headers: { accept: "application/json" } }
+          const tests = await res.json();
+          console.log("Tests list:", tests);
+
+          const match = tests.find(
+            (t: any) => t.test_code === parsedTest?.test_code
           );
 
-          const data = await res.json();
-          console.log("Progress API response:", data);
-
-          const newProgress = data?.progress ?? data?.progress_percent ?? 0;
-          setProgress(Number(newProgress));
+          if (match && match.completion_percentage != null) {
+            setProgress(Number(match.completion_percentage));
+          } else {
+            setProgress(0);
+          }
         } catch (err) {
-          console.warn("Error fetching progress:", err);
+          console.warn("Error fetching test list:", err);
         }
       };
 
-      fetchProgress();
-    }, [parsedTest?.test_code, justCompleted])
+      fetchTestList();
+    }, [parsedTest?.test_code])
   );
 
   if (!parsedTest) {
@@ -80,6 +79,7 @@ export default function TestInfoScreen() {
     description,
     num_questions,
     image_url,
+    completion_percentage
   } = parsedTest;
 
   return (
@@ -118,7 +118,7 @@ export default function TestInfoScreen() {
                 {test_name}
               </Text>
             </View>
-            <CircularProgress percentage={progress} />
+            <CircularProgress percentage={completion_percentage} />
           </View>
           <Text className="text-[#605D67] font-[Poppins-Regular] text-base">
             {description}

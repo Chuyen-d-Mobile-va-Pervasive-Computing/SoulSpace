@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { ArrowLeft, Check } from "lucide-react-native";
+import { X, Check } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
   ScrollView,
@@ -9,33 +9,40 @@ import {
   View,
   ActivityIndicator,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 SplashScreen.preventAutoHideAsync();
+const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
 export default function TestDoneScreen() {
-  const { result } = useLocalSearchParams<{ result?: string }>();
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { result, result_id, source } = useLocalSearchParams();
+  const [data, setData] = useState<any | null>(result ? JSON.parse(result as string) : null);
+  const [loading, setLoading] = useState(!result);
 
   useEffect(() => {
-    if (result) {
+    const fetchResult = async () => {
+      if (!result_id) return;
       try {
-        const parsed = JSON.parse(result);
-        setData(parsed);
+        const token = await AsyncStorage.getItem("access_token");
+        const res = await fetch(`${API_BASE}/api/v1/tests/result/${result_id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const json = await res.json();
+        setData(json);
       } catch (err) {
-        console.warn("Failed to parse result:", err);
+        console.log("Error fetching result:", err);
+      } finally {
+        setLoading(false);
       }
-    }
-    setLoading(false);
-  }, [result]);
+    };
+
+    if (!result && result_id) fetchResult();
+  }, [result_id]);
 
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-[#FAF9FF]">
         <ActivityIndicator size="large" color="#7F56D9" />
-        <Text className="mt-3 text-[#7F56D9] font-[Poppins-SemiBold]">
-          Loading your result...
-        </Text>
       </View>
     );
   }
@@ -63,8 +70,16 @@ export default function TestDoneScreen() {
       {/* Header */}
       <View className="flex-row items-center justify-between py-4 px-4 border-b border-gray-200 mt-8">
         <View className="flex-row items-center">
-          <TouchableOpacity onPress={() => router.push("/(tabs)/explore")}>
-            <ArrowLeft width={28} height={28} color="#000000" />
+          <TouchableOpacity
+            onPress={() => {
+              if (source === "result") {
+                router.back(); // quay về list
+              } else {
+                router.push("/(tabs)/explore");
+              }
+            }}
+          >
+            <X width={28} height={28} color="#000000" />
           </TouchableOpacity>
           <Text
             className="ml-3 text-xl text-[#7F56D9]"
@@ -139,23 +154,6 @@ export default function TestDoneScreen() {
             </Text>
           </View>
         )}
-
-        <TouchableOpacity
-          onPress={() => {
-            router.push({
-              pathname: "/(tabs)/explore/test",
-              params: {
-                test_code: data.test_code,
-                progress: data.progress,
-              },
-            });
-          }}
-          className="mt-6 items-center justify-center bg-white rounded-3xl p-4 border border-[#7F56D9]"
-        >
-          <Text className="text-[#7F56D9] font-[Poppins-SemiBold]">
-            Back to Test Info
-          </Text>
-        </TouchableOpacity>
       </ScrollView>
     </View>
   );
