@@ -1,5 +1,5 @@
-import Heading from "@/components/Heading";
 import { router } from "expo-router";
+import { ArrowLeft } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -64,7 +64,19 @@ export default function ExploreScreen() {
 
   return (
     <View className="flex-1 bg-[#FAF9FF]">
-      <Heading title="Explore" />
+      <View className="flex-row items-center justify-between py-4 px-4 border-b border-gray-200 mt-8">
+        <View className="flex-row items-center">
+          <TouchableOpacity onPress={() => router.push("/(tabs)/home")}>
+            <ArrowLeft width={36} height={36} />
+          </TouchableOpacity>
+          <Text
+            className="ml-3 text-2xl text-[#7F56D9]"
+            style={{ fontFamily: "Poppins-Bold" }}
+          >
+            Explore
+          </Text>
+        </View>
+      </View>
 
       <ScrollView
         className="flex-1 px-4"

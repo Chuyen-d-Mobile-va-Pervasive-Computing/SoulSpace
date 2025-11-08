@@ -82,7 +82,7 @@ export default function TestDoneScreen() {
             <X width={28} height={28} color="#000000" />
           </TouchableOpacity>
           <Text
-            className="ml-3 text-xl text-[#7F56D9]"
+            className="ml-3 text-2xl text-[#7F56D9]"
             style={{ fontFamily: "Poppins-Bold" }}
           >
             {data.test_code} Results

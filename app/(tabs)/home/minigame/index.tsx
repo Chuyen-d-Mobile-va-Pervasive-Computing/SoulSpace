@@ -1,15 +1,26 @@
 import Minigame from "@/assets/images/minigame.svg";
 import MiniGameCard from "@/components/MiniGameCard";
-import Heading from "@/components/Heading";
 import { router } from "expo-router";
-import { Trophy, Vote, Lightbulb, Grid2X2Check, LineSquiggle, GraduationCap } from "lucide-react-native";
+import { Trophy, Vote, Lightbulb, Grid2X2Check, LineSquiggle, GraduationCap, ArrowLeft } from "lucide-react-native";
 import React from "react";
-import { ScrollView, Text, View} from "react-native";
+import { ScrollView, Text, View, TouchableOpacity } from "react-native";
 
 export default function MinigameScreen() {
     return (
         <View className="flex-1 bg-[#FAF9FF]">
-            <Heading title="Minigame" />
+            <View className="flex-row items-center justify-between py-4 px-4 border-b border-gray-200 mt-8">
+                <View className="flex-row items-center">
+                    <TouchableOpacity onPress={() => router.push("/(tabs)/home")}>
+                        <ArrowLeft width={36} height={36} />
+                    </TouchableOpacity>
+                    <Text
+                        className="ml-3 text-2xl text-[#7F56D9]"
+                        style={{ fontFamily: "Poppins-Bold" }}
+                    >
+                        Minigame
+                    </Text>
+                </View>
+            </View>
             <ScrollView
                 contentContainerStyle={{ paddingBottom: 40 }}
                 className="flex-1 px-4 pt-2"
