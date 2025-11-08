@@ -44,6 +44,8 @@ export default function TestDoingScreen() {
   const [answers, setAnswers] = useState<
     { question_id: string; chosen_option_id: string | null }[]
   >([]);
+  const hasAnyAnswer = answers.some(a => a.chosen_option_id !== null);
+  const [submitting, setSubmitting] = useState(false);
 
   // Gửi lưu draft (debounce 2s)
   const saveProgress = useDebounce(async (updatedAnswers: any[]) => {
@@ -55,7 +57,7 @@ export default function TestDoingScreen() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`, 
         },
-        body: JSON.stringify({ test_code, answers: updatedAnswers }),
+        body: JSON.stringify({ answers: updatedAnswers }),
       });
       console.log("Progress saved");
     } catch (err) {
@@ -106,6 +108,9 @@ export default function TestDoingScreen() {
   };
 
   const submitTest = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+
     const token = await AsyncStorage.getItem("access_token");
     try {
       const res = await fetch(`${API_BASE}/api/v1/tests/${test_code}/submit`, {
@@ -126,10 +131,12 @@ export default function TestDoingScreen() {
         });
       } else {
         Alert.alert("Error", "Failed to submit test");
+        setSubmitting(false);
       }
     } catch (err) {
       console.error("Error submitting test:", err);
       Alert.alert("Error", "Cannot submit test");
+      setSubmitting(false);
     }
   };
 
@@ -194,6 +201,32 @@ export default function TestDoingScreen() {
           className="h-2 bg-[#7F56D9] rounded-full"
         />
       </View>
+      {hasAnyAnswer && (
+        <TouchableOpacity
+          onPress={async () => {
+            const token = await AsyncStorage.getItem("access_token");
+
+            // Chỉ gửi những câu đã chọn option
+            const filteredAnswers = answers.filter(a => a.chosen_option_id !== null);
+
+            await fetch(`${API_BASE}/api/v1/tests/${test_code}/progress`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ answers: filteredAnswers }),
+            });
+
+            router.push("/(tabs)/explore");
+          }}
+          className="mx-4 mt-3 bg-white border border-[#7F56D9] py-3 rounded-xl items-center"
+        >
+          <Text className="text-[#7F56D9] font-[Poppins-SemiBold] text-base">
+            Save & Exit
+          </Text>
+        </TouchableOpacity>
+      )}
 
       {/* Body */}
       <ScrollView
@@ -254,11 +287,20 @@ export default function TestDoingScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={nextQuestion}
-            className="bg-[#7F56D9] h-14 rounded-xl flex-1 ml-2 items-center justify-center"
+            disabled={!currentAnswer || submitting}
+            onPress={current === total - 1 ? submitTest : nextQuestion}
+            className={`h-14 rounded-xl flex-1 ml-2 items-center justify-center ${
+              currentAnswer && !submitting ? "bg-[#7F56D9]" : "bg-gray-300"
+            }`}
           >
-            <Text className="text-white font-[Poppins-Bold] text-base">
-              {current === total - 1 ? "Finish" : "Next"}
+            <Text
+              className={`font-[Poppins-Bold] text-base ${
+                currentAnswer && !submitting ? "text-white" : "text-gray-200"
+              }`}
+            >
+              {current === total - 1
+                ? submitting ? "Submitting..." : "Finish"
+                : "Next"}
             </Text>
           </TouchableOpacity>
         </View>

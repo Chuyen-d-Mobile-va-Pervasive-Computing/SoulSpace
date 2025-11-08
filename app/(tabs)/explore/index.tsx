@@ -16,7 +16,8 @@ const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 export default function ExploreScreen() {
   const [tests, setTests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const percent = 24;
+  const [percent, setPercent] = useState(0);
+  const [currentTestCode, setCurrentTestCode] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTests = async () => {
@@ -34,20 +35,29 @@ export default function ExploreScreen() {
 
         if (Array.isArray(data)) {
           setTests(data);
+          const unfinished = data.find(t => t.completion_percentage > 0 && t.completion_percentage < 100);
+          if (unfinished) {
+            setPercent(unfinished.completion_percentage);
+            setCurrentTestCode(unfinished.test_code);
+          } else {
+            setPercent(0);
+            setCurrentTestCode(null);
+          }
         } else {
-          console.warn("Unexpected API response:", data);
           setTests([]);
+          setPercent(0);
         }
       } catch (error) {
         console.error("Error fetching tests:", error);
         setTests([]);
+        setPercent(0);
       } finally {
         setLoading(false);
       }
     };
 
-      fetchTests();
-    }, []);
+    fetchTests();
+  }, []);
 
   const bgColors = ["#D9D8FF", "#BEC8CF", "#AFCEE8", "#AFE8E1"];
   const btnColors = ["#8130C8", "#01101C", "#066BBE", "#2DA800"];
@@ -78,7 +88,7 @@ export default function ExploreScreen() {
             onPress={() => router.push("/(tabs)/explore/result")}
           >
             <Text className="text-[#7F56D9] font-[Poppins-Bold] text-xl">
-              Tests
+              {currentTestCode ? currentTestCode : "Tests"}
             </Text>
             <View className="w-full flex-row items-center mt-3 mb-2 gap-2">
               <Text className="text-[#7F56D9] font-semibold">{percent}%</Text>

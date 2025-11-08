@@ -1,10 +1,10 @@
 import Minigame from "@/assets/images/minigame.svg";
+import MiniGameCard from "@/components/MiniGameCard";
 import Heading from "@/components/Heading";
 import { router } from "expo-router";
-import { HandHeart, Heart, Radar, Rainbow, Sun, SunMoon } from "lucide-react-native";
+import { Trophy, Vote, Lightbulb, Grid2X2Check, LineSquiggle, GraduationCap } from "lucide-react-native";
 import React from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import * as Progress from "react-native-progress";
+import { ScrollView, Text, View} from "react-native";
 
 export default function MinigameScreen() {
     return (
@@ -15,7 +15,7 @@ export default function MinigameScreen() {
                 className="flex-1 px-4 pt-2"
             >
                 <View className="w-full p-2 overflow-hidden">
-                    <View className="flex-1 rounded-lg bg-[#FFFFFF] border border-[#EEEEEE] p-2 justify-center items-center overflow-hidden">
+                    <View className="flex-1 rounded-2xl bg-[#FFFFFF] border border-[#EEEEEE] p-2 justify-center items-center overflow-hidden">
                         <View className="py-2 gap-2 items-center w-full">
                             <Minigame width={100} height={100} />
                             <Text className="text-lg font-[Poppins-Bold] text-center">
@@ -29,162 +29,60 @@ export default function MinigameScreen() {
                 </View>
 
                 {/* Minigame 1 */}
-                <TouchableOpacity
-                    activeOpacity={0.8}
+                <MiniGameCard
+                    title="Word Pick"
+                    subtitle="Choose the correct word"
+                    points={100}
+                    icon={<Vote width={24} height={24} color="#fff" />}
+                    gradient={["#6FA9FF", "#3A6FE6"]}
                     onPress={() => router.push("/(tabs)/home/minigame/choose")}
-                >
-                    <View className="w-full p-2 overflow-hidden">
-                        <View className="flex-1">
-                            <View className="w-full border border-[#EEEEEE] bg-white rounded-lg px-3 py-5 gap-2">
-                                {/* Name Row */}
-                                <View className="flex-row justify-between items-center">
-                                    <View className="flex-row items-center gap-2 flex-1">
-                                        <View className="rounded-full bg-[#3A6FE6]/30 border border-[#3A6FE6] p-2">
-                                            <Heart width={24} height={24} color="#3A6FE6" />
-                                        </View>
-                                        <View className="h-full gap-1 flex-1">
-                                            <Text className="text-base font-[Poppins-Bold]">Inner Explorer</Text>
-                                            <Text className="text-base font-[Poppins-Regular]">
-                                                Write your feelings daily for a week
-                                            </Text>
-                                        </View>
-                                    </View>
-                                    <View className="mb-10 ml-2">
-                                        <View className="flex-row items-center justify-center h-8 bg-[#3A6FE6]/30 rounded-lg px-3">
-                                            <Text className="text-[#3A6FE6] font-[Poppins-SemiBold] text-base">+30 pts</Text>
-                                        </View>
-                                    </View>
-                                </View>
-                                {/* Progress Row */}
-                                <View className="flex-row items-center justify-between px-8">
-                                    <Progress.Bar
-                                        progress={6/7}
-                                        width={200}
-                                        color="#3A6FE6"
-                                        borderRadius={10}
-                                    />
-                                    <Text className="text-sm font-[Poppins-Bold] ml-3">
-                                        6/7 days
-                                    </Text>
-                                </View>
-                            </View>
-                        </View>
-                    </View>
-                </TouchableOpacity>
+                />
 
                 {/* Minigame 2 */}
-                <TouchableOpacity
-                    activeOpacity={0.8}
+                <MiniGameCard
+                    title="Mind Match"
+                    subtitle="Match related words"
+                    points={200}
+                    icon={<LineSquiggle width={24} height={24} color="#fff" />}
+                    gradient={['#4CAADD', '#2B8FCC']}
                     onPress={() => router.push("/(tabs)/home/minigame/match")}
-                >
-                    <View className="w-full p-2 overflow-hidden">
-                        <View className="flex-1">
-                            <View className="w-full border border-[#EEEEEE] bg-white rounded-lg px-3 py-5 gap-2">
-                                {/* Name Row */}
-                                <View className="flex-row justify-between items-center">
-                                    <View className="flex-row items-center gap-2 flex-1">
-                                        <View className="rounded-full bg-[#4CAADD]/30 border border-[#4CAADD] p-2">
-                                            <Sun width={24} height={24} color="#4CAADD" />
-                                        </View>
-                                        <View className="h-full gap-1 flex-1">
-                                            <Text className="text-base font-[Poppins-Bold]">Spreading Smile</Text>
-                                            <Text className="font-[Poppins-Regular] text-base">
-                                                Share three posts on the forum for a month
-                                            </Text>
-                                        </View>
-                                    </View>
-                                    <View className="mb-10 ml-2">
-                                        <View className="flex-row items-center justify-center h-8 bg-[#4CAADD]/30 rounded-lg px-3">
-                                            <Text className="text-[#4CAADD] font-[Poppins-SemiBold] text-base">+50 pts</Text>
-                                        </View>
-                                    </View>
-                                </View>
-                                {/* Progress Row */}
-                                <View className="flex-row items-center justify-between px-8">
-                                    <Progress.Bar
-                                        progress={1/3}
-                                        width={200}
-                                        color="#4CAADD"
-                                        borderRadius={10}
-                                    />
-                                    <Text className="text-sm font-[Poppins-Bold] ml-3">
-                                        1/3 posts
-                                    </Text>
-                                </View>
-                            </View>
-                        </View>
-                    </View>
-                </TouchableOpacity>
+                />
 
                 {/* Minigame 3 */}
-                <TouchableOpacity
-                    activeOpacity={0.8}
+                <MiniGameCard
+                    title="Puzzle Grid"
+                    subtitle="Complete the crossword"
+                    points={500}
+                    icon={<Grid2X2Check width={24} height={24} color="#fff" />}
+                    gradient={['#1EC7B0', '#34D1BF']}
                     onPress={() => router.push("/(tabs)/home/minigame/crossword")}
-                >
-                    <View className="w-full p-2 overflow-hidden">
-                        <View className="flex-1">
-                            <View className="w-full border border-[#EEEEEE] bg-white rounded-lg px-3 py-5 gap-2">
-                                {/* Name Row */}
-                                <View className="flex-row justify-between items-center">
-                                    <View className="flex-row items-center gap-2 flex-1">
-                                        <View className="rounded-full bg-[#34D1BF]/30 border border-[#34D1BF] p-2">
-                                            <Rainbow width={24} height={24} color="#34D1BF" />
-                                        </View>
-                                        <View className="h-full gap-1 flex-1">
-                                            <Text className="text-base font-[Poppins-Bold]">Light Bearer</Text>
-                                            <Text className="font-[Poppins-Regular] text-base">
-                                                Leave positive messages on five different posts
-                                            </Text>
-                                        </View>
-                                    </View>
-                                    <View className="mb-10 ml-2">
-                                        <View className="flex-row items-center justify-center h-8 bg-[#34D1BF]/30 rounded-lg px-3">
-                                            <Text className="text-[#34D1BF] font-[Poppins-SemiBold] text-base">+70 pts</Text>
-                                        </View>
-                                    </View>
-                                </View>
-                                {/* Progress Row */}
-                                <View className="flex-row items-center justify-between px-8">
-                                    <Progress.Bar
-                                        progress={0/5}
-                                        width={200}
-                                        color="#34D1BF"
-                                        borderRadius={10}
-                                    />
-                                    <Text className="text-sm font-[Poppins-Bold] ml-3">
-                                        0/5 posts
-                                    </Text>
-                                </View>
-                            </View>
-                        </View>
-                    </View>
-                </TouchableOpacity>
+                />
 
                 {/* Badges */}
                 <View className="mt-6">
                     <View className="flex-col gap-6">
                         <Text className="font-[Poppins-Bold] text-lg">My Badges</Text>
-                        <View className="flex-row px-6 justify-between">
+                        <View className="flex-row px-10 justify-between">
                             {/* Badge 1 */}
                             <View className="flex-col items-center gap-2">
                                 <View className="rounded-full bg-[#3A6FE6]/30 border border-[#3A6FE6] p-2">
-                                    <Radar width={36} height={36} className="rounded-full overflow-hidden" color="#3A6FE6" />
+                                    <Lightbulb width={36} height={36} className="rounded-full overflow-hidden" color="#3A6FE6" />
                                 </View>
-                                <Text className="text-base text-[#3A6FE6] font-[Poppins-SemiBold]">PathFinder</Text>
+                                <Text className="text-base text-[#3A6FE6] font-[Poppins-SemiBold]">Explorer</Text>
                             </View>
                             {/* Badge 2 */}
                             <View className="flex-col items-center gap-2">
                                 <View className="rounded-full bg-[#CCCCCC]/30 border border-[#CCCCCC] p-2">
-                                    <HandHeart width={36} height={36} className="rounded-full overflow-hidden" color="#CCCCCC" />
+                                    <Trophy width={36} height={36} className="rounded-full overflow-hidden" color="#CCCCCC" />
                                 </View>
-                                <Text className="text-[#CCCCCC] text-base text-base font-[Poppins-SemiBold]">SilentHealer</Text>
+                                <Text className="text-[#CCCCCC] text-base text-base font-[Poppins-SemiBold]">Champion</Text>
                             </View>
                             {/* Badge 3 */}
                             <View className="flex-col items-center gap-2">
                                 <View className="rounded-full bg-[#CCCCCC]/30 border border-[#CCCCCC] p-2">
-                                    <SunMoon width={36} height={36} className="rounded-full overflow-hidden" color="#CCCCCC" />
+                                    <GraduationCap width={36} height={36} className="rounded-full overflow-hidden" color="#CCCCCC" />
                                 </View>
-                                <Text className="text-[#CCCCCC] text-base text-base font-[Poppins-SemiBold]">LightBearer</Text>
+                                <Text className="text-[#CCCCCC] text-base text-base font-[Poppins-SemiBold]">Master</Text>
                             </View>
                         </View>
                     </View>

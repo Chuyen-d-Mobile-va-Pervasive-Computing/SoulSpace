@@ -20,6 +20,7 @@ export default function HomeLayout() {
       <Stack.Screen name="minigame/choose" options={{ title: "Chọn đáp án đúng" }} />
       <Stack.Screen name="minigame/match" options={{ title: "Nối đáp án" }} />
       <Stack.Screen name="minigame/crossword" options={{ title: "Crossword" }} />
+      <Stack.Screen name="minigame/result" options={{ title: "Kết quả bài test" }} />
       <Stack.Screen name="plant/index" options={{ title: "Trồng cây" }} />
       <Stack.Screen name="plant/list" options={{ title: "Danh sách hành động" }} />
       <Stack.Screen name="plant/action" options={{ title: "Thực hiện hành động" }} />

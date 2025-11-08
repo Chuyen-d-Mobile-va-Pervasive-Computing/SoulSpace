@@ -213,7 +213,7 @@ export default function CrossyWordsAuto() {
         >
             {/* Heading */}
             <Heading title="" />
-            <Text className="text-[22px] font-bold text-[#7F56D9] mb-1 mt-2">Crossy Words</Text>
+            <Text className="text-[22px] font-[Poppins-Bold] text-[#7F56D9] mb-1 mt-2">Crossy Words</Text>
             <Text className="text-gray-500 mb-3">
                 Tap letters in line (horizontal / vertical / diagonal)
             </Text>
@@ -250,7 +250,7 @@ export default function CrossyWordsAuto() {
                                     }}
                                 >
                                     <Text
-                                        className={`font-bold ${
+                                        className={`font-[Poppins-Bold] ${
                                             sel ? "text-white" : foundTile ? "text-[#00966D]" : "text-[#111]"
                                         }`}
                                     >
@@ -265,7 +265,7 @@ export default function CrossyWordsAuto() {
             </ScrollView>
 
             <View className="mt-3 items-center min-h-[28px]">
-                <Text className="text-lg font-bold">{candidate || "\u00A0"}</Text>
+                <Text className="text-lg font-[Poppins-Bold]">{candidate || "\u00A0"}</Text>
                     {feedback ? (
                     <Text
                         className={`mt-1 ${
@@ -278,7 +278,7 @@ export default function CrossyWordsAuto() {
             </View>
 
             <View className="w-[92%] bg-white rounded-xl p-3 mt-3 mb-8">
-                <Text className="font-bold text-[#7F56D9] mb-2">Clues</Text>
+                <Text className="font-[Poppins-Bold] text-[#7F56D9] mb-2">Clues</Text>
                 {WORDS.map((w, i) => {
                     const done = found.some((f) => f.word === w.word);
                     return (
@@ -298,7 +298,7 @@ export default function CrossyWordsAuto() {
             <Modal visible={completed} transparent animationType="fade">
                 <View className="flex-1 items-center justify-center bg-black/50">
                     <View className="bg-white rounded-2xl p-6 w-[80%] items-center">
-                        <Text className="text-2xl font-bold text-[#7F56D9] mb-2">🎉 Great!</Text>
+                        <Text className="text-2xl font-[Poppins-Bold] text-[#7F56D9] mb-2">🎉 Great!</Text>
                         <Text className="text-gray-600 mb-5 text-center">
                             You have found all {WORDS.length} words!
                         </Text>
@@ -311,7 +311,7 @@ export default function CrossyWordsAuto() {
                             className="bg-[#7F56D9] px-6 py-3 rounded-xl"
                             activeOpacity={0.8}
                         >
-                            <Text className="text-white font-bold text-lg">Back</Text>
+                            <Text className="text-white font-[Poppins-Bold] text-lg">Back</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

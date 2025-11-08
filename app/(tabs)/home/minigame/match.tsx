@@ -131,7 +131,7 @@ export default function MatchWordScreen() {
                                 }`}
                             >
                                 <Text
-                                    className={`font-[Montserrat-SemiBold] ${
+                                    className={`font-[Poppins-SemiBold] ${
                                         selected || isWrong ? "text-white" : "text-[#111]"
                                     }`}
                                 >
@@ -162,7 +162,7 @@ export default function MatchWordScreen() {
                                 }`}
                             >
                                 <Text
-                                    className={`font-[Montserrat-SemiBold] ${
+                                    className={`font-[Poppins-SemiBold] ${
                                         selected || isWrong ? "text-white" : "text-[#111]"
                                     }`}
                                 >
@@ -177,10 +177,10 @@ export default function MatchWordScreen() {
             {showComplete && (
                 <View className="absolute top-0 left-0 right-0 bottom-0 bg-black/50 items-center justify-center z-50">
                     <View className="bg-white rounded-[20px] w-[80%] p-6 items-center shadow-lg">
-                        <Text className="text-2xl font-[Montserrat-Bold] text-[#7F56D9] mb-2">
+                        <Text className="text-2xl font-[Poppins-Bold] text-[#7F56D9] mb-2">
                             🎉 All Words Learned!
                         </Text>
-                        <Text className="text-gray-600 font-[Montserrat-Medium] text-center mb-6">
+                        <Text className="text-gray-600 font-[Poppins-Medium] text-center mb-6">
                             You’ve successfully matched all words. Great job!
                         </Text>
 
@@ -191,7 +191,7 @@ export default function MatchWordScreen() {
                             }}
                             className="bg-[#7F56D9] px-6 py-3 rounded-full"
                         >
-                            <Text className="text-white font-[Montserrat-Bold] text-lg">Back to Learn</Text>
+                            <Text className="text-white font-[Poppins-Bold] text-lg">Back to Learn</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -217,8 +217,8 @@ function MatchedCard({ word, meaning }: { word: string; meaning: string }) {
             style={{ opacity: fadeAnim }}
             className="mb-3 p-3 h-[96px] rounded-[12px] bg-[#D5FFD9] items-center justify-center"
         >
-            <Text className="text-[#00966D] font-[Montserrat-Bold] text-base">{word}</Text>
-            <Text className="text-[#373346] font-[Montserrat-Medium]">{meaning}</Text>
+            <Text className="text-[#00966D] font-[Poppins-Bold] text-base">{word}</Text>
+            <Text className="text-[#373346] font-[Poppins-Medium]">{meaning}</Text>
         </Animated.View>
     );
 }
