@@ -11,6 +11,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ToastAndroid,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -88,10 +89,10 @@ export default function AddScreen() {
         return;
       }
 
-      Alert.alert("Success", "Reminder added successfully!");
+      ToastAndroid.show("Reminder added successfully!", ToastAndroid.SHORT);
       router.push("/(tabs)/home/remind");
     } catch (error: any) {
-      Alert.alert("Error", "Something went wrong!");
+      ToastAndroid.show("Something went wrong!", ToastAndroid.SHORT);
       console.log("Error creating reminder:", error);
     } finally {
       setLoading(false);

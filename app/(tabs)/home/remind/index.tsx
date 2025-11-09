@@ -47,7 +47,10 @@ export default function RemindScreen() {
         const formatted = data.map((r: any) => ({
           _id: r.id || r._id,
           title: r.title,
-          time: r.time_of_day,
+          message: r.message,
+          time_of_day: r.time_of_day,
+          repeat_type: r.repeat_type,
+          repeat_days: r.repeat_days,
           active: r.is_active,
         }));
 
@@ -164,7 +167,10 @@ export default function RemindScreen() {
           <TouchableOpacity
             key={item._id}
             className="flex-row items-center justify-between bg-white rounded-2xl p-4 mb-3 shadow-sm"
-            onPress={() => router.push("/(tabs)/home/remind/update")}
+            onPress={() => router.push({
+              pathname: "/(tabs)/home/remind/update",
+              params: { reminder: JSON.stringify(item) }
+            })}
             activeOpacity={0.8}
           >
             {/* Left */}
@@ -177,7 +183,7 @@ export default function RemindScreen() {
                   {item.title}
                 </Text>
                 <Text className="text-base text-gray-500 font-[Poppins-Regular]">
-                  {item.time}
+                  {item.time_of_day}
                 </Text>
               </View>
             </View>
