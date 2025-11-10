@@ -7,6 +7,8 @@ import PagerView from "react-native-pager-view";
 import NewPassword from "./components/NewPassword";
 import OTPInput from "./components/OTPInput";
 
+const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
+
 export default function SignupPager() {
   const [page, setPage] = useState(0);
   const [email, setEmail] = useState("");
@@ -100,7 +102,21 @@ export default function SignupPager() {
           />
 
           <TouchableOpacity
-            onPress={goNext}
+            onPress={async () => {
+              if (!email) return;
+              try {
+                await fetch(`${API_BASE}/api/v1/auth/forgot-password`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({ email }),
+                });
+                goNext();
+              } catch (err) {
+                console.log(err);
+              }
+            }}
             className="w-full h-16 rounded-lg items-center justify-center mb-4 bg-[#7F56D9] mt-8"
           >
             <Text className="text-white font-[Poppins-Bold] text-base">
@@ -140,10 +156,28 @@ export default function SignupPager() {
           />
 
           <TouchableOpacity
-            onPress={goNext}
-            disabled={code.length < 6}
+            onPress={async () => {
+              if (!password || code.length < 6) return;
+              try {
+                await fetch(`${API_BASE}/api/v1/auth/reset-password`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    email,
+                    otp: code,
+                    new_password: password,
+                  }),
+                });
+                goNext();
+              } catch (err) {
+                console.log(err);
+              }
+            }}
+            disabled={!password || code.length < 6}
             className={`w-full h-16 rounded-lg items-center justify-center mt-8 ${
-              code.length < 6 ? "bg-gray-300" : "bg-[#7F56D9]"
+              !password || code.length < 6 ? "bg-gray-300" : "bg-[#7F56D9]"
             }`}
           >
             <Text className="text-white font-[Poppins-Bold] text-base">

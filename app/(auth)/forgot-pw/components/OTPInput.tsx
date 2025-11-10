@@ -12,14 +12,13 @@ const OTPInput: React.FC<OTPInputProps> = ({ length = 6, onComplete }) => {
 
   const handleChange = (text: string, index: number) => {
     const digit = text.replace(/[^0-9]/g, "");
-    if (!digit) return;
 
     const newValues = [...values];
     newValues[index] = digit;
     setValues(newValues);
 
-    // focus sang ô tiếp theo
-    if (index < length - 1) {
+    // nếu có số → chuyển focus ô tiếp theo
+    if (digit && index < length - 1) {
       inputs.current[index + 1]?.focus();
     }
 
