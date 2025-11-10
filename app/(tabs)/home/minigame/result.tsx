@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 export default function ResultScreen() {
-  const { correct, wrong, total, results } = useLocalSearchParams();
+  const { correct, wrong, total, results, earned_points } = useLocalSearchParams();
   const router = useRouter();
   const resultList = results ? JSON.parse(results as string) : [];
 
@@ -14,7 +14,6 @@ export default function ResultScreen() {
   const wrongNum = Number(wrong || 0);
   const totalNum = Number(total || correctNum + wrongNum);
   const percent = Math.round((correctNum / totalNum) * 100);
-  const score = Math.round((10 / totalNum) * correctNum);
   const isGood = percent >= 70;
   const [activeTab, setActiveTab] = useState<"total" | "correct" | "wrong">("total");
 
@@ -44,7 +43,7 @@ export default function ResultScreen() {
         {/* Header */}
         <View className="flex shadow-lg mx-6 mb-6 gap-2 p-6 items-center justify-center bg-[#E9EFFD] rounded-[20px]">
           <Text className=" text-lg text-[#2563EB] font-[Poppins-ExtraBold]">Score</Text>
-          <Text className="text-2xl text-[#EBAD25] font-[Poppins-ExtraBold]">{score} points</Text>
+          <Text className="text-2xl text-[#EBAD25] font-[Poppins-ExtraBold]">{earned_points} points</Text>
           <Text className="text-xl font-[Poppins-Bold]">Congratulations!</Text>
           <Text className="text-xl font-[Poppins-Bold] text-[#111] mb-2">
             {isGood ? "You do the best! 🎉" : "You can do better next time!"}
