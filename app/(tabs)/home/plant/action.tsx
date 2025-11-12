@@ -1,16 +1,19 @@
+"use client";
+
 import Heading from "@/components/Heading";
-import { useFonts } from "expo-font";
 import { router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Animated, {
   Easing,
   runOnJS,
@@ -32,42 +35,27 @@ import WaterDrop from "@/assets/images/water.svg";
 
 SplashScreen.preventAutoHideAsync();
 const { height } = Dimensions.get("window");
+const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
 export default function ActionScreen() {
-  const [fontsLoaded] = useFonts({
-    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
-    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
-    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
-    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
-    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
-    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
-    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
-    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
-    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
-    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
-  });
-
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) await SplashScreen.hideAsync();
-  }, [fontsLoaded]);
-
-  // ===== Mock dữ liệu =====
-  const xpThresholds = [0, 50, 100, 200, 300, 500, 1000, 2000];
-  const getLevel = (xp: number) => {
-    let level = 1;
-    for (let i = 1; i < xpThresholds.length; i++) {
-      if (xp >= xpThresholds[i]) level = i + 1;
-    }
-    return level > 8 ? 8 : level;
-  };
-
-  const initialXp = 75;
-  const addedXp = 10;
-  const [currentXp, setCurrentXp] = useState(initialXp);
-  const [level, setLevel] = useState(getLevel(initialXp));
+  const [currentXp, setCurrentXp] = useState(0);
+  const [addedXp, setAddedXp] = useState(0);
+  const [level, setLevel] = useState(1);
+  const [nextLevelXp, setNextLevelXp] = useState(50);
+  const [progress, setProgress] = useState(0);
   const [showButton, setShowButton] = useState(false);
   const [showDrop, setShowDrop] = useState(true);
   const [showXpText, setShowXpText] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const xpThresholds = [0, 50, 100, 200, 300, 500, 1000, 2000];
+  const getLevel = (xp: number) => {
+    let lvl = 1;
+    for (let i = 1; i < xpThresholds.length; i++) {
+      if (xp >= xpThresholds[i]) lvl = i + 1;
+    }
+    return lvl > 8 ? 8 : lvl;
+  };
 
   const PlantImages = {
     1: Plant1,
@@ -81,38 +69,70 @@ export default function ActionScreen() {
   };
   const PlantToShow = PlantImages[level as keyof typeof PlantImages];
 
-  const nextLevelXp = level < 8 ? xpThresholds[level] : xpThresholds[7];
-  const currentLevelXp = xpThresholds[level - 1] || 0;
-  const initialProgress =
-    ((initialXp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100;
-  const [progress, setProgress] = useState(initialProgress);
-
   const dropY = useSharedValue(height * 0.1);
   const xpTranslateY = useSharedValue(0);
 
   useEffect(() => {
-    if (!fontsLoaded) return;
+    const fetchTreeStatus = async () => {
+      try {
+        const token = await AsyncStorage.getItem("access_token");
+        if (!token) throw new Error("No token");
+
+        const [res, prevXpStr] = await Promise.all([
+          fetch(`${API_BASE}/api/v1/tree/status`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          AsyncStorage.getItem("prev_total_xp"),
+        ]);
+
+        const data = await res.json();
+        if (!res.ok) {
+          console.warn("Fetch tree failed:", data);
+          return;
+        }
+
+        const prevXp = prevXpStr ? parseInt(prevXpStr, 10) : data.total_xp - 10;
+        const added = Math.max(data.total_xp - prevXp, 0);
+
+        setCurrentXp(prevXp);
+        setAddedXp(added);
+        const lvl = getLevel(data.total_xp);
+        setLevel(lvl);
+        setNextLevelXp(data.xp_for_next_level);
+
+        const pct =
+          ((prevXp - xpThresholds[lvl - 1]) /
+            (data.xp_for_next_level - xpThresholds[lvl - 1])) *
+          100;
+        setProgress(pct);
+      } catch (err) {
+        console.error("Fetch tree error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTreeStatus();
+  }, []);
+
+  // Animation XP + drop
+  useEffect(() => {
+    if (loading) return;
 
     dropY.value = withTiming(
       height * 0.3,
-      {
-        duration: 1500,
-        easing: Easing.out(Easing.quad),
-      },
+      { duration: 1500, easing: Easing.out(Easing.quad) },
       () => {
         runOnJS(setShowDrop)(false);
         runOnJS(setShowXpText)(true);
-
-        // hiệu ứng trượt nhẹ lên
         xpTranslateY.value = withTiming(-40, { duration: 1000 });
       }
     );
 
-    const timeout1 = setTimeout(() => {
-      let value = initialXp;
+    const timeout = setTimeout(() => {
+      let value = currentXp;
       const interval = setInterval(() => {
         value += 1;
-        const newXp = Math.min(initialXp + addedXp, value);
+        const newXp = Math.min(currentXp + addedXp, value);
         const newLevel = getLevel(newXp);
         const newNext = newLevel < 8 ? xpThresholds[newLevel] : xpThresholds[7];
         const newCurrent = xpThresholds[newLevel - 1] || 0;
@@ -122,25 +142,29 @@ export default function ActionScreen() {
         setLevel(newLevel);
         setProgress(pct);
 
-        if (value >= initialXp + addedXp) {
+        if (value >= currentXp + addedXp) {
           clearInterval(interval);
           setShowButton(true);
         }
       }, 100);
     }, 1000);
 
-    return () => clearTimeout(timeout1);
-  }, [fontsLoaded]);
+    return () => clearTimeout(timeout);
+  }, [loading]);
 
   const dropStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: dropY.value }],
   }));
-
   const xpStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: xpTranslateY.value }],
   }));
 
-  if (!fontsLoaded) return null;
+  if (loading)
+    return (
+      <View className="flex-1 items-center justify-center bg-[#FAF9FF]">
+        <ActivityIndicator size="large" />
+      </View>
+    );
 
   return (
     <KeyboardAwareScrollView
@@ -150,21 +174,20 @@ export default function ActionScreen() {
       keyboardShouldPersistTaps="handled"
       enableOnAndroid
     >
-      <View className="flex-1 bg-[#FAF9FF]" onLayout={onLayoutRootView}>
+      <View className="flex-1 bg-[#FAF9FF]">
         <Heading title="Plant Tree" />
         <ScrollView
           className="flex-1 px-4"
           contentContainerStyle={{ paddingBottom: 40, alignItems: "center" }}
         >
-          {/* Cây */}
+          {/* Plant */}
           <View className="mt-16">
             <PlantToShow width={200} height={250} />
           </View>
 
-          {/* +10XP hiện lên và giữ nguyên */}
+          {/* +XP Text */}
           {showXpText && (
             <Animated.Text
-              className={"mt-4"}
               style={[
                 xpStyle,
                 {
@@ -180,24 +203,21 @@ export default function ActionScreen() {
             </Animated.Text>
           )}
 
-          {/* Giọt nước */}
+          {/* Water Drop */}
           {showDrop && (
             <Animated.View
-              style={[
-                dropStyle,
-                { position: "absolute", left: "50%", marginLeft: -30 },
-              ]}
+              style={[dropStyle, { position: "absolute", left: "50%", marginLeft: -30 }]}
             >
               <WaterDrop width={60} height={60} />
             </Animated.View>
           )}
 
-          {/* XP hiện tại */}
+          {/* XP display */}
           <Text className="mt-8 text-[#4F3422] font-[Poppins-Medium] text-base">
             {currentXp}/{nextLevelXp} XP
           </Text>
 
-          {/* Thanh progress */}
+          {/* Progress bar */}
           <View className="mt-2 w-full px-6">
             <View className="w-full h-4 bg-gray-300 rounded-full overflow-hidden">
               <View
@@ -214,7 +234,6 @@ export default function ActionScreen() {
             Your tree has grown more! Keep cultivating positivity.
           </Text>
 
-          {/* Nút quay lại */}
           {showButton && (
             <TouchableOpacity
               className="bg-[#7F56D9] h-14 rounded-xl mt-10 items-center justify-center w-full"

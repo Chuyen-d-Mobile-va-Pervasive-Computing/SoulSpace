@@ -179,9 +179,15 @@ export default function TestInfoScreen() {
                 })
               }
             >
+              {0 < completion_percentage && completion_percentage < 100 ? (
+                <Text className="text-white font-[Poppins-Bold] text-base">
+                  Continue Test
+                </Text>
+              ) : (    
               <Text className="text-white font-[Poppins-Bold] text-base">
                 Start Test Now
               </Text>
+              )}
             </TouchableOpacity>
           </View>
         </View>
