@@ -111,6 +111,13 @@ export default function ListScreen() {
     }
   };
 
+  const today = new Date();
+  const formattedDate = today.toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
   if (loading)
     return (
       <View className="flex-1 items-center justify-center bg-[#FAF9FF]">
@@ -131,6 +138,9 @@ export default function ListScreen() {
           </Text>
           <Text className="text-[#736B66] font-[Poppins-Medium] text-base text-center">
             {pickedAction?.description}
+          </Text>
+          <Text className="text-[#736B66] font-[Poppins-Bold] text-xl text-center mt-1">
+            {formattedDate}
           </Text>
         </View>
 

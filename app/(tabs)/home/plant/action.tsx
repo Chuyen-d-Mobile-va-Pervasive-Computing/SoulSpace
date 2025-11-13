@@ -1,6 +1,5 @@
 "use client";
 
-import Heading from "@/components/Heading";
 import { router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect, useState } from "react";
@@ -12,6 +11,7 @@ import {
   View,
   ActivityIndicator,
 } from "react-native";
+import { ArrowLeft } from "lucide-react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Animated, {
@@ -175,7 +175,19 @@ export default function ActionScreen() {
       enableOnAndroid
     >
       <View className="flex-1 bg-[#FAF9FF]">
-        <Heading title="Plant Tree" />
+        <View className="flex-row items-center justify-between py-4 px-4 border-b border-gray-200 mt-8">
+          <View className="flex-row items-center">
+            <TouchableOpacity onPress={() => router.push("/(tabs)/home/plant")}>
+              <ArrowLeft width={36} height={36} />
+            </TouchableOpacity>
+            <Text
+              className="ml-3 text-2xl text-[#7F56D9]"
+              style={{ fontFamily: "Poppins-Bold" }}
+            >
+              Plant Tree
+            </Text>
+          </View>
+        </View>
         <ScrollView
           className="flex-1 px-4"
           contentContainerStyle={{ paddingBottom: 40, alignItems: "center" }}

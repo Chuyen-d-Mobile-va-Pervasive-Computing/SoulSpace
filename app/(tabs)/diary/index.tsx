@@ -14,10 +14,7 @@ export default function DiaryScreen() {
     <View className="flex-1 bg-[#FAF9FF]">
       <Heading title="Diary" />
 
-      <ScrollView
-        className="flex-1 mt-8 px-4"
-        contentContainerStyle={{ paddingBottom: 20 }}
-      >
+      <View className="flex-1 mt-8 px-4">
         <View className="flex-col gap-y-6">
           {/* Emotion */}
           <View>
@@ -38,7 +35,7 @@ export default function DiaryScreen() {
             <Text className="text-white text-base font-[Poppins-Bold]">Next</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </View>
     </View>
   );
 }

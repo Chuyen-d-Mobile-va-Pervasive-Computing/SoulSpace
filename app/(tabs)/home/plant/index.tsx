@@ -3,9 +3,8 @@ import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Toast from "react-native-toast-message";
-import Heading from "@/components/Heading";
 import { router } from "expo-router";
-import { Sun } from "lucide-react-native";
+import { Sun, ArrowLeft } from "lucide-react-native";
 import { FontAwesome } from "@expo/vector-icons";
 
 import Plant1 from "@/assets/images/plant1.svg";
@@ -80,7 +79,19 @@ export default function PlantScreen() {
 
   return (
     <View className="flex-1 bg-[#FAF9FF]">
-      <Heading title="Plant" />
+      <View className="flex-row items-center justify-between py-4 px-4 border-b border-gray-200 mt-8">
+        <View className="flex-row items-center">
+          <TouchableOpacity onPress={() => router.push("/(tabs)/home")}>
+            <ArrowLeft width={36} height={36} />
+          </TouchableOpacity>
+          <Text
+            className="ml-3 text-2xl text-[#7F56D9]"
+            style={{ fontFamily: "Poppins-Bold" }}
+          >
+            Plant
+          </Text>
+        </View>
+      </View>
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }} className="flex-1 px-4">
         <View className="py-3 px-1 gap-8 items-center">
 
