@@ -12,6 +12,8 @@ import {
   View,
   Alert,
   ToastAndroid,
+  KeyboardAvoidingView,
+  Platform
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -158,120 +160,126 @@ export default function UpdateScreen() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <View className="flex-1 bg-[#FAF9FF]">
-        <Heading title="Update Reminder" />
+      <KeyboardAvoidingView
+        style={{ flex: 1, backgroundColor: "#FAF9FF" }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <View className="flex-1 bg-[#FAF9FF]">
+          <Heading title="Update Reminder" />
 
-        <ScrollView
-          className="flex-1 px-4"
-          contentContainerStyle={{ paddingBottom: 40 }}
-        >
-          <TouchableOpacity onPress={handleSave}>
-            <Text className="text-[#7F56D9] font-[Poppins-Bold] text-lg text-right">
-              Save
-            </Text>
-          </TouchableOpacity>
-
-          <View className="items-center mt-4">
-            <CircularTimeSelector time={time} setTime={setTime} />
-          </View>
-
-          {/* Title */}
-          <View className="mt-8">
-            <Text className="text-lg font-[Poppins-SemiBold] text-gray-700 mb-2">
-              Title
-            </Text>
-            <TextInput
-              value={title}
-              onChangeText={setTitle}
-              placeholder="Enter reminder title ..."
-              className="bg-white rounded-xl px-4 py-3 border border-gray-200 text-base font-[Poppins-Regular]"
-            />
-            {errors.title && (
-              <Text className="text-red-500 mt-1 text-sm">{errors.title}</Text>
-            )}
-          </View>
-
-          {/* Description */}
-          <View className="mt-4">
-            <Text className="text-lg font-[Poppins-SemiBold] text-gray-700 mb-2">
-              Description
-            </Text>
-            <TextInput
-              value={description}
-              onChangeText={setDescription}
-              placeholder="Enter reminder description ..."
-              className="bg-white rounded-xl px-4 py-3 border border-gray-200 text-base font-[Poppins-Regular]"
-              multiline
-              style={{ minHeight: 80, textAlignVertical: "top" }}
-            />
-            {errors.message && (
-              <Text className="text-red-500 mt-1 text-sm">{errors.message}</Text>
-            )}
-          </View>
-
-          {/* Repeat */}
-          <View className="bg-white rounded-2xl mt-6 p-4">
-            <View className="flex-row items-center mb-4">
-              <Bell size={18} color="#7F56D9" />
-              <Text className="ml-2 font-[Poppins-SemiBold] text-base">
-                Repeat
+          <ScrollView
+            className="flex-1 px-4"
+            contentContainerStyle={{ paddingBottom: 40 }}
+          >
+            <TouchableOpacity onPress={handleSave}>
+              <Text className="text-[#7F56D9] font-[Poppins-Bold] text-lg text-right">
+                Save
               </Text>
+            </TouchableOpacity>
+
+            <View className="items-center mt-4">
+              <CircularTimeSelector time={time} setTime={setTime} />
             </View>
 
-            {/* Days */}
-            <View className="flex-row justify-between mb-4">
-              {days.map((d) => {
-                const active = selectedDays.includes(d);
-                return (
-                  <TouchableOpacity
-                    key={d}
-                    onPress={() => toggleDay(d)}
-                    className={`w-9 h-9 rounded-full border items-center justify-center ${
-                      active
-                        ? "bg-[#7F56D9] border-[#7F56D9]"
-                        : "border-[#7F56D9]"
-                    }`}
-                  >
-                    <Text
-                      className={`text-sm font-[Poppins-Regular] ${
-                        active ? "text-white" : "text-[#7F56D9]"
+            {/* Title */}
+            <View className="mt-8">
+              <Text className="text-lg font-[Poppins-SemiBold] text-gray-700 mb-2">
+                Title
+              </Text>
+              <TextInput
+                value={title}
+                onChangeText={setTitle}
+                placeholder="Enter reminder title ..."
+                className="bg-white rounded-xl px-4 py-3 border border-gray-200 text-base font-[Poppins-Regular]"
+              />
+              {errors.title && (
+                <Text className="text-red-500 mt-1 text-sm">{errors.title}</Text>
+              )}
+            </View>
+
+            {/* Description */}
+            <View className="mt-4">
+              <Text className="text-lg font-[Poppins-SemiBold] text-gray-700 mb-2">
+                Description
+              </Text>
+              <TextInput
+                value={description}
+                onChangeText={setDescription}
+                placeholder="Enter reminder description ..."
+                className="bg-white rounded-xl px-4 py-3 border border-gray-200 text-base font-[Poppins-Regular]"
+                multiline
+                numberOfLines={4}
+                style={{ minHeight: 100, textAlignVertical: "top" }}
+              />
+              {errors.message && (
+                <Text className="text-red-500 mt-1 text-sm">{errors.message}</Text>
+              )}
+            </View>
+
+            {/* Repeat */}
+            <View className="bg-white rounded-2xl mt-6 p-4">
+              <View className="flex-row items-center mb-4">
+                <Bell size={18} color="#7F56D9" />
+                <Text className="ml-2 font-[Poppins-SemiBold] text-base">
+                  Repeat
+                </Text>
+              </View>
+
+              {/* Days */}
+              <View className="flex-row justify-between mb-4">
+                {days.map((d) => {
+                  const active = selectedDays.includes(d);
+                  return (
+                    <TouchableOpacity
+                      key={d}
+                      onPress={() => toggleDay(d)}
+                      className={`w-9 h-9 rounded-full border items-center justify-center ${
+                        active
+                          ? "bg-[#7F56D9] border-[#7F56D9]"
+                          : "border-[#7F56D9]"
                       }`}
                     >
-                      {d}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+                      <Text
+                        className={`text-sm font-[Poppins-Regular] ${
+                          active ? "text-white" : "text-[#7F56D9]"
+                        }`}
+                      >
+                        {d}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+              {errors.repeat_days && (
+                <Text className="text-red-500 mt-1 text-sm">{errors.repeat_days}</Text>
+              )}
+
+              {/* Once / Daily */}
+              <View className="flex-row items-center justify-between border-t border-gray-200 py-3">
+                <Text className="text-base font-[Poppins-Regular]">Once</Text>
+                <CustomSwitch value={once} onValueChange={setOnce} />
+              </View>
+              <View className="flex-row items-center justify-between border-t border-gray-200 py-3">
+                <Text className="text-base font-[Poppins-Regular]">Daily</Text>
+                <CustomSwitch value={daily} onValueChange={setDaily} />
+              </View>
             </View>
-            {errors.repeat_days && (
-              <Text className="text-red-500 mt-1 text-sm">{errors.repeat_days}</Text>
+
+            {errors.form && (
+              <Text className="text-red-500 mt-3 text-center">{errors.form}</Text>
             )}
 
-            {/* Once / Daily */}
-            <View className="flex-row items-center justify-between border-t border-gray-200 py-3">
-              <Text className="text-base font-[Poppins-Regular]">Once</Text>
-              <CustomSwitch value={once} onValueChange={setOnce} />
+            <View className="px-3 mt-8">
+              <TouchableOpacity
+                onPress={handleDelete}
+                className="bg-[#FF6B6B] h-12 rounded-xl items-center justify-center"
+              >
+                <Text className="text-white text-base font-[Poppins-Bold]">Delete</Text>
+              </TouchableOpacity>
             </View>
-            <View className="flex-row items-center justify-between border-t border-gray-200 py-3">
-              <Text className="text-base font-[Poppins-Regular]">Daily</Text>
-              <CustomSwitch value={daily} onValueChange={setDaily} />
-            </View>
-          </View>
-
-          {errors.form && (
-            <Text className="text-red-500 mt-3 text-center">{errors.form}</Text>
-          )}
-
-          <View className="px-3 mt-8">
-            <TouchableOpacity
-              onPress={handleDelete}
-              className="bg-[#FF6B6B] h-12 rounded-xl items-center justify-center"
-            >
-              <Text className="text-white text-base font-[Poppins-Bold]">Delete</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </View>
+          </ScrollView>
+        </View>
+      </KeyboardAvoidingView>
     </GestureHandlerRootView>
   );
 }
