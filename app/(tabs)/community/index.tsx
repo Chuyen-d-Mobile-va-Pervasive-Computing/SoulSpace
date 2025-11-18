@@ -153,7 +153,10 @@ export default function CommunityScreen() {
               {/* Content */}
               <TouchableOpacity
                 activeOpacity={0.8}
-                onPress={() => router.push("/(tabs)/community/comment")}
+                onPress={() => router.push({
+                  pathname:"/(tabs)/community/comment",
+                  params: { postId: post.id, focusInput: "false" }
+                })}
               >
                 <Text className="text-base mt-3 font-[Poppins-Regular]">
                   {post.content}
@@ -182,7 +185,7 @@ export default function CommunityScreen() {
                   onPress={() =>
                     router.push({
                       pathname: "/(tabs)/community/comment",
-                      params: { focusInput: "true" }, // 👈 truyền param
+                      params: { postId: post.id, focusInput: "true" }, // 👈 truyền param
                     })
                   }
                 >
@@ -244,9 +247,11 @@ export default function CommunityScreen() {
         visible={menuVisible}
         transparent
         animationType="slide"
-        onRequestClose={() => setMenuVisible(false)}
       >
         <View className="flex-1 justify-end bg-black/50">
+          <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
+            <View className="flex-1" />
+          </TouchableWithoutFeedback>
           <View className="bg-white rounded-t-2xl p-4">
             {selectedPost?.userId === currentUserId ? (
               <>
@@ -271,11 +276,11 @@ export default function CommunityScreen() {
             {/* <Pressable onPress={() => handleShare(selectedPost.id)}>
               <Text className="text-lg mt-2">Chia sẻ</Text>
             </Pressable> */}
-            <Pressable onPress={() => setMenuVisible(false)}>
+            {/* <Pressable onPress={() => setMenuVisible(false)}>
               <Text className="text-center font-[Poppins-Bold] mt-4">
                 Cancel
               </Text>
-            </Pressable>
+            </Pressable> */}
           </View>
         </View>
       </Modal>

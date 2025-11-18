@@ -1,11 +1,12 @@
 import React, { useMemo, useRef, useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, Animated, Easing } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, Animated, Easing, Modal, TouchableWithoutFeedback, Pressable } from "react-native";
 import dayjs from "dayjs";
+import TagSelector from "@/components/TagSelector";
 import { router } from "expo-router";
 import Heading from "@/components/Heading";
 import HappyIcon from "@/assets/images/happy.svg";
 import AngryIcon from "@/assets/images/angry.svg";
-import { Plus } from "lucide-react-native";
+import { Plus, SlidersHorizontal } from "lucide-react-native";
 
 interface Entry {
   created_at: string;
@@ -28,6 +29,7 @@ export default function Calendar({ entries = mockEntries }: { entries?: Entry[] 
   const month = currentDate.month();
   const daysInMonth = currentDate.daysInMonth();
   const firstDayOfWeek = dayjs(new Date(year, month, 1)).day(); // 0=Sun..6=Sat
+  const [filterVisible, setFilterVisible] = useState(false);
 
   // Animation state
   const animValue = useRef(new Animated.Value(1)).current;
@@ -189,7 +191,16 @@ export default function Calendar({ entries = mockEntries }: { entries?: Entry[] 
 
         {/* History */}
         <View className="flex-1 w-full gap-2.5 px-4 mt-6">
-          <Text className="text-black text-lg font-[Poppins-SemiBold]">History</Text>
+          <View className="flex flex-row justify-between">
+            <Text className="text-black text-lg font-[Poppins-SemiBold]">History</Text>
+            <TouchableOpacity
+              className="flex-row justify-end items-center mb-4"
+              onPress={() => setFilterVisible(true)}
+            >
+              <Text className="text-black font-[Poppins-Bold] text-xs mr-2">Filter</Text>
+              <SlidersHorizontal width={20} height={20} color="black" />
+              </TouchableOpacity>
+          </View>
           <TouchableOpacity
             className="w-full flex-row items-center gap-3 rounded-xl border-[2px] border-[#f4f4f4] bg-white p-4 shadow-md"
             onPress={() => router.push("/(tabs)/home/diary/detail")}
@@ -210,6 +221,35 @@ export default function Calendar({ entries = mockEntries }: { entries?: Entry[] 
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <Modal
+        visible={filterVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setFilterVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setFilterVisible(false)}>
+          <View className="flex-1 bg-black/50 items-center justify-center">
+            <View className="w-80 bg-white p-6 rounded-2xl">
+              <Text className="text-lg font-[Poppins-Bold] mb-4">Sort</Text>
+              <TagSelector
+                options={[
+                  { id: 1, name: "Recent" },
+                  { id: 2, name: "Older" },
+                ]}
+                multiSelect={false}
+                onChange={(ids) => console.log("Years:", ids)}
+              />
+              <Pressable
+                className="mt-4 bg-[#7F56D9] py-2 rounded-xl"
+                onPress={() => setFilterVisible(false)}
+              >
+                <Text className="text-center text-white font-[Poppins-Bold]"> Apply</Text>
+              </Pressable>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 }
