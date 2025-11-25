@@ -10,6 +10,7 @@ import {
   View,
   ToastAndroid
 } from "react-native";
+import { scheduleReminder, cancelReminder } from '@/services/notification';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
@@ -65,6 +66,10 @@ export default function RemindScreen() {
     fetchReminders();
   }, []);
 
+  useEffect(() => {
+    AsyncStorage.removeItem("UNREAD_REMINDERS");
+  }, []);
+
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center bg-[#FAF9FF]">
@@ -80,7 +85,12 @@ export default function RemindScreen() {
     try {
       const current = reminders.find((r) => r._id === id);
       if (!current) return;
-
+      const newActive = !current.active;
+      if (newActive) {
+        await scheduleReminder(current);
+      } else {
+        await cancelReminder(id);
+      }
       setReminders((prev) =>
         prev.map((item) =>
           item._id === id ? { ...item, active: !item.active } : item

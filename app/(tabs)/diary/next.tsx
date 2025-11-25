@@ -1,7 +1,7 @@
 import Heading from "@/components/Heading";
 import TagSelector from "@/components/TagSelector";
 import { Audio } from "expo-av";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { AudioLines, Mic } from "lucide-react-native";
 import React, { useState, useRef, useEffect } from "react";
 import {
@@ -14,15 +14,35 @@ import {
   Animated,
   Easing,
 } from "react-native";
-import AngryIcon from "@/assets/images/angry.svg";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { emotionList } from "@/components/EmotionPicker";
+
+const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
+
+const iconMap: { [key: string]: React.FC<{ width: number; height: number }> } = 
+  Object.fromEntries(
+    emotionList.map((e) => [e.name, e.icon])
+  );
 
 export default function DiaryNextScreen() {
+  const params = useLocalSearchParams();
+  const emotionLabel = (params.emotion as string) || "Neutral";
+
   const [tags, setTags] = useState<{ tag_id: string; tag_name: string }[]>([]);
   const [thoughts, setThoughts] = useState<string>("");
 
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [audioUri, setAudioUri] = useState<string | null>(null);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
+
+  const getToken = async () => {
+    try {
+      return await AsyncStorage.getItem('access_token');
+    } catch (err) {
+      console.error('Failed to get token', err);
+      return null;
+    }
+  };
 
   // Pulse animation
   const pulseAnim = useRef(new Animated.Value(0)).current;
@@ -118,9 +138,16 @@ export default function DiaryNextScreen() {
       return;
     }
 
+    const token = await getToken();
+    if (!token) {
+      Alert.alert("Error", "Invalid token. Please login again.");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("text_content", thoughts);
     formData.append("tags", JSON.stringify(tags));
+    formData.append("emotion_label", emotionLabel);
 
     if (audioUri) {
       formData.append("audio", {
@@ -131,22 +158,35 @@ export default function DiaryNextScreen() {
     }
 
     try {
-      const res = await fetch("https://your-api-url.com/diary", {
+      const res = await fetch(`${API_BASE}/api/v1/journal/`, {
         method: "POST",
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Authorization": `Bearer ${token}`,
         },
         body: formData,
       });
 
-      if (!res.ok) throw new Error("Failed to save diary");
-      Alert.alert("Success", "Diary saved!");
-      router.push("/(tabs)/home/diary");
+      if (res.ok) {
+        const data = await res.json();
+        Alert.alert("Success", "Diary saved!");
+        console.log("Response data:", data);
+        router.push("/(tabs)/home/diary");
+      } else {
+        const errorData = await res.json();
+        const errorMessage = errorData.error || `Error ${res.status}`;
+        Alert.alert("Error", errorMessage);
+        if (res.status === 400) {
+          console.log("Validation error:", errorData);
+        } else if (res.status === 401) {
+        }
+      }
     } catch (err) {
-      console.error(err);
-      Alert.alert("Error", "Failed to save diary");
+      console.error("Fetch error:", err);
+      Alert.alert("Error", "Failed to save diary. Check network or server.");
     }
   };
+
+  const IconComponent = iconMap[emotionLabel];
 
   return (
     <View className="flex-1 bg-[#FAF9FF]">
@@ -160,7 +200,7 @@ export default function DiaryNextScreen() {
           <Text className="text-black text-3xl text-center font-[Poppins-Bold]">
             How are you feeling?
           </Text>
-          <AngryIcon width={100} height={100} />
+          {IconComponent && <IconComponent width={100} height={100} />}
 
           {/* Thoughts */}
           <TextInput
@@ -192,7 +232,7 @@ export default function DiaryNextScreen() {
                     : [];
                   setTags(
                     arr.map((s) => ({ tag_id: String(s.id), tag_name: s.name }))
-                  ); // ép về string
+                  );
                 }}
               />
             </View>

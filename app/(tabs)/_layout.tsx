@@ -47,6 +47,7 @@ export default function TabLayout() {
         tabBarLabelStyle: {
           fontFamily: "Poppins-Medium",
         },
+        lazy: false,
       }}
     >
       <Tabs.Screen
@@ -54,6 +55,7 @@ export default function TabLayout() {
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => <Home size={28} color={color} />,
+          freezeOnBlur: false
         }}
       />
       <Tabs.Screen

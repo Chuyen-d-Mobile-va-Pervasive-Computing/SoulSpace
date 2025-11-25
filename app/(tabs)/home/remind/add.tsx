@@ -15,6 +15,7 @@ import {
   KeyboardAvoidingView, 
   Platform
 } from "react-native";
+import { scheduleReminder } from '@/services/notification';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
@@ -90,7 +91,16 @@ export default function AddScreen() {
         setErrorDetail(data.detail);
         return;
       }
+    const newReminder = {
+      _id: data.id || data._id,
+      title,
+      message: message || undefined,
+      time_of_day,
+      repeat_type: repeat_type as "once" | "daily" | "custom",
+      repeat_days: repeat_days.length > 0 ? repeat_days : undefined,
+    };
 
+    await scheduleReminder(newReminder);
       ToastAndroid.show("Reminder added successfully!", ToastAndroid.SHORT);
       router.push("/(tabs)/home/remind");
     } catch (error: any) {

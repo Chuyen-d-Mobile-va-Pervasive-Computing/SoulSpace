@@ -15,8 +15,9 @@ import MoodTrends from "@/components/MoodTrends";
 import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
 import { ArrowBigRight, Bell, Settings } from "lucide-react-native";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { getUnreadCount } from "@/services/notification";
 
 export default function HomeScreen() {
   const navigation = useNavigation();
@@ -32,6 +33,24 @@ export default function HomeScreen() {
   const handleExploreMore = () => {
     scrollRef.current?.scrollTo({ y: activitiesY - 5, animated: true });
   };
+
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+  const interval = setInterval(async () => {
+    const c = await getUnreadCount();
+    console.log("getUnreadCount return:", c);
+    setCount(c);
+  }, 2000);
+
+  return () => clearInterval(interval);
+}, []);
+
+
+  useEffect(() => {
+  console.log("Unread count updated:", count);
+}, [count]);
+
   return (
     <View className="flex-1 bg-[#FAF9FF]">
       {/* Heading */}
@@ -43,7 +62,22 @@ export default function HomeScreen() {
           </Text>
         </View>
         <View className="flex-row items-center gap-4">
-          <Bell strokeWidth={1.5} />
+          <TouchableOpacity onPress={() => router.push("/(tabs)/home/remind")}>
+  <View className="relative">
+    <Bell size={28} color="#7F56D9" />
+
+    {count > 0 && (
+      <View
+        className="absolute -top-1 -right-1 bg-red-500 rounded-full h-5 min-w-5 px-1 items-center justify-center"
+      >
+        <Text className="text-white text-[10px] font-[Poppins-Bold]">
+          {count}
+        </Text>
+      </View>
+    )}
+  </View>
+</TouchableOpacity>
+
           <Settings strokeWidth={1.5} />
         </View>
       </View>

@@ -29,7 +29,10 @@ export default function DiaryScreen() {
           </View>
 
           <TouchableOpacity
-            onPress={() => router.push({ pathname: "/(tabs)/diary/next" })}
+            onPress={() => router.push({ 
+              pathname: "/(tabs)/diary/next",
+              params: { emotion: selectedEmotion?.label || "Neutral" }
+            })}
             className="bg-[#7F56D9] h-16 rounded-xl items-center justify-center"
           >
             <Text className="text-white text-base font-[Poppins-Bold]">Next</Text>
