@@ -7,23 +7,34 @@ export default function HomeLayout() {
     >
       <Stack.Screen name="index" options={{ title: "Dashboard" }} />
       <Stack.Screen name="analytic" options={{ title: "Thống kê" }} />
-      <Stack.Screen name="diary/index" options={{ title: "Xem tổng quan nhật ký" }} />
-      <Stack.Screen name="diary/detail" options={{ title: "Xem chi tiết nhật ký" }} />
+      <Stack.Screen
+        name="diary/index"
+        options={{ title: "Xem tổng quan nhật ký" }}
+      />
+      <Stack.Screen
+        name="diary/detail"
+        options={{ title: "Xem chi tiết nhật ký" }}
+      />
       <Stack.Screen name="remind/index" options={{ title: "Nhắc nhở" }} />
       <Stack.Screen name="remind/add" options={{ title: "Thêm lời nhắc" }} />
-      <Stack.Screen name="remind/update" options={{ title: "Chỉnh sửa lời nhắc" }} />
-      <Stack.Screen name="remind/custom" options={{ title: "Tùy chỉnh lời nhắc" }} />
-      <Stack.Screen name="minigame/index" options={{ title: "Minigame" }} />
-      <Stack.Screen name="minigame/write" options={{ title: "Viết bài" }} />
-      <Stack.Screen name="minigame/share" options={{ title: "Chia sẻ bài" }} />
-      <Stack.Screen name="minigame/comment" options={{ title: "Bình luận bài" }} />
-      <Stack.Screen name="minigame/choose" options={{ title: "Chọn đáp án đúng" }} />
-      <Stack.Screen name="minigame/match" options={{ title: "Nối đáp án" }} />
-      <Stack.Screen name="minigame/crossword" options={{ title: "Crossword" }} />
-      <Stack.Screen name="minigame/result" options={{ title: "Kết quả bài test" }} />
+      <Stack.Screen
+        name="remind/update"
+        options={{ title: "Chỉnh sửa lời nhắc" }}
+      />
+      <Stack.Screen
+        name="remind/custom"
+        options={{ title: "Tùy chỉnh lời nhắc" }}
+      />
+      <Stack.Screen name="consult/index" options={{ title: "Consult" }} />
       <Stack.Screen name="plant/index" options={{ title: "Trồng cây" }} />
-      <Stack.Screen name="plant/list" options={{ title: "Danh sách hành động" }} />
-      <Stack.Screen name="plant/action" options={{ title: "Thực hiện hành động" }} />
+      <Stack.Screen
+        name="plant/list"
+        options={{ title: "Danh sách hành động" }}
+      />
+      <Stack.Screen
+        name="plant/action"
+        options={{ title: "Thực hiện hành động" }}
+      />
     </Stack>
   );
 }
