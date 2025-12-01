@@ -11,7 +11,7 @@ import EmbarrassedIcon from "@/assets/images/embarrassed.svg";
 import WorriedIcon from "@/assets/images/worried.svg";
 import SadIcon from "@/assets/images/sad.svg";
 
-const emotionList = [
+export const emotionList = [
   { id: 1, name: "Excited", icon: ExcitedIcon },
   { id: 2, name: "Happy", icon: HappyIcon },
   { id: 3, name: "Chill", icon: ChillIcon },

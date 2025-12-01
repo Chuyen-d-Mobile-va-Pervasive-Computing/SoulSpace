@@ -9,15 +9,15 @@ import HappyIcon from "@/assets/images/happy.svg";
 import SadIcon from "@/assets/images/sad.svg";
 import WorriedIcon from "@/assets/images/worried.svg";
 
-export const emotionMap = {
-  "Vui vẻ": HappyIcon,
-  "Buồn": SadIcon,
-  "Tức giận": AngryIcon,
-  "Bực bội": AnnoyIcon,
-  "Điềm tĩnh": CalmIcon,
-  "Thư giãn": ChillIcon,
-  "Bối rối": ConfusedIcon,
-  "Xấu hổ": EmbarrassedIcon,
-  "Hào hứng": ExcitedIcon,
-  "Lo lắng": WorriedIcon,
+export const emotionMap: Record<string, any> = {
+  Excited: ExcitedIcon,
+  Happy: HappyIcon,
+  Chill: ChillIcon,
+  Calm: CalmIcon,
+  Confused: ConfusedIcon,
+  Embarrassed: EmbarrassedIcon,
+  Worried: WorriedIcon,
+  Annoy: AnnoyIcon,
+  Sad: SadIcon,
+  Angry: AngryIcon,
 };
