@@ -1,13 +1,15 @@
 import { HapticTab } from "@/components/HapticTab";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { useFonts } from "expo-font";
-import { Tabs } from "expo-router";
+import { Tabs, usePathname } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { Compass, Home, Plus, Settings, Users } from "lucide-react-native";
 import React, { useCallback } from "react";
 import { View } from "react-native";
 
 export default function TabLayout() {
+  const pathname = usePathname();
+
   const [fontsLoaded] = useFonts({
     "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
     "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
@@ -27,6 +29,8 @@ export default function TabLayout() {
     }
   }, [fontsLoaded]);
 
+  const isConsult = pathname.startsWith("/(tabs)/home/consult");
+
   if (!fontsLoaded) return null;
 
   return (
@@ -37,13 +41,15 @@ export default function TabLayout() {
         tabBarBackground: TabBarBackground,
         tabBarActiveTintColor: "#7F56D9", // Màu icon/text khi chọn
         tabBarInactiveTintColor: "#BDBDBD", // Màu icon/text khi chưa chọn
-        tabBarStyle: {
-          backgroundColor: "#FCFBFF",
-          borderTopColor: "#E5E5E5",
-          height: 120,
-          paddingTop: 10,
-          paddingBottom: 20,
-        },
+        tabBarStyle: isConsult
+          ? { display: "none" } // Ẩn hoàn toàn
+          : {
+              backgroundColor: "#FCFBFF",
+              borderTopColor: "#E5E5E5",
+              height: 120,
+              paddingTop: 10,
+              paddingBottom: 20,
+            },
         tabBarLabelStyle: {
           fontFamily: "Poppins-Medium",
         },

@@ -32,33 +32,30 @@ export default function MinigameScreen() {
   );
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchBadges = async () => {
-      try {
-        const token = await AsyncStorage.getItem("access_token");
-        if (!token) throw new Error("No access token found");
-        const payload: any = jwtDecode(token);
-        const userId = payload.sub;
-        await AsyncStorage.setItem("user_id", userId);
-        const res = await fetch(
-          `${API_BASE}/api/v1/badges/user/${userId}/all`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        const data = await res.json();
-        if (res.ok) {
-          setBadges({ earned: data.earned_badges, locked: data.locked_badges });
-        } else {
-          console.warn("Failed to fetch badges", data);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+  const fetchBadges = async () => {
+    try {
+      const token = await AsyncStorage.getItem("access_token");
+      if (!token) throw new Error("No access token found");
+      const payload: any = jwtDecode(token);
+      const userId = payload.sub;
+      await AsyncStorage.setItem("user_id", userId);
+      const res = await fetch(`${API_BASE}/api/v1/badges/user/${userId}/all`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setBadges({ earned: data.earned_badges, locked: data.locked_badges });
+      } else {
+        console.warn("Failed to fetch badges", data);
       }
-    };
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchBadges();
   }, []);
 
@@ -78,7 +75,7 @@ export default function MinigameScreen() {
         </View>
       </View>
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 40 }}
+        contentContainerStyle={{ paddingBottom: 120 }}
         className="flex-1 px-4 pt-2"
       >
         <View className="w-full p-2 overflow-hidden">
@@ -96,6 +93,8 @@ export default function MinigameScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Footer is provided by consult/_layout.tsx for all consult routes */}
     </View>
   );
 }

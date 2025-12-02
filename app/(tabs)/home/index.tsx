@@ -152,7 +152,7 @@ export default function HomeScreen() {
                     <Activity3 width={180} height={180} />
                     <TouchableOpacity
                       className="absolute bottom-2 right-2 bg-[#D15743] rounded-full p-3 shadow"
-                      onPress={() => router.push("/(tabs)/home/minigame")}
+                      onPress={() => router.push("/(tabs)/home/consult")}
                     >
                       <ArrowBigRight color="white" size={24} />
                     </TouchableOpacity>
