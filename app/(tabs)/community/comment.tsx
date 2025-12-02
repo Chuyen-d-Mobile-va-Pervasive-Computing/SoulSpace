@@ -1,43 +1,82 @@
 import { useEffect, useRef, useState } from "react";
-import Heading from "@/components/Heading";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowUp, EllipsisVertical, Heart, MessageCircle } from "lucide-react-native";
-import { ScrollView, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Platform, Keyboard, ToastAndroid, Modal, TouchableWithoutFeedback, Pressable } from "react-native";
+import {
+  ArrowUp,
+  EllipsisVertical,
+  Heart,
+  MessageCircle,
+} from "lucide-react-native";
+import {
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
+  ToastAndroid,
+  Modal,
+  TouchableWithoutFeedback,
+  Pressable,
+} from "react-native";
+
+import Heading from "@/components/Heading";
+import PostHeader from "@/components/PostHeader";
+import { mockPosts } from "@/constants/mockPosts";
 
 export default function CommentScreen() {
   const router = useRouter();
-  const { postId, focusInput } = useLocalSearchParams<{
-    postId: string;
-    focusInput?: string;
-  }>();
-
+  const { postId, focusInput } = useLocalSearchParams();
+  const [hasCommentedAnonymous, setHasCommentedAnonymous] = useState(false);
   const currentUserId = "u1";
-  const postsList = [
+
+  // Lấy bài post hiện tại
+  const [post, setPost] = useState(
+    mockPosts.find((p) => p.id === postId) || null
+  );
+
+  // COMMENT LIST
+  const [comments, setComments] = useState([
     {
-      id: "p1",
+      id: "c1",
       userId: "u1",
       username: "user 01234567",
-      createdAt: "2025-01-01 12:20:20",
-      content: "Tôi vui lắm",
-      likes: 10,
-      comments: 10,
-      isInterested: false,
-      isLiked: false,
+      createdAt: "2025-01-05 11:00:00",
+      content: "Bình luận mẫu 1",
+      visibility: "public",
     },
     {
-      id: "p2",
+      id: "c2",
       userId: "u2",
       username: "user 987654321",
-      createdAt: "2025-01-02 10:15:00",
-      content: "Hôm nay trời đẹp",
-      likes: 2,
-      comments: 1,
-      isInterested: true,
-      isLiked: true,
+      createdAt: "2025-01-05 11:05:00",
+      content: "Bình luận mẫu 2",
+      visibility: "public",
     },
-  ];
+  ]);
 
-  const [post, setPost] = useState<any>(postsList.find((p) => p.id === postId) || null);
+  // Chế độ comment: public / anonymous
+  const [commentMode, setCommentMode] = useState<"public" | "anonymous">("public");
+  const [visibilityModalVisible, setVisibilityModalVisible] = useState(false);
+
+  // Nếu đã chọn anonymous 1 lần → khóa luôn
+  const handleChangeVisibility = (mode: "public" | "anonymous") => {
+    if (hasCommentedAnonymous) return;
+    setCommentMode(mode);
+    setVisibilityModalVisible(false);
+  };
+
+  // Convert tất cả comment cũ về anonymous
+  const convertOldCommentsToAnonymous = () => {
+    setComments((prev) =>
+      prev.map((c) =>
+        c.userId === currentUserId
+          ? { ...c, visibility: "anonymous" }
+          : c
+      )
+    );
+  };
 
   const scrollRef = useRef<ScrollView | null>(null);
   const inputRef = useRef<TextInput | null>(null);
@@ -103,10 +142,38 @@ export default function CommentScreen() {
   if (!post) {
     return (
       <View className="flex-1 items-center justify-center">
-        <Text className="text-lg font-[Poppins-SemiBold]">Post not found</Text>
+        <Text className="text-lg">Post not found</Text>
       </View>
     );
   }
+
+  // Gửi comment
+  const handleSendComment = () => {
+    const newComment = {
+      id: "c" + Date.now(),
+      userId: currentUserId,
+      username: post.username,
+      createdAt: new Date().toISOString(),
+      content: comment,
+      visibility: commentMode,
+    };
+
+    setComments((prev) => [...prev, newComment]);
+
+    // Nếu lần đầu chọn anonymous → convert comment cũ
+    if (commentMode === "anonymous") {
+      if (!hasCommentedAnonymous) {
+        setHasCommentedAnonymous(true);
+        convertOldCommentsToAnonymous();
+      }
+    }
+    setComment("");
+    Keyboard.dismiss();
+
+    setTimeout(() => {
+      scrollRef.current?.scrollToEnd({ animated: true });
+    }, 200);
+  };
 
   return (
     <KeyboardAvoidingView
@@ -117,21 +184,18 @@ export default function CommentScreen() {
         <Heading title="Comments" />
         <ScrollView
           ref={scrollRef}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12 }}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 80 }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
           {/* POST */}
           <View className="p-4 bg-white rounded-2xl border border-[#EEEEEE]">
-            <View className="flex-row justify-between">
-              <View>
-                <Text className="font-[Poppins-SemiBold] text-base">
-                  {post.username}
-                </Text>
-                <Text className="text-[#7B7B7B] font-[Poppins-Regular] text-sm mt-1">
-                  {post.createdAt}
-                </Text>
-              </View>
+            <View className="flex-row justify-between items-center">
+              <PostHeader
+                username={post.username}
+                createdAt={post.createdAt}
+                isAnonymous={false}
+              />
 
               <TouchableOpacity onPress={() => setMenuVisible(true)}>
                 <EllipsisVertical width={20} height={20} color="black" />
@@ -160,9 +224,7 @@ export default function CommentScreen() {
 
               <View className="flex-row items-center gap-1">
                 <MessageCircle width={18} height={18} color="black" />
-                <Text className="font-[Poppins-Regular] text-sm">
-                  {post.comments}
-                </Text>
+                <Text>{post.comments}</Text>
               </View>
             </View>
           </View>
@@ -173,19 +235,20 @@ export default function CommentScreen() {
               All comments
             </Text>
 
-            {Array.from({ length: 8 }).map((_, i) => (
+            {comments.map((c) => (
               <View
-                key={i}
-                className="mt-3 ml-2 p-3 rounded-xl border border-[#EEEEEE] bg-white"
+                key={c.id}
+                className="mt-3 p-3 rounded-xl border border-[#EEEEEE] bg-white"
               >
-                <Text className="font-[Poppins-SemiBold] text-base">
-                  user000{i}
-                </Text>
-                <Text className="text-[#7B7B7B] font-[Poppins-Regular] text-sm mt-1">
-                  12:20:20 26/4/2025
-                </Text>
-                <Text className="mt-2.5 font-[Poppins-Regular] text-base">
-                  Bình luận mẫu {i + 1}
+                <PostHeader
+                  username={c.username}
+                  createdAt={c.createdAt}
+                  isAnonymous={c.visibility === "anonymous"}
+                  size="sm"
+                />
+
+                <Text className="mt-2.5 font-[Poppins-Regular] text-base ml-11">
+                  {c.content}
                 </Text>
               </View>
             ))}
@@ -193,7 +256,7 @@ export default function CommentScreen() {
         </ScrollView>
 
         {/* FOOTER */}
-        <View className="bg-[#FAF9FF] border-t border-[#EEEEEE]">
+        <View className="absolute bottom-0 left-0 right-0 bg-[#FAF9FF] border-t border-[#EEEEEE] p-3">
           {presetReplies.length > 0 && (
             <ScrollView
               horizontal
@@ -213,13 +276,26 @@ export default function CommentScreen() {
               ))}
             </ScrollView>
           )}
+          <View className="flex-row items-end">
+            {/* Avatar chọn chế độ */}
+            <TouchableOpacity
+              onPress={() => {
+                if (hasCommentedAnonymous) return;
+                setVisibilityModalVisible(true);
+              }}
+              className="w-10 h-10 bg-gray-300 rounded-full items-center justify-center mr-2"
+            >
+              <Text className="text-white font-[Poppins-Bold]">
+                {commentMode === "anonymous" ? "?" : currentUserId.charAt(0).toUpperCase()}
+              </Text>
+            </TouchableOpacity>
 
-          <View className="flex-row items-end px-4 mb-2">
+            {/* Input */}
             <TextInput
               ref={inputRef}
               value={comment}
               onChangeText={setComment}
-              placeholder="Write a comment"
+              placeholder="Write a comment..."
               placeholderTextColor="#7B7B7B"
               multiline
               onContentSizeChange={(e) => {
@@ -227,7 +303,7 @@ export default function CommentScreen() {
                 setInputHeight(Math.max(40, Math.min(h, MAX_INPUT_HEIGHT)));
               }}
               style={{
-                height: Math.max(44, safeHeight),
+                height: Math.max(44, inputHeight),
                 fontFamily: "Poppins-Regular",
               }}
               className="flex-1 bg-white rounded-2xl px-3 py-2 text-base"
@@ -235,11 +311,7 @@ export default function CommentScreen() {
             />
             <TouchableOpacity
               disabled={!comment.trim()}
-              onPress={() => {
-                console.log("Send:", comment);
-                setComment("");
-                Keyboard.dismiss();
-              }}
+              onPress={handleSendComment}
               className="ml-2"
               style={{ opacity: comment.trim() ? 1 : 0.4 }}
             >
@@ -251,7 +323,6 @@ export default function CommentScreen() {
         </View>
       </View>
 
-      {/* MODAL */}
       <Modal visible={menuVisible} transparent animationType="slide">
         <View className="flex-1 justify-end bg-black/50">
           <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
@@ -272,13 +343,62 @@ export default function CommentScreen() {
                 </Text>
               </Pressable>
             )}
+          </View>
+        </View>
+      </Modal>
+      {/* VISIBILITY MODAL */}
+      <Modal visible={visibilityModalVisible} transparent animationType="slide">
+        <View className="flex-1 justify-end bg-black/50">
+          <TouchableWithoutFeedback onPress={() => setVisibilityModalVisible(false)}>
+            <View className="flex-1" />
+          </TouchableWithoutFeedback>
 
-            {/* <Pressable
-              onPress={() => setMenuVisible(false)}
-              className="py-3 mt-1"
+          <View className="bg-white rounded-t-2xl p-4">
+            <Text className="text-lg font-[Poppins-SemiBold] mb-4 text-center">
+              Choose Comment Mode
+            </Text>
+
+            {/* PUBLIC */}
+            <Pressable
+              onPress={() => handleChangeVisibility("public")}
+              className="flex-row items-center gap-4 py-3"
             >
-              <Text className="text-center font-[Poppins-Bold]">Cancel</Text>
-            </Pressable> */}
+              <View className="w-10 h-10 bg-gray-300 rounded-full items-center justify-center">
+                <Text className="text-white font-[Poppins-Bold]">
+                  {currentUserId.charAt(0).toUpperCase()}
+                </Text>
+              </View>
+
+              <Text
+                className={`text-lg ${
+                  commentMode === "public"
+                    ? "font-[Poppins-Bold]"
+                    : "font-[Poppins-Regular]"
+                }`}
+              >
+                Public
+              </Text>
+            </Pressable>
+
+            {/* ANONYMOUS */}
+            <Pressable
+              onPress={() => handleChangeVisibility("anonymous")}
+              className="flex-row items-center gap-4 py-3"
+            >
+              <View className="w-10 h-10 bg-gray-300 rounded-full items-center justify-center">
+                <Text className="text-white font-[Poppins-Bold]">?</Text>
+              </View>
+
+              <Text
+                className={`text-lg ${
+                  commentMode === "anonymous"
+                    ? "font-[Poppins-Bold]"
+                    : "font-[Poppins-Regular]"
+                }`}
+              >
+                Anonymous
+              </Text>
+            </Pressable>
           </View>
         </View>
       </Modal>

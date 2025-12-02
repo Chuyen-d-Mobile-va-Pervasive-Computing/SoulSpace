@@ -1,5 +1,6 @@
 import Heading from "@/components/Heading";
 import TagSelector from "@/components/TagSelector";
+import PostHeader from "@/components/PostHeader";
 import { useRouter } from "expo-router";
 import {
   EllipsisVertical,
@@ -19,43 +20,17 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { mockPosts } from "@/constants/mockPosts";
 
 export default function CommunityScreen() {
   const router = useRouter();
-
   const currentUserId = "u1";
-  const [posts, setPosts] = useState([
-    {
-      id: "p1",
-      userId: "u1",
-      username: "user 01234567",
-      createdAt: "2025-01-01 12:20:20",
-      content: "Tôi vui lắm",
-      likes: 10,
-      comments: 10,
-      isInterested: false,
-      isLiked: false,
-    },
-    {
-      id: "p2",
-      userId: "u2",
-      username: "user 987654321",
-      createdAt: "2025-01-02 10:15:00",
-      content: "Hôm nay trời đẹp",
-      likes: 2,
-      comments: 1,
-      isInterested: true,
-      isLiked: true,
-    },
-  ]);
 
+  const [posts, setPosts] = useState(mockPosts);
   const [filterVisible, setFilterVisible] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [showConfirm, setShowConfirm] = useState(false);
-  const handleCancel = () => {
-    setShowConfirm(true);
-  };
 
   const handleDelete = (id: string) => {
     setPosts((prev) => prev.filter((p) => p.id !== id));
@@ -69,20 +44,16 @@ export default function CommunityScreen() {
         p.id === id ? { ...p, isInterested: !p.isInterested } : p
       )
     );
-    setMenuVisible(false);
 
     const post = posts.find((p) => p.id === id);
-    if (post?.isInterested) {
-      ToastAndroid.show(
-        "You will see fewer posts like this.",
-        ToastAndroid.SHORT
-      );
-    } else {
-      ToastAndroid.show(
-        "You will see more posts like this.",
-        ToastAndroid.SHORT
-      );
-    }
+    ToastAndroid.show(
+      post?.isInterested
+        ? "You will see fewer posts like this."
+        : "You will see more posts like this.",
+      ToastAndroid.SHORT
+    );
+
+    setMenuVisible(false);
   };
 
   const handleToggleLike = (id: string) => {
@@ -101,19 +72,16 @@ export default function CommunityScreen() {
 
   return (
     <View className="flex-1 bg-[#FAF9FF]">
-      {/* Heading */}
       <Heading title="Forum" />
 
-      {/* Body */}
       <View className="flex-1 px-4 mt-4">
         <ScrollView
           contentContainerStyle={{
-            paddingBottom: 120, // tránh đè nút Add
+            paddingBottom: 120,
             gap: 12,
           }}
           showsVerticalScrollIndicator={false}
         >
-          {/* Filter */}
           <TouchableOpacity
             className="flex-row justify-end items-center mb-4"
             onPress={() => setFilterVisible(true)}
@@ -124,22 +92,19 @@ export default function CommunityScreen() {
             <SlidersHorizontal width={20} height={20} color="black" />
           </TouchableOpacity>
 
-          {/* Posts */}
           {posts.map((post) => (
             <View
               key={post.id}
               className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#EEEEEE]"
             >
               {/* Header */}
-              <View className="flex-row justify-between items-start">
-                <View>
-                  <Text className="text-black font-[Poppins-SemiBold] text-base">
-                    {post.username}
-                  </Text>
-                  <Text className="text-[#7B7B7B] font-[Poppins-Regular] text-sm mt-1">
-                    {post.createdAt}
-                  </Text>
-                </View>
+              <View className="flex-row justify-between">
+                <PostHeader
+                  username={post.username}
+                  createdAt={post.createdAt}
+                  isAnonymous={false}
+                />
+
                 <TouchableOpacity
                   onPress={() => {
                     setSelectedPost(post);
@@ -153,10 +118,12 @@ export default function CommunityScreen() {
               {/* Content */}
               <TouchableOpacity
                 activeOpacity={0.8}
-                onPress={() => router.push({
-                  pathname:"/(tabs)/community/comment",
-                  params: { postId: post.id, focusInput: "false" }
-                })}
+                onPress={() =>
+                  router.push({
+                    pathname: "/(tabs)/community/comment",
+                    params: { postId: post.id, focusInput: "false" },
+                  })
+                }
               >
                 <Text className="text-base mt-3 font-[Poppins-Regular]">
                   {post.content}
@@ -172,12 +139,10 @@ export default function CommunityScreen() {
                   <Heart
                     width={18}
                     height={18}
-                    color={post.isLiked ? "red" : "black"} // đổi màu khi like
-                    fill={post.isLiked ? "red" : "transparent"} // trái tim đầy
+                    color={post.isLiked ? "red" : "black"}
+                    fill={post.isLiked ? "red" : "transparent"}
                   />
-                  <Text className="text-black text-sm font-[Poppins-Regular]">
-                    {post.likes}
-                  </Text>
+                  <Text className="text-sm">{post.likes}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -185,14 +150,12 @@ export default function CommunityScreen() {
                   onPress={() =>
                     router.push({
                       pathname: "/(tabs)/community/comment",
-                      params: { postId: post.id, focusInput: "true" }, // 👈 truyền param
+                      params: { postId: post.id, focusInput: "true" },
                     })
                   }
                 >
                   <MessageCircle width={18} height={18} color="black" />
-                  <Text className="text-black text-sm font-[Poppins-Regular]">
-                    {post.comments}
-                  </Text>
+                  <Text className="text-sm">{post.comments}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -200,23 +163,17 @@ export default function CommunityScreen() {
         </ScrollView>
       </View>
 
-      {/* Floating Add Button */}
       <TouchableOpacity
-        className="absolute bg-[#7F56D9] bottom-6 right-6 w-16 h-16 shadow-lg p-4 items-center rounded-full overflow-hidden"
+        className="absolute bg-[#7F56D9] bottom-6 right-6 w-16 h-16 shadow-lg p-4 items-center rounded-full"
         onPress={() => router.push("/(tabs)/community/confirm")}
       >
         <Plus width={24} height={24} color="white" />
       </TouchableOpacity>
 
-      {/* Filter Modal */}
-      <Modal
-        visible={filterVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setFilterVisible(false)}
-      >
+      {/* Filter */}
+      <Modal visible={filterVisible} transparent animationType="slide">
         <TouchableWithoutFeedback onPress={() => setFilterVisible(false)}>
-          <View className="flex-1 bg-black/50 items-center justify-center">
+          <View className="flex-1 bg-black/50 justify-center items-center">
             <View className="w-80 bg-white p-6 rounded-2xl">
               <Text className="text-lg font-[Poppins-Bold] mb-4">Sort</Text>
               <TagSelector
@@ -226,9 +183,9 @@ export default function CommunityScreen() {
                   { id: 2023, name: "2023" },
                 ]}
                 multiSelect={false}
-                onChange={(ids) => console.log("Years:", ids)}
+                onChange={() => {}}
               />
-              {/* Close Button */}
+
               <Pressable
                 className="mt-4 bg-[#7F56D9] py-2 rounded-xl"
                 onPress={() => setFilterVisible(false)}
@@ -242,28 +199,19 @@ export default function CommunityScreen() {
         </TouchableWithoutFeedback>
       </Modal>
 
-      {/* Menu Modal */}
-      <Modal
-        visible={menuVisible}
-        transparent
-        animationType="slide"
-      >
+      {/* Menu */}
+      <Modal visible={menuVisible} transparent animationType="slide">
         <View className="flex-1 justify-end bg-black/50">
           <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
             <View className="flex-1" />
           </TouchableWithoutFeedback>
           <View className="bg-white rounded-t-2xl p-4">
             {selectedPost?.userId === currentUserId ? (
-              <>
-                <Pressable onPress={handleCancel}>
-                  <Text className="text-red-500 text-lg font-[Poppins-Bold] text-center">
-                    Delete
-                  </Text>
-                </Pressable>
-                {/* <Pressable onPress={() => handleEdit(selectedPost.id)}>
-                  <Text className="text-lg mt-2">Chỉnh sửa</Text>
-                </Pressable> */}
-              </>
+              <Pressable onPress={() => setShowConfirm(true)}>
+                <Text className="text-red-500 text-lg font-[Poppins-Bold] text-center">
+                  Delete
+                </Text>
+              </Pressable>
             ) : (
               <Pressable
                 onPress={() => handleToggleInterested(selectedPost.id)}
@@ -273,32 +221,21 @@ export default function CommunityScreen() {
                 </Text>
               </Pressable>
             )}
-            {/* <Pressable onPress={() => handleShare(selectedPost.id)}>
-              <Text className="text-lg mt-2">Chia sẻ</Text>
-            </Pressable> */}
-            {/* <Pressable onPress={() => setMenuVisible(false)}>
-              <Text className="text-center font-[Poppins-Bold] mt-4">
-                Cancel
-              </Text>
-            </Pressable> */}
           </View>
         </View>
       </Modal>
 
-      <Modal
-        transparent
-        visible={showConfirm}
-        onRequestClose={() => setShowConfirm(false)}
-      >
-        <TouchableWithoutFeedback 
+      {/* Confirm delete */}
+      <Modal transparent visible={showConfirm}>
+        <TouchableWithoutFeedback
           onPress={() => {
-            setShowConfirm(false)
-            setMenuVisible(false)
+            setShowConfirm(false);
+            setMenuVisible(false);
           }}
         >
           <View className="flex-1 bg-black/60 justify-center items-center">
             <View className="bg-white w-4/5 rounded-2xl p-6 items-center">
-              <Text className="text-lg font-[Poppins-SemiBold] mb-6 text-gray-800">
+              <Text className="text-lg font-[Poppins-SemiBold] mb-6">
                 Are you sure you want to delete this post?
               </Text>
               <View className="flex-row gap-4">
@@ -309,7 +246,7 @@ export default function CommunityScreen() {
                   }}
                   className="bg-gray-300 px-8 py-4 rounded-xl"
                 >
-                  <Text className="text-base font-[Poppins-SemiBold] text-gray-800">
+                  <Text className="text-base font-[Poppins-SemiBold]">
                     No
                   </Text>
                 </TouchableOpacity>
