@@ -1,8 +1,27 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @layer base {
-  * {
-    @apply font-inter;
+  /* DEFAULT FONT */
+  text {
+    font-family: "Poppins-Regular";
+  }
+
+  /* Tailwind font weights mapping */
+  text:font-bold {
+    font-family: "Poppins-Bold";
+  }
+  text:font-semibold {
+    font-family: "Poppins-SemiBold";
+  }
+  text:font-medium {
+    font-family: "Poppins-Medium";
+  }
+  text:font-light {
+    font-family: "Poppins-Light";
+  }
+  text:font-extrabold {
+    font-family: "Poppins-ExtraBold";
   }
 }

@@ -1,30 +1,52 @@
 import ConsultFooter from "@/components/ConsultFooter";
 import { useNavigation } from "@react-navigation/native";
+import { useFonts } from "expo-font";
 import { Slot } from "expo-router";
-import React, { useEffect } from "react";
+import * as SplashScreen from "expo-splash-screen";
+import React, { useCallback, useEffect } from "react";
 import { View } from "react-native";
+
+SplashScreen.preventAutoHideAsync();
 
 export default function ConsultLayout() {
   const navigation: any = useNavigation();
 
+  // Load Poppins fonts giống TabLayout
+  const [fontsLoaded] = useFonts({
+    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
+    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
+    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
+    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
+    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
+    "Poppins-ExtraBold": require("@/assets/fonts/Poppins-ExtraBold.ttf"),
+    "Poppins-Black": require("@/assets/fonts/Poppins-Black.ttf"),
+    "Poppins-Thin": require("@/assets/fonts/Poppins-Thin.ttf"),
+    "Poppins-ExtraLight": require("@/assets/fonts/Poppins-ExtraLight.ttf"),
+    "Poppins-Italic": require("@/assets/fonts/Poppins-Italic.ttf"),
+  });
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
   useEffect(() => {
-    const parent = navigation.getParent(); // thường sẽ là Tabs navigator
+    const parent = navigation.getParent();
 
     if (!parent) return;
 
-    // 1️⃣ Ẩn tab bar NGAY LẬP TỨC khi vào consult
+    // Ẩn tab bar khi vào Consult
     parent.setOptions({
       tabBarStyle: { display: "none" },
     });
 
-    // 2️⃣ Đảm bảo khi màn consult được focus lại thì vẫn ẩn tab bar
     const unsubscribeFocus = navigation.addListener("focus", () => {
       parent.setOptions({
         tabBarStyle: { display: "none" },
       });
     });
 
-    // 3️⃣ Khi rời khỏi consult (blur) → khôi phục tab bar gốc
     const unsubscribeBlur = navigation.addListener("blur", () => {
       parent.setOptions({
         tabBarStyle: {
@@ -37,7 +59,6 @@ export default function ConsultLayout() {
       });
     });
 
-    // 4️⃣ Nếu layout bị unmount (edge case) → cũng khôi phục lại tab bar
     return () => {
       unsubscribeFocus();
       unsubscribeBlur();
@@ -53,8 +74,11 @@ export default function ConsultLayout() {
     };
   }, [navigation]);
 
+  // ⛔ Nếu chưa load xong font → không render
+  if (!fontsLoaded) return null;
+
   return (
-    <View className="flex-1 bg-[#FAF9FF]">
+    <View className="flex-1 bg-[#FAF9FF]" onLayout={onLayoutRootView}>
       <Slot />
       <ConsultFooter />
     </View>
