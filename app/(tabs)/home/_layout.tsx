@@ -25,7 +25,6 @@ export default function HomeLayout() {
         name="remind/custom"
         options={{ title: "Tùy chỉnh lời nhắc" }}
       />
-      <Stack.Screen name="consult/index" options={{ title: "Consult" }} />
       <Stack.Screen name="plant/index" options={{ title: "Trồng cây" }} />
       <Stack.Screen
         name="plant/list"

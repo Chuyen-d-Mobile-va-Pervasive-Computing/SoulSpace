@@ -10,6 +10,7 @@ import React, { useState } from "react";
 import {
   Image,
   Modal,
+  Pressable,
   ScrollView,
   Text,
   TextInput,
@@ -147,7 +148,7 @@ export default function ExpertScreen() {
 
               {/* Info */}
               <View className="flex-1 ml-4">
-                <Text className="text-lg font-bold">{item.name}</Text>
+                <Text className="text-lg font-[Poppins-Bold]">{item.name}</Text>
 
                 <View className="flex-row gap-4 items-center w-full mt-1">
                   <View className="flex-row gap-2 items-center">
@@ -156,7 +157,9 @@ export default function ExpertScreen() {
                       size={16}
                       strokeWidth={2}
                     />
-                    <Text className="text-[#71717A]">{item.experience}</Text>
+                    <Text className="text-[#71717A] font-[Poppins-Regular]">
+                      {item.experience}
+                    </Text>
                   </View>
 
                   <View className="flex-row gap-2 items-center">
@@ -178,10 +181,20 @@ export default function ExpertScreen() {
 
               <View className="flex-row items-center">
                 <TouchableOpacity className="mr-3 px-4 py-2 bg-transparent rounded-xl">
-                  <Text className="text-[#7F56D9] font-medium">Chat</Text>
+                  <Text className="text-[#7F56D9] font-[Poppins-Medium]">
+                    Chat
+                  </Text>
                 </TouchableOpacity>
-                <TouchableOpacity className="px-4 py-2 bg-[#7F56D9] rounded-xl">
-                  <Text className="text-white font-medium">Book</Text>
+                <TouchableOpacity
+                  onPress={() =>
+                    router.push({
+                      pathname: "/(tabs)/home/consult/details",
+                      params: { id: item.id },
+                    })
+                  }
+                  className="px-4 py-2 bg-[#7F56D9] rounded-xl"
+                >
+                  <Text className="text-white font-[Poppins-Medium]">Book</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -191,9 +204,17 @@ export default function ExpertScreen() {
 
       {/* FILTER MODAL */}
       <Modal visible={filterOpen} transparent animationType="slide">
-        <View className="flex-1 justify-end bg-black/40">
-          <View className="bg-white p-6 rounded-t-3xl shadow-lg">
-            <Text className="text-xl font-bold mb-4">Filter Options</Text>
+        <Pressable
+          className="flex-1 justify-end bg-black/40"
+          onPress={() => setFilterOpen(false)}
+        >
+          <Pressable
+            onPress={() => {}}
+            className="bg-white p-6 rounded-t-3xl shadow-lg"
+          >
+            <Text className="text-xl font-[Poppins-Bold] mb-4">
+              Filter Options
+            </Text>
 
             {[
               { key: "online", label: "Online Experts" },
@@ -203,11 +224,13 @@ export default function ExpertScreen() {
               { key: null, label: "Reset Filters" },
             ].map((opt) => (
               <TouchableOpacity
-                key={opt.key}
+                key={String(opt.key)}
                 onPress={() => applyFilter(opt.key)}
                 className="flex-row justify-between items-center py-3"
               >
-                <Text className="text-lg">{opt.label}</Text>
+                <Text className="text-lg font-[Poppins-Regular]">
+                  {opt.label}
+                </Text>
 
                 {selectedFilter === opt.key && (
                   <Check size={20} color="#7F56D9" />
@@ -219,10 +242,10 @@ export default function ExpertScreen() {
               onPress={() => setFilterOpen(false)}
               className="mt-4 p-3 bg-gray-200 rounded-xl"
             >
-              <Text className="text-center">Close</Text>
+              <Text className="text-center font-[Poppins-Medium]">Close</Text>
             </TouchableOpacity>
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
     </View>
   );
