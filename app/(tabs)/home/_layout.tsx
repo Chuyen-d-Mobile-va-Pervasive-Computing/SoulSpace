@@ -34,6 +34,7 @@ export default function HomeLayout() {
         name="plant/action"
         options={{ title: "Thực hiện hành động" }}
       />
+      <Stack.Screen name="wall" options={{ title: "Trang cá nhân" }} />
     </Stack>
   );
 }

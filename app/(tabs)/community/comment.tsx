@@ -20,7 +20,7 @@ import {
   TouchableWithoutFeedback,
   Pressable,
 } from "react-native";
-
+import ReportModal from "@/components/ReportModal";
 import Heading from "@/components/Heading";
 import PostHeader from "@/components/PostHeader";
 import { mockPosts } from "@/constants/mockPosts";
@@ -30,7 +30,7 @@ export default function CommentScreen() {
   const { postId, focusInput } = useLocalSearchParams();
   const [hasCommentedAnonymous, setHasCommentedAnonymous] = useState(false);
   const currentUserId = "u1";
-
+  const [reportVisible, setReportVisible] = useState(false);
   // Lấy bài post hiện tại
   const [post, setPost] = useState(
     mockPosts.find((p) => p.id === postId) || null
@@ -116,17 +116,9 @@ export default function CommentScreen() {
     }));
   };
 
-  const handleToggleInterested = () => {
-    setPost((prev: any) => {
-      const updated = { ...prev, isInterested: !prev.isInterested };
-      ToastAndroid.show(
-        updated.isInterested
-          ? "You will see more posts like this."
-          : "You will see fewer posts like this.",
-        ToastAndroid.SHORT
-      );
-      return updated;
-    });
+  const handleReport = (content: string) => {
+    console.log("Nội dung báo cáo:", content);
+    setReportVisible(false);
     setMenuVisible(false);
   };
 
@@ -153,7 +145,7 @@ export default function CommentScreen() {
       id: "c" + Date.now(),
       userId: currentUserId,
       username: post.username,
-      createdAt: new Date().toISOString(),
+      createdAt: new Date().toLocaleString("sv-SE").replace("T", " "),
       content: comment,
       visibility: commentMode,
     };
@@ -184,7 +176,7 @@ export default function CommentScreen() {
         <Heading title="Comments" />
         <ScrollView
           ref={scrollRef}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 80 }}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 120 }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -337,10 +329,13 @@ export default function CommentScreen() {
                 </Text>
               </Pressable>
             ) : (
-              <Pressable onPress={handleToggleInterested} className="py-2">
-                <Text className="text-lg text-center">
-                  {post.isInterested ? "Ignore" : "Interested"}
-                </Text>
+              <Pressable onPress={() => {
+                setReportVisible(true);
+                setMenuVisible(false);
+              }} >
+                <Text className="text-lg text-center font-[Poppins-Regular] text-red-500">
+                    Report
+                  </Text>
               </Pressable>
             )}
           </View>
@@ -443,6 +438,15 @@ export default function CommentScreen() {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
+
+      <ReportModal
+        visible={reportVisible}
+        onClose={() => {
+          setReportVisible(false);
+          setMenuVisible(false);
+        }}
+        onSubmit={handleReport}
+      />
     </KeyboardAvoidingView>
   );
 }

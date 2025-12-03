@@ -12,14 +12,17 @@ import Happy from "@/assets/images/happy.svg";
 import Logo from "@/assets/images/logo.svg";
 import Worried from "@/assets/images/worried.svg";
 import MoodTrends from "@/components/MoodTrends";
-import { useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
-import { ArrowBigRight, Bell, Settings } from "lucide-react-native";
+import { ArrowBigRight, Bell } from "lucide-react-native";
 import { useRef, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View, Image } from "react-native";
 
 export default function HomeScreen() {
-  const navigation = useNavigation();
+  const user = {
+    username: "minh",
+    avatar: "https://i.pravatar.cc/300",
+    created_at: "2024-01-10",
+  };
   const totalSteps = 10;
   const currentStep = 7.5; // mock progress
   const progressPercent = (currentStep / totalSteps) * 100;
@@ -44,7 +47,12 @@ export default function HomeScreen() {
         </View>
         <View className="flex-row items-center gap-4">
           <Bell strokeWidth={1.5} />
-          <Settings strokeWidth={1.5} />
+          <TouchableOpacity onPress={() => router.push("/(tabs)/home/wall")}>
+            <Image
+              source={{ uri: user.avatar }}
+              className="w-10 h-10 rounded-full"
+            />
+          </TouchableOpacity> 
         </View>
       </View>
 

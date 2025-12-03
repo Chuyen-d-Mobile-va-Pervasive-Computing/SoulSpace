@@ -103,7 +103,7 @@ export default function ExploreScreen() {
               {currentTestCode ? currentTestCode : "Tests"}
             </Text>
             <View className="w-full flex-row items-center mt-3 mb-2 gap-2">
-              <Text className="text-[#7F56D9] font-semibold">{percent}%</Text>
+              <Text className="text-[#7F56D9] font-[Poppins-SemiBold]">{percent}%</Text>
 
               <View className="flex-1 h-4 bg-white rounded-full overflow-hidden mr-2">
                 <View

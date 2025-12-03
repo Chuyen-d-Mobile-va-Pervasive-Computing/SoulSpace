@@ -79,7 +79,15 @@ export default function AddScreen() {
     >
       {/* Header */}
       <View className="w-full px-6 py-2 mt-8 flex-row items-center justify-between bg-[#FAF9FF]">
-        <TouchableOpacity onPress={() => setShowConfirm(true)}>
+        <TouchableOpacity
+          onPress={() => {
+            if (postContent.trim().length === 0) {
+              router.push("/(tabs)/community");
+            } else {
+              setShowConfirm(true);
+            }
+          }}
+        >
           <X size={28} color="#000" />
         </TouchableOpacity>
       </View>

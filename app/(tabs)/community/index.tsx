@@ -15,12 +15,15 @@ import {
   Pressable,
   ScrollView,
   Text,
-  ToastAndroid,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
+  Image,
 } from "react-native";
+import ReportModal from "@/components/ReportModal";
+import Logo from "@/assets/images/logo.svg";
 import { mockPosts } from "@/constants/mockPosts";
+import SvgAvatar from "@/components/SvgAvatar";
 
 export default function CommunityScreen() {
   const router = useRouter();
@@ -31,6 +34,12 @@ export default function CommunityScreen() {
   const [menuVisible, setMenuVisible] = useState(false);
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [reportVisible, setReportVisible] = useState(false);
+  const user = {
+    username: "SoulSpace",
+    avatar: "https://i.pravatar.cc/300",
+  };
 
   const handleDelete = (id: string) => {
     setPosts((prev) => prev.filter((p) => p.id !== id));
@@ -38,22 +47,11 @@ export default function CommunityScreen() {
     setShowConfirm(false);
   };
 
-  const handleToggleInterested = (id: string) => {
-    setPosts((prev) =>
-      prev.map((p) =>
-        p.id === id ? { ...p, isInterested: !p.isInterested } : p
-      )
-    );
-
-    const post = posts.find((p) => p.id === id);
-    ToastAndroid.show(
-      post?.isInterested
-        ? "You will see fewer posts like this."
-        : "You will see more posts like this.",
-      ToastAndroid.SHORT
-    );
-
+  const handleReport = (content: string) => {
+    console.log("Nội dung báo cáo:", content);
+    setReportVisible(false);
     setMenuVisible(false);
+    setSelectedPost(null);
   };
 
   const handleToggleLike = (id: string) => {
@@ -76,21 +74,41 @@ export default function CommunityScreen() {
 
       <View className="flex-1 px-4 mt-4">
         <ScrollView
-          contentContainerStyle={{
-            paddingBottom: 120,
-            gap: 12,
-          }}
+          contentContainerStyle={{ paddingBottom: 120, gap: 12 }}
           showsVerticalScrollIndicator={false}
         >
-          <TouchableOpacity
-            className="flex-row justify-end items-center mb-4"
-            onPress={() => setFilterVisible(true)}
-          >
-            <Text className="text-black font-[Poppins-Bold] text-xs mr-2">
-              Filter
-            </Text>
-            <SlidersHorizontal width={20} height={20} color="black" />
-          </TouchableOpacity>
+          <View className="flex-row items-center justify-between w-full mb-3">
+            {/* Avatar */}
+            <View className="mr-3">
+              {isAnonymous ? (
+                <SvgAvatar size={48}>
+                  <Logo width={48} height={48} />
+                </SvgAvatar>
+              ) : (
+                <Image
+                  source={{ uri: user.avatar }}
+                  className="w-12 h-12 rounded-full"
+                />
+              )}
+            </View>
+            {/* Input */}
+            <TouchableOpacity
+              onPress={() => router.push("/(tabs)/community/add")}
+              className="flex-1 flex-row items-center px-4 py-3 rounded-2xl border border-gray-300 bg-white"
+              style={{ maxWidth: "90%" }}
+            >
+              <Text className="text-gray-500 text-base font-[Poppins-Regular]">
+                Write something...
+              </Text>
+            </TouchableOpacity>
+            {/* Filter */}
+            <TouchableOpacity
+              onPress={() => setFilterVisible(true)}
+              className="ml-2"
+            >
+              <SlidersHorizontal width={20} height={20} color="black" />
+            </TouchableOpacity>
+          </View>
 
           {posts.map((post) => (
             <View
@@ -163,13 +181,6 @@ export default function CommunityScreen() {
         </ScrollView>
       </View>
 
-      <TouchableOpacity
-        className="absolute bg-[#7F56D9] bottom-6 right-6 w-16 h-16 shadow-lg p-4 items-center rounded-full"
-        onPress={() => router.push("/(tabs)/community/confirm")}
-      >
-        <Plus width={24} height={24} color="white" />
-      </TouchableOpacity>
-
       {/* Filter */}
       <Modal visible={filterVisible} transparent animationType="slide">
         <TouchableWithoutFeedback onPress={() => setFilterVisible(false)}>
@@ -213,13 +224,16 @@ export default function CommunityScreen() {
                 </Text>
               </Pressable>
             ) : (
-              <Pressable
-                onPress={() => handleToggleInterested(selectedPost.id)}
-              >
-                <Text className="text-lg text-center">
-                  {selectedPost?.isInterested ? "Ignore" : "Interested"}
-                </Text>
-              </Pressable>
+              <Pressable 
+              onPress={() => {
+                setReportVisible(true);
+                setMenuVisible(false);
+              }}
+            >
+              <Text className="text-lg text-center font-[Poppins-Regular] text-red-500">
+                Report
+              </Text>
+            </Pressable>
             )}
           </View>
         </View>
@@ -263,6 +277,16 @@ export default function CommunityScreen() {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
+
+      <ReportModal
+        visible={reportVisible}
+        onClose={() => {
+          setReportVisible(false);
+          setMenuVisible(false);
+          setSelectedPost(null);
+        }}
+        onSubmit={handleReport}
+      />
     </View>
   );
 }
