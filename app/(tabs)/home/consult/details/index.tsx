@@ -239,7 +239,7 @@ export default function DetailsScreen() {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => router.push("/(tabs)/home/consult/confirm/index")}
+              onPress={() => router.push("/(tabs)/home/consult/confirm")}
               className="bg-[#7F56D9] rounded-[10px] px-6 py-3 mx-4 mt-4 items-center w-1/3"
             >
               <Text className="text-white font-[Poppins-SemiBold] text-lg">
