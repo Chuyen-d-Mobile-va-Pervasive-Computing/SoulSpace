@@ -9,6 +9,7 @@ export default function CommunityLayout() {
       <Stack.Screen name="add" options={{ title: "Thêm bài viết" }} />
       <Stack.Screen name="comment" options={{ title: "Bình luận" }} />
       <Stack.Screen name="confirm" options={{ title: "Xác minh" }} />
+      <Stack.Screen name="topic" options={{ title: "Xem bài đăng theo topic" }} />
     </Stack>
   );
 }
