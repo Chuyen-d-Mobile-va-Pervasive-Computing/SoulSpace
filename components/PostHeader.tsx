@@ -31,7 +31,7 @@ export default function PostHeader({
         <Text className="font-[Poppins-SemiBold] text-base">
           {isAnonymous ? "Anonymous" : username}
         </Text>
-        <Text className="text-[#7B7B7B] text-sm">{createdAt}</Text>
+        <Text className="text-[#7B7B7B] text-sm font-[Poppins-Regular]">{createdAt}</Text>
       </View>
     </View>
   );

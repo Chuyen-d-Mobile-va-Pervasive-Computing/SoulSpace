@@ -62,7 +62,7 @@ export default function LikeListModal({ visible, onClose, users, currentUserId }
 
                     {users.length === 0 && (
                         <View className="p-10 items-center">
-                            <Text className="text-gray-500 text-base">No likes yet</Text>
+                            <Text className="text-gray-500 text-base font-[Poppins-Regular]">No likes yet</Text>
                         </View>
                     )}
                 </View>

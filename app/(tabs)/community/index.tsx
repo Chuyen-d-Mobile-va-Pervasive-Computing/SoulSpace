@@ -185,7 +185,7 @@ export default function CommunityScreen() {
                         {post.likes}
                       </Text>
                       {post.likes > 0 && (
-                        <Text className="text-sm text-gray-500">likes</Text>
+                        <Text className="text-sm text-gray-500 font-[Poppins-Regular]">likes</Text>
                       )}
                     </TouchableOpacity>
                   </View>

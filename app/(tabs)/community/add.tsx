@@ -145,7 +145,7 @@ export default function AddScreen() {
           placeholderTextColor="#999"
           multiline
           numberOfLines={10}
-          className="text-base text-black leading-6"
+          className="text-base text-black leading-6 font-[Poppins-Regular]"
           style={{ minHeight: 250, textAlignVertical: "top" }}
         />
       </ScrollView>
@@ -164,7 +164,7 @@ export default function AddScreen() {
           disabled={!postContent.trim()}
           onPress={() => router.push("/(tabs)/community")}
           className={`px-7 py-3 rounded-full ${
-            postContent.trim() ? "bg-purple-600" : "bg-gray-300"
+            postContent.trim() ? "bg-[#7F56D9]" : "bg-gray-300"
           }`}
         >
           <Text className="text-white font-[Poppins-Bold] text-base">Post now</Text>
@@ -213,7 +213,7 @@ export default function AddScreen() {
                     value={tagSearch}
                     onChangeText={setTagSearch}
                     placeholder="Search or create new tag..."
-                    className="border border-gray-300 rounded-xl px-4 py-4 mb-3"
+                    className="border border-gray-300 rounded-xl px-4 py-4 mb-3 font-[Poppins-Regular]"
                     autoFocus
                     onSubmitEditing={addNewTag}
                   />
@@ -232,7 +232,7 @@ export default function AddScreen() {
                       }}
                       className="py-3 border-b border-gray-100"
                     >
-                      <Text className="text-base text-gray-800">{item}</Text>
+                      <Text className="text-base text-gray-800 font-[Poppins-Regular]">{item}</Text>
                     </TouchableOpacity>
                   )}
                   ListEmptyComponent={
@@ -241,7 +241,7 @@ export default function AddScreen() {
                         onPress={addNewTag}
                         className="py-8 items-center"
                       >
-                        <Text className="text-purple-600 font-[Poppins-Medium]">
+                        <Text className="text-[#7F56D9] font-[Poppins-Medium]">
                           + Create "{tagSearch}"
                         </Text>
                       </TouchableOpacity>

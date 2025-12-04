@@ -180,7 +180,10 @@ export default function ExpertScreen() {
               </Text>
 
               <View className="flex-row items-center">
-                <TouchableOpacity className="mr-3 px-4 py-2 bg-transparent rounded-xl">
+                <TouchableOpacity 
+                  onPress={() => router.push("/(tabs)/home/consult/chat")} 
+                  className="mr-3 px-4 py-2 bg-transparent rounded-xl"
+                >
                   <Text className="text-[#7F56D9] font-[Poppins-Medium]">
                     Chat
                   </Text>
