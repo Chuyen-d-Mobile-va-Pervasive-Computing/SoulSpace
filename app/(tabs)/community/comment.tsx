@@ -24,6 +24,12 @@ import ReportModal from "@/components/ReportModal";
 import Heading from "@/components/Heading";
 import PostHeader from "@/components/PostHeader";
 import { mockPosts } from "@/constants/mockPosts";
+import LikeListModal from "@/components/LikeListModal";
+
+interface User {
+  userId: string;
+  username: string;
+}
 
 export default function CommentScreen() {
   const router = useRouter();
@@ -36,6 +42,8 @@ export default function CommentScreen() {
     mockPosts.find((p) => p.id === postId) || null
   );
 
+  const [likeListVisible, setLikeListVisible] = useState(false);
+  const [likedUsers, setLikedUsers] = useState<User[]>([]);
   // COMMENT LIST
   const [comments, setComments] = useState([
     {
@@ -206,24 +214,36 @@ export default function CommentScreen() {
             </Text>
 
             <View className="flex-row mt-3 gap-6">
-              <TouchableOpacity
-                className="flex-row items-center gap-1"
-                onPress={handleToggleLike}
-              >
-                <Heart
-                  width={18}
-                  height={18}
-                  color={post.isLiked ? "red" : "black"}
-                  fill={post.isLiked ? "red" : "transparent"}
-                />
-                <Text className="font-[Poppins-Regular] text-sm">
-                  {post.likes}
-                </Text>
-              </TouchableOpacity>
-
+              {/* LIKE */}
               <View className="flex-row items-center gap-1">
-                <MessageCircle width={18} height={18} color="black" />
-                <Text>{post.comments}</Text>
+                <TouchableOpacity onPress={handleToggleLike}>
+                  <Heart
+                    width={18}
+                    height={18}
+                    color={post.isLiked ? "#EF4444" : "#374151"}
+                    fill={post.isLiked ? "#EF4444" : "transparent"}
+                  />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    setLikedUsers(post?.likedBy || []);
+                    setLikeListVisible(true);
+                  }}
+                  className="flex-row items-center gap-1"
+                >
+                  <Text className="text-sm font-[Poppins-SemiBold] text-gray-700">
+                    {post.likes}
+                  </Text>
+                  {post.likes > 0 && (
+                    <Text className="text-sm text-gray-500">likes</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+              {/* COMMENT  */}
+              <View className="flex-row items-center gap-1">
+                <MessageCircle width={18} height={18} color="#374151" />
+                <Text className="text-sm text-gray-700">{post.comments}</Text>
               </View>
             </View>
           </View>
@@ -453,6 +473,13 @@ export default function CommentScreen() {
           setMenuVisible(false);
         }}
         onSubmit={handleReport}
+      />
+
+      <LikeListModal
+        visible={likeListVisible}
+        onClose={() => setLikeListVisible(false)}
+        users={likedUsers}
+        currentUserId={currentUserId}
       />
     </KeyboardAvoidingView>
   );

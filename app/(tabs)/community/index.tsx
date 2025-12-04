@@ -23,6 +23,12 @@ import ReportModal from "@/components/ReportModal";
 import Logo from "@/assets/images/logo.svg";
 import { mockPosts } from "@/constants/mockPosts";
 import SvgAvatar from "@/components/SvgAvatar";
+import LikeListModal from "@/components/LikeListModal";
+
+interface User {
+  userId: string;
+  username: string;
+}
 
 export default function CommunityScreen() {
   const router = useRouter();
@@ -35,6 +41,8 @@ export default function CommunityScreen() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [reportVisible, setReportVisible] = useState(false);
+  const [likeListVisible, setLikeListVisible] = useState(false);
+  const [likedUsers, setLikedUsers] = useState<User[]>([]);
   const user = {
     username: "SoulSpace",
     avatar: "https://i.pravatar.cc/300",
@@ -153,31 +161,44 @@ export default function CommunityScreen() {
               </Text>
               {/* Interaction */}
               <View className="flex-row mt-3 gap-6">
-                <TouchableOpacity
-                  className="flex-row items-center gap-1"
-                  onPress={() => handleToggleLike(post.id)}
-                >
-                  <Heart
-                    width={18}
-                    height={18}
-                    color={post.isLiked ? "red" : "black"}
-                    fill={post.isLiked ? "red" : "transparent"}
-                  />
-                  <Text className="text-sm">{post.likes}</Text>
-                </TouchableOpacity>
+                <View className="flex-row items-center gap-6">
+                  {/* LIKE */}
+                  <View className="flex-row items-center gap-1">
+                    <TouchableOpacity onPress={() => handleToggleLike(post.id)}>
+                      <Heart
+                        width={18}
+                        height={18}
+                        color={post.isLiked ? "#EF4444" : "#374151"}
+                        fill={post.isLiked ? "#EF4444" : "transparent"}
+                        strokeWidth={2}
+                      />
+                    </TouchableOpacity>
 
-                <TouchableOpacity
-                  className="flex-row items-center gap-1"
-                  onPress={() =>
-                    router.push({
-                      pathname: "/(tabs)/community/comment",
-                      params: { postId: post.id, focusInput: "true" },
-                    })
-                  }
-                >
-                  <MessageCircle width={18} height={18} color="black" />
-                  <Text className="text-sm">{post.comments}</Text>
-                </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setLikedUsers(post.likedBy || []);
+                        setLikeListVisible(true);
+                      }}
+                      className="flex-row items-center gap-1"
+                    >
+                      <Text className="text-sm font-[Poppins-SemiBold] text-gray-700">
+                        {post.likes}
+                      </Text>
+                      {post.likes > 0 && (
+                        <Text className="text-sm text-gray-500">likes</Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* COMMENT */}
+                  <TouchableOpacity
+                    className="flex-row items-center gap-1"
+                    onPress={() => router.push({ pathname: "/(tabs)/community/comment", params: { postId: post.id, focusInput: "true" } })}
+                  >
+                    <MessageCircle width={18} height={18} color="#374151" />
+                    <Text className="text-sm text-gray-700">{post.comments}</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </TouchableOpacity>
           ))}
@@ -289,6 +310,13 @@ export default function CommunityScreen() {
           setSelectedPost(null);
         }}
         onSubmit={handleReport}
+      />
+
+      <LikeListModal
+        visible={likeListVisible}
+        onClose={() => setLikeListVisible(false)}
+        users={likedUsers}
+        currentUserId={currentUserId}
       />
     </View>
   );

@@ -7,8 +7,13 @@ export const mockPosts = [
     content: "Tôi vui lắm",
     likes: 10,
     comments: 10,
-    isInterested: false,
-    isLiked: false,
+    isLiked: true,
+    likedBy: [
+      { userId: "u1", username: "You" },
+      { userId: "u3", username: "David" },
+      { userId: "u4", username: "Emma" },
+      { userId: "u5", username: "John" },
+    ],
   },
   {
     id: "p2",
@@ -16,9 +21,8 @@ export const mockPosts = [
     username: "user 987654321",
     createdAt: "2025-01-02 10:15:00",
     content: "Hôm nay trời đẹp",
-    likes: 2,
+    likes: 0,
     comments: 1,
-    isInterested: true,
-    isLiked: true,
+    isLiked: false,
   },
 ];
