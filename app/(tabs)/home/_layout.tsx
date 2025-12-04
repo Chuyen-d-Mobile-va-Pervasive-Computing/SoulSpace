@@ -35,6 +35,7 @@ export default function HomeLayout() {
         options={{ title: "Thực hiện hành động" }}
       />
       <Stack.Screen name="wall" options={{ title: "Trang cá nhân" }} />
+      <Stack.Screen name="noti/index" options={{ title: "Thông báo vi phạm" }} />
     </Stack>
   );
 }

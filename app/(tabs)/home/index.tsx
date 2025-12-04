@@ -46,7 +46,9 @@ export default function HomeScreen() {
           </Text>
         </View>
         <View className="flex-row items-center gap-4">
-          <Bell strokeWidth={1.5} />
+          <TouchableOpacity onPress={() => router.push("/(tabs)/home/noti")}>
+            <Bell strokeWidth={1.5} />
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => router.push("/(tabs)/home/wall")}>
             <Image
               source={{ uri: user.avatar }}
