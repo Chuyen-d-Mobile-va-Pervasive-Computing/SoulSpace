@@ -61,9 +61,9 @@ export default function ConfirmScreen() {
 
   const handleConfirm = () => {
     if (selectedOption === "online") {
-      router.push("/(tabs)/home/consult/payment/index");
+      router.push("/(tabs)/home/consult/payment");
     } else {
-      router.push("/(tabs)/home/consult/success/index");
+      router.push("/(tabs)/home/consult/success");
     }
   };
 
