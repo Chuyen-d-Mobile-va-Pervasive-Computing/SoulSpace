@@ -188,7 +188,14 @@ export default function CommentScreen() {
                 createdAt={post.createdAt}
                 isAnonymous={false}
               />
-
+              <TouchableOpacity
+                onPress={() => router.push("/(tabs)/community/topic")} 
+                className="border border-[#7F56D9] px-4 py-1 rounded-full flex-row items-center mb-4 mr-8"
+              >
+                <Text className="text-[#7F56D9] font-[Poppins-SemiBold] text-sm">
+                  Travel
+                </Text>
+              </TouchableOpacity>
               <TouchableOpacity onPress={() => setMenuVisible(true)}>
                 <EllipsisVertical width={20} height={20} color="black" />
               </TouchableOpacity>

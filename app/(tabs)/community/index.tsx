@@ -6,7 +6,6 @@ import {
   EllipsisVertical,
   Heart,
   MessageCircle,
-  Plus,
   SlidersHorizontal,
 } from "lucide-react-native";
 import React, { useState } from "react";
@@ -111,7 +110,14 @@ export default function CommunityScreen() {
           </View>
 
           {posts.map((post) => (
-            <View
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() =>
+                router.push({
+                  pathname: "/(tabs)/community/comment",
+                  params: { postId: post.id, focusInput: "false" },
+                })
+              }
               key={post.id}
               className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#EEEEEE]"
             >
@@ -124,6 +130,15 @@ export default function CommunityScreen() {
                 />
 
                 <TouchableOpacity
+                  onPress={() => router.push("/(tabs)/community/topic")} 
+                  className="border border-[#7F56D9] px-4 rounded-full flex-row items-center mb-4 mr-8"
+                >
+                  <Text className="text-[#7F56D9] font-[Poppins-SemiBold] text-sm">
+                    Travel
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
                   onPress={() => {
                     setSelectedPost(post);
                     setMenuVisible(true);
@@ -132,22 +147,10 @@ export default function CommunityScreen() {
                   <EllipsisVertical width={20} height={20} color="black" />
                 </TouchableOpacity>
               </View>
-
               {/* Content */}
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() =>
-                  router.push({
-                    pathname: "/(tabs)/community/comment",
-                    params: { postId: post.id, focusInput: "false" },
-                  })
-                }
-              >
-                <Text className="text-base mt-3 font-[Poppins-Regular]">
-                  {post.content}
-                </Text>
-              </TouchableOpacity>
-
+              <Text className="text-base mt-3 font-[Poppins-Regular]">
+                {post.content}
+              </Text>
               {/* Interaction */}
               <View className="flex-row mt-3 gap-6">
                 <TouchableOpacity
@@ -176,7 +179,7 @@ export default function CommunityScreen() {
                   <Text className="text-sm">{post.comments}</Text>
                 </TouchableOpacity>
               </View>
-            </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
