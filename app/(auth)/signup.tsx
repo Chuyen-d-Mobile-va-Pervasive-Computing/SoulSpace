@@ -130,7 +130,7 @@ export default function RegisterScreen() {
     <KeyboardAwareScrollView
       style={{ flex: 1, backgroundColor: "#FAF9FF" }}
       contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
-      extraScrollHeight={50}
+      extraScrollHeight={80}
       keyboardShouldPersistTaps="handled"
       enableOnAndroid
     >
@@ -174,7 +174,7 @@ export default function RegisterScreen() {
                 font-[Poppins-Regular]`}
             />
             {errors.email ? (
-              <Text className="text-red-500 text-xs mt-1">{errors.email}</Text>
+              <Text className="text-red-500 text-xs mt-1 font-[Poppins-Regular]">{errors.email}</Text>
             ) : null}
           </View>
           {/* Password */}
@@ -206,7 +206,7 @@ export default function RegisterScreen() {
               </Pressable>
             </View>
             {errors.password ? (
-              <Text className="text-red-500 text-xs mt-1">{errors.password}</Text>
+              <Text className="text-red-500 text-xs mt-1 font-[Poppins-Regular]">{errors.password}</Text>
             ) : null}
           </View>
 
@@ -239,7 +239,7 @@ export default function RegisterScreen() {
               </Pressable>
             </View>
             {errors.confirmPassword ? (
-              <Text className="text-red-500 text-xs mt-1">{errors.confirmPassword}</Text>
+              <Text className="text-red-500 text-xs mt-1 font-[Poppins-Regular]">{errors.confirmPassword}</Text>
             ) : null}
           </View>
 
