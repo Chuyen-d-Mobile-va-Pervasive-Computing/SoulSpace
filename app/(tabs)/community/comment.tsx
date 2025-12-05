@@ -19,6 +19,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
   Pressable,
+  FlatList,
 } from "react-native";
 import ReportModal from "@/components/ReportModal";
 import Heading from "@/components/Heading";
@@ -201,7 +202,7 @@ export default function CommentScreen() {
                 className="border border-[#7F56D9] px-4 py-1 rounded-full flex-row items-center mb-4 mr-8"
               >
                 <Text className="text-[#7F56D9] font-[Poppins-SemiBold] text-sm">
-                  Travel
+                  {post.topic}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setMenuVisible(true)}>
@@ -277,23 +278,24 @@ export default function CommentScreen() {
         {/* FOOTER */}
         <View className="absolute bottom-0 left-0 right-0 bg-[#FAF9FF] border-t border-[#EEEEEE] p-3">
           {presetReplies.length > 0 && (
-            <ScrollView
+            <FlatList
               horizontal
+              data={presetReplies}
+              keyExtractor={(_, idx) => idx.toString()}
               showsHorizontalScrollIndicator={false}
-              className="pb-2 pl-2"
-            >
-              {presetReplies.map((reply, idx) => (
+              keyboardShouldPersistTaps="always"
+              contentContainerStyle={{ paddingBottom: 8, paddingLeft: 8 }}
+              renderItem={({ item }) => (
                 <TouchableOpacity
-                  key={idx}
-                  onPress={() => setComment(reply)}
+                  onPress={() => setComment(item)}
                   className="bg-white h-10 px-4 rounded-full justify-center mr-2"
                 >
                   <Text className="font-[Poppins-Regular] text-base">
-                    {reply}
+                    {item}
                   </Text>
                 </TouchableOpacity>
-              ))}
-            </ScrollView>
+              )}
+            />
           )}
           <View className="flex-row items-end">
             {/* Avatar chọn chế độ */}

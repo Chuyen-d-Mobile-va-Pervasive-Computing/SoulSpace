@@ -6,6 +6,7 @@ import { mockPosts } from "@/constants/mockPosts";
 import PostHeader from "@/components/PostHeader";
 import ReportModal from "@/components/ReportModal";
 import LikeListModal from "@/components/LikeListModal";
+import TopicPickerModal from "@/components/TopicPickerModal";
 
 interface User {
   userId: string;
@@ -21,6 +22,8 @@ export default function TopicScreen() {
   const [reportVisible, setReportVisible] = useState(false);
   const [likeListVisible, setLikeListVisible] = useState(false);
   const [likedUsers, setLikedUsers] = useState<User[]>([]);
+  const [selectedTopic, setSelectedTopic] = useState("Travel");
+  const [topicPickerVisible, setTopicPickerVisible] = useState(false);
 
   const handleToggleLike = (id: string) => {
     setPosts((prev) =>
@@ -56,99 +59,112 @@ export default function TopicScreen() {
         <TouchableOpacity onPress={() => router.back()}>
           <ChevronLeft size={28}/>
         </TouchableOpacity>
-        <View className="flex-1 items-center py-3 rounded-2xl bg-gray-300">
-          <Text>Travel</Text>
-        </View>
+        <TouchableOpacity
+          onPress={() => setTopicPickerVisible(true)}
+          className="flex-1 items-center py-3 rounded-2xl bg-gray-200"
+        >
+          <Text className="font-[Poppins-SemiBold]">
+            {selectedTopic}
+          </Text>
+        </TouchableOpacity>
       </View>
-      <ScrollView
-        contentContainerStyle={{ paddingBottom: 120, gap: 12 }}
-        showsVerticalScrollIndicator={false}
-        className="px-4"
-      >
-        {posts.map((post) => (
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() =>
-              router.push({
-              pathname: "/(tabs)/community/comment",
-              params: { postId: post.id, focusInput: "false" },
-            })}
-            key={post.id}
-            className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#EEEEEE]"
-          >
-            {/* Header */}
-            <View className="flex-row justify-between">
-              <PostHeader
-                username={post.username}
-                createdAt={post.createdAt}
-                isAnonymous={false}
-              />
-              <TouchableOpacity
-                onPress={() => router.push("/(tabs)/community/topic")} 
-                className="border border-[#7F56D9] px-4 rounded-full flex-row items-center mb-4 mr-8"
-              >
-                <Text className="text-[#7F56D9] font-[Poppins-SemiBold] text-sm">
-                  Travel
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => {
-                  setSelectedPost(post);
-                  setMenuVisible(true);
-                }}
-              >
-                <EllipsisVertical width={20} height={20} color="black" />
-              </TouchableOpacity>
-            </View>
-            {/* Content */}
-            <Text className="text-base mt-3 font-[Poppins-Regular]">
-              {post.content}
-            </Text>
-            {/* Interaction */}
-            <View className="flex-row mt-3 gap-6">
-              <View className="flex-row items-center gap-6">
-                {/* LIKE */}
-                <View className="flex-row items-center gap-1">
-                  <TouchableOpacity onPress={() => handleToggleLike(post.id)}>
-                    <Heart
-                      width={18}
-                      height={18}
-                      color={post.isLiked ? "#EF4444" : "#374151"}
-                      fill={post.isLiked ? "#EF4444" : "transparent"}
-                      strokeWidth={2}
-                    />
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    onPress={() => {
-                      setLikedUsers(post.likedBy || []);
-                      setLikeListVisible(true);
-                    }}
-                    className="flex-row items-center gap-1"
-                  >
-                    <Text className="text-sm font-[Poppins-SemiBold] text-gray-700">
-                      {post.likes}
-                    </Text>
-                    {post.likes > 0 && (
-                      <Text className="text-sm text-gray-500">likes</Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
-
-                {/* COMMENT */}
+      {posts.length === 0 ? (
+        <View className="items-center mt-20">
+          <Text className="text-gray-500 font-[Poppins-Regular] text-base">
+            There is no post for "{selectedTopic}".
+          </Text>
+        </View>
+      ) : (
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: 120, gap: 12 }}
+          showsVerticalScrollIndicator={false}
+          className="px-4"
+        >
+          {posts.map((post) => (
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() =>
+                router.push({
+                pathname: "/(tabs)/community/comment",
+                params: { postId: post.id, focusInput: "false" },
+              })}
+              key={post.id}
+              className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#EEEEEE]"
+            >
+              {/* Header */}
+              <View className="flex-row justify-between">
+                <PostHeader
+                  username={post.username}
+                  createdAt={post.createdAt}
+                  isAnonymous={false}
+                />
                 <TouchableOpacity
-                  className="flex-row items-center gap-1"
-                  onPress={() => router.push({ pathname: "/(tabs)/community/comment", params: { postId: post.id, focusInput: "true" } })}
+                  onPress={() => router.push("/(tabs)/community/topic")} 
+                  className="border border-[#7F56D9] px-4 rounded-full flex-row items-center mb-4 mr-8"
                 >
-                  <MessageCircle width={18} height={18} color="#374151" />
-                  <Text className="text-sm text-gray-700">{post.comments}</Text>
+                  <Text className="text-[#7F56D9] font-[Poppins-SemiBold] text-sm">
+                    {post.topic}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    setSelectedPost(post);
+                    setMenuVisible(true);
+                  }}
+                >
+                  <EllipsisVertical width={20} height={20} color="black" />
                 </TouchableOpacity>
               </View>
-            </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+              {/* Content */}
+              <Text className="text-base mt-3 font-[Poppins-Regular]">
+                {post.content}
+              </Text>
+              {/* Interaction */}
+              <View className="flex-row mt-3 gap-6">
+                <View className="flex-row items-center gap-6">
+                  {/* LIKE */}
+                  <View className="flex-row items-center gap-1">
+                    <TouchableOpacity onPress={() => handleToggleLike(post.id)}>
+                      <Heart
+                        width={18}
+                        height={18}
+                        color={post.isLiked ? "#EF4444" : "#374151"}
+                        fill={post.isLiked ? "#EF4444" : "transparent"}
+                        strokeWidth={2}
+                      />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      onPress={() => {
+                        setLikedUsers(post.likedBy || []);
+                        setLikeListVisible(true);
+                      }}
+                      className="flex-row items-center gap-1"
+                    >
+                      <Text className="text-sm font-[Poppins-SemiBold] text-gray-700">
+                        {post.likes}
+                      </Text>
+                      {post.likes > 0 && (
+                        <Text className="text-sm text-gray-500">likes</Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* COMMENT */}
+                  <TouchableOpacity
+                    className="flex-row items-center gap-1"
+                    onPress={() => router.push({ pathname: "/(tabs)/community/comment", params: { postId: post.id, focusInput: "true" } })}
+                  >
+                    <MessageCircle width={18} height={18} color="#374151" />
+                    <Text className="text-sm text-gray-700">{post.comments}</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
 
       {/* Menu */}
       <Modal visible={menuVisible} transparent animationType="slide">
@@ -225,6 +241,17 @@ export default function TopicScreen() {
         onClose={() => setLikeListVisible(false)}
         users={likedUsers}
         currentUserId={currentUserId}
+      />
+
+      <TopicPickerModal
+        visible={topicPickerVisible}
+        onClose={() => setTopicPickerVisible(false)}
+        onSelect={(topic) => {
+          setSelectedTopic(topic);
+          setPosts(mockPosts.filter(p => p.topic === topic));
+          // Hoặc chỉ thay text hiển thị:
+          // setTopicPickerVisible(false);
+        }}
       />
     </View>
   );

@@ -142,7 +142,7 @@ export default function CommunityScreen() {
                   className="border border-[#7F56D9] px-4 rounded-full flex-row items-center mb-4 mr-8"
                 >
                   <Text className="text-[#7F56D9] font-[Poppins-SemiBold] text-sm">
-                    Travel
+                    {post.topic}
                   </Text>
                 </TouchableOpacity>
 

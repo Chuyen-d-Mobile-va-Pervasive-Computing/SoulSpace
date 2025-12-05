@@ -1,4 +1,5 @@
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
+import { router } from "expo-router";
 
 interface PostHeaderProps {
   username?: string;
@@ -21,11 +22,12 @@ export default function PostHeader({
 
   return (
     <View className="flex-row items-center">
-      <View
+      <TouchableOpacity
+        onPress={() => router.push("/(tabs)/home/wall")}
         className={`${avatarSize} bg-gray-300 rounded-full items-center justify-center mr-3`}
       >
         <Text className="text-white font-[Poppins-Bold]">{avatarLetter}</Text>
-      </View>
+      </TouchableOpacity>
 
       <View>
         <Text className="font-[Poppins-SemiBold] text-base">

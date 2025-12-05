@@ -14,6 +14,7 @@ export const mockPosts = [
       { userId: "u4", username: "Emma" },
       { userId: "u5", username: "John" },
     ],
+    topic: "Travel",
   },
   {
     id: "p2",
@@ -24,5 +25,6 @@ export const mockPosts = [
     likes: 0,
     comments: 1,
     isLiked: false,
+    topic: "Food",
   },
 ];
