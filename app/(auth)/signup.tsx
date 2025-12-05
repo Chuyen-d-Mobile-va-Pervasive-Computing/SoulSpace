@@ -21,8 +21,16 @@ export default function RegisterScreen() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
 
   const [fontsLoaded] = useFonts({
     "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
@@ -41,8 +49,13 @@ export default function RegisterScreen() {
   if (!fontsLoaded) return null;
 
   const handleRegister = async () => {
-    if (!email || !password) {
-      Alert.alert("Missing fields", "Please enter both email and password");
+    if (!email || !password || !confirmPassword) {
+      Alert.alert("Missing fields", "Please fill out all fields.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert("Password mismatch", "Passwords do not match.");
       return;
     }
 
@@ -90,6 +103,29 @@ export default function RegisterScreen() {
     }
   };
 
+  const validateFields = (field: string, value: string) => {
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+
+      if (field === "email") {
+        if (!value.includes("@")) newErrors.email = "Invalid email format";
+        else newErrors.email = "";
+      }
+
+      if (field === "password") {
+        if (value.length < 8 || !/[A-Z]/.test(value) || !/[0-9]/.test(value)) newErrors.password = "Password must be at least 8 characters with 1 uppercase and 1 number";
+        else newErrors.password = "";
+      }
+
+      if (field === "confirmPassword") {
+        if (value !== password) newErrors.confirmPassword = "Passwords do not match";
+        else newErrors.confirmPassword = "";
+      }
+
+      return newErrors;
+    });
+  };
+
   return (
     <KeyboardAwareScrollView
       style={{ flex: 1, backgroundColor: "#FAF9FF" }}
@@ -127,24 +163,38 @@ export default function RegisterScreen() {
               placeholder="Enter your email"
               placeholderTextColor="#9CA3AF"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={(text) => {
+                setEmail(text);
+                validateFields("email", text);
+              }}
               keyboardType="email-address"
               autoCapitalize="none"
-              className="w-full h-16 bg-transparent rounded-[10px] px-4 border border-[#DADADA] font-[Poppins-Regular]"
+              className={`w-full h-16 bg-transparent rounded-[10px] px-4 border 
+                ${errors.email ? "border-red-500" : "border-[#DADADA]"}
+                font-[Poppins-Regular]`}
             />
+            {errors.email ? (
+              <Text className="text-red-500 text-xs mt-1">{errors.email}</Text>
+            ) : null}
           </View>
           {/* Password */}
           <View className="mb-4">
             <Text className="text-gray-500 text-sm mb-1 font-[Poppins-Regular]">
               Password
             </Text>
-            <View className="w-full h-16 bg-transparent px-4 flex-row items-center border border-[#DADADA] rounded-[10px]">
+            <View
+              className={`w-full h-16 bg-transparent px-4 flex-row items-center rounded-[10px] 
+                border ${errors.password ? "border-red-500" : "border-[#DADADA]"}`}
+            >
               <TextInput
                 placeholder="Enter your password"
                 placeholderTextColor="#ccc"
                 secureTextEntry={!showPassword}
                 value={password}
-                onChangeText={setPassword}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  validateFields("password", text);
+                }}
                 className="flex-1 font-[Poppins-Regular]"
               />
               <Pressable onPress={() => setShowPassword(!showPassword)}>
@@ -155,6 +205,42 @@ export default function RegisterScreen() {
                 )}
               </Pressable>
             </View>
+            {errors.password ? (
+              <Text className="text-red-500 text-xs mt-1">{errors.password}</Text>
+            ) : null}
+          </View>
+
+          {/* Confirm Password */}
+          <View className="mb-4">
+            <Text className="text-gray-500 text-sm mb-1 font-[Poppins-Regular]">
+              Confirm Password
+            </Text>
+            <View
+              className={`w-full h-16 bg-transparent px-4 flex-row items-center rounded-[10px]
+                border ${errors.confirmPassword ? "border-red-500" : "border-[#DADADA]"}`}
+            >
+              <TextInput
+                placeholder="Re-enter your password"
+                placeholderTextColor="#ccc"
+                secureTextEntry={!showConfirmPassword}
+                value={confirmPassword}
+                onChangeText={(text) => {
+                  setConfirmPassword(text);
+                  validateFields("confirmPassword", text);
+                }}
+                className="flex-1 font-[Poppins-Regular]"
+              />
+              <Pressable onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+                {showConfirmPassword ? (
+                  <Eye size={22} color="#B5A2E9" />
+                ) : (
+                  <EyeOff size={22} color="#B5A2E9" />
+                )}
+              </Pressable>
+            </View>
+            {errors.confirmPassword ? (
+              <Text className="text-red-500 text-xs mt-1">{errors.confirmPassword}</Text>
+            ) : null}
           </View>
 
           {/* Register Button */}
