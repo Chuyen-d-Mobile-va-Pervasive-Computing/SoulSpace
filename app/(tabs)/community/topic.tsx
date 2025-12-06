@@ -1,7 +1,7 @@
-import { View, Text, TouchableOpacity, Modal, Pressable, TouchableWithoutFeedback, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, Modal, Pressable, TouchableWithoutFeedback, ScrollView, Image } from "react-native";
 import { ChevronLeft, EllipsisVertical, Heart, MessageCircle } from "lucide-react-native";
-import { router } from "expo-router";
-import { useState } from "react";
+import { router, useLocalSearchParams } from "expo-router";
+import { useState, useEffect } from "react";
 import { mockPosts } from "@/constants/mockPosts";
 import PostHeader from "@/components/PostHeader";
 import ReportModal from "@/components/ReportModal";
@@ -24,6 +24,20 @@ export default function TopicScreen() {
   const [likedUsers, setLikedUsers] = useState<User[]>([]);
   const [selectedTopic, setSelectedTopic] = useState("Travel");
   const [topicPickerVisible, setTopicPickerVisible] = useState(false);
+  const params = useLocalSearchParams();
+  const topicParam = params.topic as string | undefined;
+
+  const user = {
+    username: "SoulSpace",
+    avatar: "https://i.pravatar.cc/300",
+  };
+
+  useEffect(() => {
+    if (topicParam) {
+      setSelectedTopic(topicParam);
+      setPosts(mockPosts.filter((p) => p.topic === topicParam));
+    }
+  }, [topicParam]);
 
   const handleToggleLike = (id: string) => {
     setPosts((prev) =>
@@ -55,7 +69,7 @@ export default function TopicScreen() {
   return(
     <View className="flex-1 bg-[#FAF9FF]">
       {/* Header */}
-      <View className="items-center flex-row mr-8 ml-2 py-10 gap-3">
+      <View className="items-center flex-row mr-8 ml-2 mt-10 mb-4 gap-3">
         <TouchableOpacity onPress={() => router.back()}>
           <ChevronLeft size={28}/>
         </TouchableOpacity>
@@ -68,6 +82,30 @@ export default function TopicScreen() {
           </Text>
         </TouchableOpacity>
       </View>
+      <View className="flex-row items-center border-b border-gray-200 mt-2 mb-4">
+        <View className="px-3 mb-4">
+          <Image
+            source={{ uri: user.avatar }}
+            className="w-12 h-12 rounded-full"
+          />
+        </View>
+        {/* Input đăng bài */}
+        <TouchableOpacity
+          onPress={() =>
+            router.push({
+              pathname: "/(tabs)/community/add",
+              params: { tag: selectedTopic },
+            })
+          }
+          className="mb-2"
+          activeOpacity={0.7}
+        >
+          <Text className="text-gray-500 font-[Poppins-Regular]">
+            Post about {selectedTopic}...
+          </Text>
+        </TouchableOpacity>
+      </View>
+      {/* Danh sách bài post */}
       {posts.length === 0 ? (
         <View className="items-center mt-20">
           <Text className="text-gray-500 font-[Poppins-Regular] text-base">
@@ -249,8 +287,7 @@ export default function TopicScreen() {
         onSelect={(topic) => {
           setSelectedTopic(topic);
           setPosts(mockPosts.filter(p => p.topic === topic));
-          // Hoặc chỉ thay text hiển thị:
-          // setTopicPickerVisible(false);
+          setTopicPickerVisible(false);
         }}
       />
     </View>

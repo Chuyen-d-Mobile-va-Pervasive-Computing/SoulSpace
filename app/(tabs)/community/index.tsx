@@ -138,7 +138,11 @@ export default function CommunityScreen() {
                 />
 
                 <TouchableOpacity
-                  onPress={() => router.push("/(tabs)/community/topic")} 
+                  onPress={() => 
+                    router.push({
+                      pathname:"/(tabs)/community/topic",
+                      params: { topic: post.topic }
+                  })}
                   className="border border-[#7F56D9] px-4 rounded-full flex-row items-center mb-4 mr-8"
                 >
                   <Text className="text-[#7F56D9] font-[Poppins-SemiBold] text-sm">

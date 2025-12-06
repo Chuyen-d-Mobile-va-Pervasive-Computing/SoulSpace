@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { X, Plus } from "lucide-react-native";
 import { useRef, useState } from "react";
 import {
@@ -26,6 +26,11 @@ export default function AddScreen() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showTagModal, setShowTagModal] = useState(false);
   const [tagSearch, setTagSearch] = useState("");
+  const params = useLocalSearchParams();
+  const initialTag = params.tag as string | undefined;
+  const [selectedTags, setSelectedTags] = useState<string[]>(
+    initialTag ? [initialTag] : []
+  );
 
   // Danh sách tất cả tag có thể có (gợi ý + đã tạo)
   const allAvailableTags = [
@@ -42,8 +47,6 @@ export default function AddScreen() {
     "Work",
     "Healing",
   ];
-
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const user = {
     username: "SoulSpace",

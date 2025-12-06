@@ -69,6 +69,9 @@ export default function ChatScreen() {
 
         {/* Danh sách expert */}
         <View>
+          {filteredCollections.length === 0 && (
+            <Text className="text-center text-gray-500">No expert found.</Text>
+          )}
           {filteredCollections.map((item) => (
             <TouchableOpacity
               key={item.id}

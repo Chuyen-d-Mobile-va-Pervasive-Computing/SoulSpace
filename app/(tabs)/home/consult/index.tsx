@@ -125,7 +125,9 @@ export default function ExpertScreen() {
           <SlidersHorizontal size={24} color="#7F56D9" />
         </TouchableOpacity>
       </View>
-
+      {filtered.length === 0 && (
+        <Text className="text-center text-gray-500 mt-4">No expert found.</Text>
+      )}
       {/* List */}
       <ScrollView
         className="flex-1 px-4 pt-4"
