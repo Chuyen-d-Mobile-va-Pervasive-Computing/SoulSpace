@@ -114,6 +114,7 @@ export default function ExpertScreen() {
             placeholder="Search expert by name..."
             value={search}
             onChangeText={handleSearch}
+            className="font-[Poppins-Regular]"
           />
         </View>
 
@@ -126,7 +127,7 @@ export default function ExpertScreen() {
         </TouchableOpacity>
       </View>
       {filtered.length === 0 && (
-        <Text className="text-center text-gray-500 mt-4">No expert found.</Text>
+        <Text className="text-center text-gray-500 mt-4 font-[Poppins-Regular]">No expert found.</Text>
       )}
       {/* List */}
       <ScrollView

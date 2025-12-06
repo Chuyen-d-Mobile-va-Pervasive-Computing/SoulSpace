@@ -59,7 +59,7 @@ export default function ChatScreen() {
         <View className="w-full bg-white rounded-full flex-row items-center px-4 py-3 mb-6 shadow-sm">
           <Search color="#696674" size={20} />
           <TextInput
-            className="flex-1 ml-2 text-base font-[Montserrat-Medium] text-[#333]"
+            className="flex-1 ml-2 text-base font-[Poppins-Regular] text-[#333]"
             placeholder="Search expert by name..."
             placeholderTextColor="#696674"
             value={search}
@@ -70,7 +70,7 @@ export default function ChatScreen() {
         {/* Danh sách expert */}
         <View>
           {filteredCollections.length === 0 && (
-            <Text className="text-center text-gray-500">No expert found.</Text>
+            <Text className="text-center text-gray-500 font-[Poppins-Regular]">No expert found.</Text>
           )}
           {filteredCollections.map((item) => (
             <TouchableOpacity

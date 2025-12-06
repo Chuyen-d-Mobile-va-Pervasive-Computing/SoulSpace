@@ -83,7 +83,7 @@ export default function ChatDetailScreen() {
             : "bg-gray-200 rounded-tl-none"
         }`}
       >
-        <Text className={item.sender === "me" ? "text-white" : "text-black"}>
+        <Text className={item.sender === "me" ? "font-[Poppins-Regular] text-white" : "font-[Poppins-Regular] text-black"}>
           {item.text}
         </Text>
       </View>
@@ -111,11 +111,11 @@ export default function ChatDetailScreen() {
             />
 
             <View className="flex-col">
-              <Text className="font-[Montserrat-Bold] text-[16px] text-[#111]">
+              <Text className="font-[Poppins-Bold] text-[16px] text-[#111]">
                 {name}
               </Text>
               <Text
-                className={`text-sm font-[Montserrat-Medium] ${
+                className={`text-sm font-[Poppins-Medium] ${
                   status === "online" ? "text-[#10B981]" : "text-[#9CA3AF]"
                 }`}
               >
@@ -127,7 +127,7 @@ export default function ChatDetailScreen() {
             onPress={() => router.back()}
             className="w-10 h-10 bg-[#E0D7F9] rounded-full items-center justify-center mr-3"
           >
-            <ChevronLeft size={24} color="#000" />
+            <ChevronLeft size={24} />
           </TouchableOpacity>
         </View>
 
@@ -150,7 +150,7 @@ export default function ChatDetailScreen() {
             onChangeText={setText}
             placeholder="Type your message"
             multiline
-            className="flex-1 bg-gray-100 rounded-3xl px-4 py-3 text-base"
+            className="flex-1 bg-gray-100 rounded-3xl px-4 py-3 text-base font-[Poppins-Regular]"
             style={{ maxHeight: 120 }}
             onFocus={() =>
               setTimeout(

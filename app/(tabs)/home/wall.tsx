@@ -1,10 +1,11 @@
-import { View, Text, Image, ScrollView, Modal, TextInput, TouchableOpacity, TouchableWithoutFeedback, ToastAndroid } from "react-native";
+import { View, Text, Image, ScrollView, Modal, TextInput, TouchableOpacity, TouchableWithoutFeedback, ToastAndroid, ActivityIndicator } from "react-native";
 import Toast from "react-native-toast-message";
 import { useState, useEffect } from "react";
 import { FontAwesome } from "@expo/vector-icons";
 import { Sun, Share2, PenLine } from "lucide-react-native";
 import Heading from "@/components/Heading";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImagePicker from "expo-image-picker";
 
 const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
@@ -33,6 +34,17 @@ export default function ProfileScreen() {
   const [canWater, setCanWater] = useState(true);
   const [backendMessage, setBackendMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [avatar, setAvatar] = useState<string | null>(null);
+
+  const pickAvatar = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      setAvatar(result.assets[0].uri);
+    }
+  };
 
   // NEW STATE for sharing
   const [shareModalVisible, setShareModalVisible] = useState(false);
@@ -131,10 +143,28 @@ export default function ProfileScreen() {
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }} className="flex-1">
         {/* Header */}
         <View className="mt-3 mx-4 rounded-2xl items-center">
-          <Image
-            source={{ uri: user.avatar }}
-            className="w-28 h-28 rounded-full border-4 border-white shadow"
-          />
+        <TouchableOpacity onPress={pickAvatar} className="items-center justify-center">
+          <View className="relative">
+            {/* Avatar */}
+            <Image
+              source={ avatar ? { uri: avatar } : require("@/assets/images/icon.png")}
+              className="w-28 h-28 rounded-full border-4 border-[#E8E1FF]"
+              onLoadStart={() => setLoading(true)}
+              onLoadEnd={() => setLoading(false)}
+            />
+            {/* Loading Spinner */}
+            {loading && (
+              <View className="absolute inset-0 bg-black/20 rounded-full items-center justify-center">
+                <ActivityIndicator size="large" color="#ffffff" />
+              </View>
+            )}
+            {/* Camera */}
+            <View className="absolute bottom-2 right-2 bg-white rounded-full p-2 shadow items-center justify-center">
+              <FontAwesome name="camera" size={14} color="#7F56D9" />
+            </View>
+          </View>
+        </TouchableOpacity>
+
           <View className="flex flex-row mt-3 gap-2">
             <Text className="text-2xl font-[Poppins-Bold] text-gray-800">{username}</Text>
             <TouchableOpacity
@@ -214,7 +244,7 @@ export default function ProfileScreen() {
                   multiline
                   numberOfLines={4}
                   textAlignVertical="top"
-                  className="w-full min-h-[100px] p-3 border border-gray-300 rounded-xl text-gray-800"
+                  className="w-full min-h-[100px] p-3 border border-gray-300 rounded-xl text-gray-800 font-[Poppins-Regular]"
                 />
 
                 {/* Buttons */}
