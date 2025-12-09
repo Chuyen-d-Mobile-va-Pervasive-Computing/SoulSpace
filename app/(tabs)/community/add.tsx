@@ -14,10 +14,14 @@ import {
   Image,
   FlatList,
   Keyboard,
+  ActivityIndicator,
 } from "react-native";
 import CustomSwitch from "@/components/CustomSwitch";
 import Logo from "@/assets/images/logo.svg";
 import SvgAvatar from "@/components/SvgAvatar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
 export default function AddScreen() {
   const textInputRef = useRef<TextInput>(null);
@@ -31,6 +35,7 @@ export default function AddScreen() {
   const [selectedTags, setSelectedTags] = useState<string[]>(
     initialTag ? [initialTag] : []
   );
+  const [isPosting, setIsPosting] = useState(false);
 
   // Danh sách tất cả tag có thể có (gợi ý + đã tạo)
   const allAvailableTags = [
@@ -51,6 +56,42 @@ export default function AddScreen() {
   const user = {
     username: "SoulSpace",
     avatar: "https://i.pravatar.cc/300",
+  };
+
+  const createPost = async () => {
+    if (isPosting) return;
+    try {
+      setIsPosting(true);
+      const token = await AsyncStorage.getItem("access_token");
+      const payload = {
+        content: postContent.trim(),
+        is_anonymous: isAnonymous,
+        hashtags: selectedTags,
+      };
+
+      const res = await fetch(`${API_BASE}/api/v1/anon-posts/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      console.log("POST RESULT:", data);
+
+      if (!res.ok) {
+        alert("Lỗi đăng bài");
+        return;
+      }
+      router.push("/(tabs)/community");
+    } catch (err) {
+      console.log("POST ERROR:", err);
+      alert("Không thể đăng bài");
+    } finally {
+      setIsPosting(false);
+    }
   };
 
   const toggleTag = (tag: string) => {
@@ -164,13 +205,19 @@ export default function AddScreen() {
         </View>
 
         <TouchableOpacity
-          disabled={!postContent.trim()}
-          onPress={() => router.push("/(tabs)/community")}
-          className={`px-7 py-3 rounded-full ${
-            postContent.trim() ? "bg-[#7F56D9]" : "bg-gray-300"
+          disabled={isPosting || !postContent.trim()}
+          onPress={createPost}
+          className={`px-7 py-3 rounded-full flex-row items-center justify-center ${
+            postContent.trim() && !isPosting ? "bg-[#7F56D9]" : "bg-gray-300"
           }`}
         >
-          <Text className="text-white font-[Poppins-Bold] text-base">Post now</Text>
+          {isPosting ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text className="text-white font-[Poppins-Bold] text-base">
+              Post now
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
 

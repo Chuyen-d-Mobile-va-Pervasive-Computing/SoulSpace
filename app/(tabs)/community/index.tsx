@@ -8,7 +8,7 @@ import {
   MessageCircle,
   SlidersHorizontal,
 } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   Pressable,
@@ -21,9 +21,11 @@ import {
 } from "react-native";
 import ReportModal from "@/components/ReportModal";
 import Logo from "@/assets/images/logo.svg";
-import { mockPosts } from "@/constants/mockPosts";
 import SvgAvatar from "@/components/SvgAvatar";
 import LikeListModal from "@/components/LikeListModal";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
 interface User {
   userId: string;
@@ -34,7 +36,8 @@ export default function CommunityScreen() {
   const router = useRouter();
   const currentUserId = "u1";
 
-  const [posts, setPosts] = useState(mockPosts);
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filterVisible, setFilterVisible] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [selectedPost, setSelectedPost] = useState<any>(null);
@@ -47,6 +50,70 @@ export default function CommunityScreen() {
     username: "SoulSpace",
     avatar: "https://i.pravatar.cc/300",
   };
+
+  const formatToVNTime = (utcString: string) => {
+    const safeUtc = utcString.endsWith("Z") ? utcString : utcString + "Z";
+    const d = new Date(safeUtc);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    // +7 giờ -> giờ Việt Nam
+    const local = new Date(d.getTime() + 7 * 60 * 60 * 1000);
+
+    return (
+      local.getUTCFullYear() +
+      "-" +
+      pad(local.getUTCMonth() + 1) +
+      "-" +
+      pad(local.getUTCDate()) +
+      " " +
+      pad(local.getUTCHours()) +
+      ":" +
+      pad(local.getUTCMinutes()) +
+      ":" +
+      pad(local.getUTCSeconds())
+    );
+  };
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        setLoading(true);
+        const token = await AsyncStorage.getItem("access_token");
+        const res = await fetch(`${API_BASE}/api/v1/anon-posts/`, {
+          method: "GET",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await res.json();
+
+        const formatted = data.map((item: any) => ({
+          id: item._id,
+          userId: item.user_id,
+          username: item.is_anonymous ? "Anonymous" : item.author_name,
+          content: item.content,
+          topic: item.hashtags?.[0],
+          created_at: formatToVNTime(item.created_at),
+          moderationStatus: item.moderation_status,
+          scanResult: item.ai_scan_result, 
+          flag: item.flagged_reason, 
+          detectedKeywords: item.detected_keywords[0],
+          likes: item.like_count,
+          isLiked: item.is_liked,
+          // likedBy: [],
+          comments: item.comment_count,
+          isOwner: item.is_owner,
+        }));
+
+        setPosts(formatted);
+      } catch (error) {
+        console.log("Lỗi fetch:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPosts();
+  }, []);
 
   const handleDelete = (id: string) => {
     setPosts((prev) => prev.filter((p) => p.id !== id));
@@ -81,7 +148,7 @@ export default function CommunityScreen() {
 
       <View className="flex-1 px-4 mt-4">
         <ScrollView
-          contentContainerStyle={{ paddingBottom: 120, gap: 12 }}
+          contentContainerStyle={{ paddingBottom: 40, gap: 12 }}
           showsVerticalScrollIndicator={false}
         >
           <View className="flex-row items-center justify-between w-full mb-3">
@@ -133,23 +200,29 @@ export default function CommunityScreen() {
               <View className="flex-row justify-between">
                 <PostHeader
                   username={post.username}
-                  createdAt={post.createdAt}
+                  createdAt={post.created_at}
                   isAnonymous={false}
                 />
 
-                <TouchableOpacity
-                  onPress={() => 
-                    router.push({
-                      pathname:"/(tabs)/community/topic",
-                      params: { topic: post.topic }
-                  })}
-                  className="border border-[#7F56D9] px-4 rounded-full flex-row items-center mb-4 mr-8"
-                >
-                  <Text className="text-[#7F56D9] font-[Poppins-SemiBold] text-sm">
-                    {post.topic}
-                  </Text>
-                </TouchableOpacity>
-
+                {post.topic && (
+                  <TouchableOpacity
+                    onPress={() => {
+                      const filteredPosts = posts.filter(p => p.topic === post.topic);
+                      router.push({
+                        pathname: "/(tabs)/community/topic",
+                        params: {
+                          topic: post.topic,
+                          posts: JSON.stringify(filteredPosts),
+                        },
+                      });
+                    }}
+                    className="border border-[#7F56D9] px-4 rounded-full flex-row items-center mb-4 mr-8"
+                  >
+                    <Text className="text-[#7F56D9] font-[Poppins-SemiBold] text-sm">
+                      {post.topic}
+                    </Text>
+                  </TouchableOpacity>
+                )}
                 <TouchableOpacity
                   onPress={() => {
                     setSelectedPost(post);
@@ -245,7 +318,7 @@ export default function CommunityScreen() {
             <View className="flex-1" />
           </TouchableWithoutFeedback>
           <View className="bg-white rounded-t-2xl p-4">
-            {selectedPost?.userId === currentUserId ? (
+            {selectedPost?.isOwner ? (
               <Pressable onPress={() => setShowConfirm(true)}>
                 <Text className="text-red-500 text-lg font-[Poppins-Bold] text-center">
                   Delete

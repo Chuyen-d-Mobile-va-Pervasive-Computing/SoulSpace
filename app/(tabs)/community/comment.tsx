@@ -24,8 +24,10 @@ import {
 import ReportModal from "@/components/ReportModal";
 import Heading from "@/components/Heading";
 import PostHeader from "@/components/PostHeader";
-import { mockPosts } from "@/constants/mockPosts";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import LikeListModal from "@/components/LikeListModal";
+
+const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
 interface User {
   userId: string;
@@ -39,9 +41,36 @@ export default function CommentScreen() {
   const currentUserId = "u1";
   const [reportVisible, setReportVisible] = useState(false);
   // Lấy bài post hiện tại
-  const [post, setPost] = useState(
-    mockPosts.find((p) => p.id === postId) || null
-  );
+  const [post, setPost] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const token = await AsyncStorage.getItem("access_token");
+        const res = await fetch(`${API_BASE}/api/v1/anon-posts/${postId}`, {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`, 
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to load post");
+        }
+
+        const data = await res.json();
+        setPost(data);
+      } catch (err) {
+        console.error("Error fetching post:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPost();
+  }, [postId]);
 
   const [likeListVisible, setLikeListVisible] = useState(false);
   const [likedUsers, setLikedUsers] = useState<User[]>([]);
@@ -140,6 +169,14 @@ export default function CommentScreen() {
 
   const safeHeight = Math.min(inputHeight, MAX_INPUT_HEIGHT);
 
+  if (loading) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
   if (!post) {
     return (
       <View className="flex-1 items-center justify-center">
@@ -147,6 +184,13 @@ export default function CommentScreen() {
       </View>
     );
   }
+
+  const formatUTCtoLocal = (utcString: string) => {
+    const date = new Date(utcString);
+    return new Date(date.getTime() + 7 * 60 * 60 * 1000)
+      .toLocaleString("sv-SE")
+      .replace("T", " ");
+  };
 
   // Gửi comment
   const handleSendComment = () => {
@@ -193,18 +237,23 @@ export default function CommentScreen() {
           <View className="p-4 bg-white rounded-2xl border border-[#EEEEEE]">
             <View className="flex-row justify-between items-center">
               <PostHeader
-                username={post.username}
-                createdAt={post.createdAt}
-                isAnonymous={false}
+                username={post.is_anonymous ? "Anonymous" : post.author_name}
+                createdAt={formatUTCtoLocal(post.created_at)}
+                isAnonymous={post.is_anonymous}
               />
-              <TouchableOpacity
-                onPress={() => router.push("/(tabs)/community/topic")} 
-                className="border border-[#7F56D9] px-4 py-1 rounded-full flex-row items-center mb-4 mr-8"
-              >
-                <Text className="text-[#7F56D9] font-[Poppins-SemiBold] text-sm">
-                  {post.topic}
-                </Text>
-              </TouchableOpacity>
+              {post.hashtags?.[0] && ( 
+                <TouchableOpacity
+                  onPress={() => router.push({
+                    pathname: "/(tabs)/community/topic",
+                    params: { topic: post.hashtags[0] }
+                  })}
+                  className="border border-[#7F56D9] px-4 py-1 rounded-full flex-row items-center mb-4 mr-8"
+                >
+                  <Text className="text-[#7F56D9] font-[Poppins-SemiBold] text-sm">
+                    {post.hashtags[0]}
+                  </Text>
+                </TouchableOpacity>
+              )}
               <TouchableOpacity onPress={() => setMenuVisible(true)}>
                 <EllipsisVertical width={20} height={20} color="black" />
               </TouchableOpacity>
