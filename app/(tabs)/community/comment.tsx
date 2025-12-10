@@ -16,6 +16,7 @@ import {
   Platform,
   Keyboard,
   ToastAndroid,
+  Alert,
   Modal,
   TouchableWithoutFeedback,
   Pressable,
@@ -43,6 +44,7 @@ export default function CommentScreen() {
   // Lấy bài post hiện tại
   const [post, setPost] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedPost, setSelectedPost] = useState<any>(null);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -70,6 +72,7 @@ export default function CommentScreen() {
           isLiked: data.is_liked ?? false,
           isAnonymous: data.is_anonymous ?? false,
           likedBy: data.liked_by ?? [],
+          isOwner: data.is_owner ?? false,
         };
 
         setPost(formatted);
@@ -227,11 +230,40 @@ export default function CommentScreen() {
     setMenuVisible(false);
   };
 
-  const handleDelete = () => {
-    ToastAndroid.show("Post deleted", ToastAndroid.SHORT);
+  const deletePostOnServer = async (postId: string): Promise<{ ok: boolean; message: string }> => {
+    try {
+      const token = await AsyncStorage.getItem("access_token");
+
+      const res = await fetch(`${API_BASE}/api/v1/anon-posts/${postId}`, {
+        method: "DELETE",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.ok) {
+        return { ok: true, message: "Deleted" };
+      }
+      const error = await res.json();
+      return { ok: false, message: error.detail || "Delete failed" };
+    } catch (err) {
+      return { ok: false, message: "Network error" };
+    }
+  };
+
+  const handleDelete = async (id: string) => {
     setShowConfirm(false);
     setMenuVisible(false);
-    router.back();
+
+    const result = await deletePostOnServer(id);
+    if (!result.ok) {
+      Alert.alert("Error", result.message);
+      return;
+    }
+
+    ToastAndroid.show("Post deleted", ToastAndroid.SHORT);
+    router.push("/(tabs)/community");
   };
 
   const safeHeight = Math.min(inputHeight, MAX_INPUT_HEIGHT);
@@ -308,20 +340,22 @@ export default function CommentScreen() {
                 createdAt={formatUTCtoLocal(post.createdAt)}
                 isAnonymous={post.is_anonymous}
               />
-              {post.hashtags?.[0] && ( 
+              {post.topic && ( 
                 <TouchableOpacity
                   onPress={() => router.push({
                     pathname: "/(tabs)/community/topic",
-                    params: { topic: post.hashtags[0] }
+                    params: { topic: post.topic }
                   })}
                   className="border border-[#7F56D9] px-4 py-1 rounded-full flex-row items-center mb-4 mr-8"
                 >
                   <Text className="text-[#7F56D9] font-[Poppins-SemiBold] text-sm">
-                    {post.hashtags[0]}
+                    {post.topic}
                   </Text>
                 </TouchableOpacity>
               )}
-              <TouchableOpacity onPress={() => setMenuVisible(true)}>
+              <TouchableOpacity onPress={() => {
+                setSelectedPost(post)
+                setMenuVisible(true)}}>
                 <EllipsisVertical width={20} height={20} color="black" />
               </TouchableOpacity>
             </View>
@@ -467,20 +501,22 @@ export default function CommentScreen() {
           </TouchableWithoutFeedback>
 
           <View className="bg-white rounded-t-2xl p-4">
-            {post.userId === currentUserId ? (
+            {post.isOwner ? (
               <Pressable onPress={() => setShowConfirm(true)} className="py-2">
                 <Text className="text-red-500 text-lg font-[Poppins-Bold] text-center">
                   Delete
                 </Text>
               </Pressable>
             ) : (
-              <Pressable onPress={() => {
-                setReportVisible(true);
-                setMenuVisible(false);
-              }} >
+              <Pressable
+                onPress={() => {
+                  setReportVisible(true);
+                  setMenuVisible(false);
+                }}
+              >
                 <Text className="text-lg text-center font-[Poppins-Regular] text-red-500">
-                    Report
-                  </Text>
+                  Report
+                </Text>
               </Pressable>
             )}
           </View>
@@ -571,7 +607,7 @@ export default function CommentScreen() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  onPress={handleDelete}
+                  onPress={() => handleDelete(selectedPost.id)}
                   className="bg-red-500 px-8 py-4 rounded-xl"
                 >
                   <Text className="text-base font-[Poppins-SemiBold] text-white">
@@ -589,6 +625,7 @@ export default function CommentScreen() {
         onClose={() => {
           setReportVisible(false);
           setMenuVisible(false);
+          setSelectedPost(null);
         }}
         onSubmit={handleReport}
       />

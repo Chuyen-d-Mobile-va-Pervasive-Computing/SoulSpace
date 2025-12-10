@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { X, Plus } from "lucide-react-native";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   KeyboardAvoidingView,
   Modal,
@@ -36,6 +36,7 @@ export default function AddScreen() {
     initialTag ? [initialTag] : []
   );
   const [isPosting, setIsPosting] = useState(false);
+  const [username, setUsername] = useState<string>("");
 
   // Danh sách tất cả tag có thể có (gợi ý + đã tạo)
   const allAvailableTags = [
@@ -54,9 +55,16 @@ export default function AddScreen() {
   ];
 
   const user = {
-    username: "SoulSpace",
     avatar: "https://i.pravatar.cc/300",
   };
+
+  useEffect(() => {
+    const loadUsername = async () => {
+      const savedUsername = await AsyncStorage.getItem("username");
+      if (savedUsername) setUsername(savedUsername);
+    };
+    loadUsername();
+  }, []);
 
   const createPost = async () => {
     if (isPosting) return;
@@ -154,7 +162,7 @@ export default function AddScreen() {
             />
           )}
           <Text className="text-lg font-[Poppins-SemiBold]">
-            {isAnonymous ? "Anonymous" : user.username}
+            {isAnonymous ? "Anonymous" : username}
           </Text>
 
           <TouchableOpacity

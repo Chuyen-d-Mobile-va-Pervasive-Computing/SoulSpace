@@ -18,6 +18,7 @@ import {
   TouchableWithoutFeedback,
   View,
   Image,
+  Alert,
 } from "react-native";
 import ReportModal from "@/components/ReportModal";
 import Logo from "@/assets/images/logo.svg";
@@ -115,10 +116,38 @@ export default function CommunityScreen() {
     fetchPosts();
   }, []);
 
-  const handleDelete = (id: string) => {
-    setPosts((prev) => prev.filter((p) => p.id !== id));
-    setMenuVisible(false);
+  const deletePostOnServer = async (postId: string): Promise<{ ok: boolean; message: string }> => {
+    try {
+      const token = await AsyncStorage.getItem("access_token");
+
+      const res = await fetch(`${API_BASE}/api/v1/anon-posts/${postId}`, {
+        method: "DELETE",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.ok) {
+        return { ok: true, message: "Deleted" };
+      }
+      const error = await res.json();
+      return { ok: false, message: error.detail || "Delete failed" };
+    } catch (err) {
+      return { ok: false, message: "Network error" };
+    }
+  };
+
+  const handleDelete = async (id: string) => {
     setShowConfirm(false);
+    setMenuVisible(false);
+    
+    const result = await deletePostOnServer(id);
+    if (!result.ok) {
+      Alert.alert("Error", result.message);
+      return;
+    }
+    setPosts(prev => prev.filter(p => p.id !== id));
   };
 
   const handleReport = (content: string) => {
