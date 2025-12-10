@@ -141,10 +141,52 @@ export default function TopicScreen() {
     loadPosts();
   }, [safeTopic, postsParam]);
 
-  const handleToggleLike = (id: string) => {
-    setPostList((prev) =>
-      prev.map((p) =>
-        p.id === id
+  const likePost = async (postId: string) => {
+    try {
+      const token = await AsyncStorage.getItem("access_token");
+      const res = await fetch(`${API_BASE}/api/v1/anon-likes/${postId}`, {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) return false;
+
+      return true;
+    } catch (err) {
+      console.log("LIKE error:", err);
+      return false;
+    }
+  };
+
+  const unlikePost = async (postId: string) => {
+    try {
+      const token = await AsyncStorage.getItem("access_token");
+      const res = await fetch(`${API_BASE}/api/v1/anon-likes/${postId}`, {
+        method: "DELETE",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return res.ok;
+    } catch (err) {
+      console.log("UNLIKE error:", err);
+      return false;
+    }
+  };
+
+  const handleToggleLike = async (postId: string) => {
+    const target = postList.find(p => p.id === postId);
+    if (!target) return;
+
+    const currentlyLiked = target.is_liked;
+    setPostList(prev =>
+      prev.map(p =>
+        p.id === postId
           ? {
               ...p,
               is_liked: !p.is_liked,
@@ -153,6 +195,28 @@ export default function TopicScreen() {
           : p
       )
     );
+
+    let ok = false;
+
+    if (!currentlyLiked) {
+      ok = await likePost(postId);
+    } else {
+      ok = await unlikePost(postId);
+    }
+
+    if (!ok) {
+      setPostList(prev =>
+        prev.map(p =>
+          p.id === postId
+            ? {
+                ...p,
+                is_liked: currentlyLiked,
+                like_count: currentlyLiked ? p.like_count + 1 : p.like_count - 1,
+              }
+            : p
+        )
+      );
+    }
   };
 
   const handleDelete = (id: string) => {
@@ -179,7 +243,7 @@ export default function TopicScreen() {
     <View className="flex-1 bg-[#FAF9FF]">
       {/* Header */}
       <View className="items-center flex-row mr-8 ml-2 mt-10 mb-4 gap-3">
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={() => router.push("/(tabs)/community")}>
           <ChevronLeft size={28}/>
         </TouchableOpacity>
         <TouchableOpacity

@@ -52,23 +52,33 @@ export default function CommentScreen() {
           method: "GET",
           headers: {
             Accept: "application/json",
-            Authorization: `Bearer ${token}`, 
+            Authorization: `Bearer ${token}`,
           },
         });
 
-        if (!res.ok) {
-          throw new Error("Failed to load post");
-        }
-
+        if (!res.ok) throw new Error("Failed to load post");
         const data = await res.json();
-        setPost(data);
+
+        const formatted = {
+          id: data._id,
+          username: data.is_anonymous ? "Anonymous" : data.author_name,
+          content: data.content,
+          createdAt: data.created_at,
+          topic: data.hashtags?.[0],
+          likes: data.like_count ?? 0,
+          comments: data.comment_count ?? 0,
+          isLiked: data.is_liked ?? false,
+          isAnonymous: data.is_anonymous ?? false,
+          likedBy: data.liked_by ?? [],
+        };
+
+        setPost(formatted);
       } catch (err) {
         console.error("Error fetching post:", err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchPost();
   }, [postId]);
 
@@ -146,12 +156,69 @@ export default function CommentScreen() {
   const [menuVisible, setMenuVisible] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const handleToggleLike = () => {
+  const likePost = async (postId: string) => {
+    try {
+      const token = await AsyncStorage.getItem("access_token");
+      const res = await fetch(`${API_BASE}/api/v1/anon-likes/${postId}`, {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) return false;
+
+      return true;
+    } catch (err) {
+      console.log("LIKE error:", err);
+      return false;
+    }
+  };
+
+  const unlikePost = async (postId: string) => {
+    try {
+      const token = await AsyncStorage.getItem("access_token");
+      const res = await fetch(`${API_BASE}/api/v1/anon-likes/${postId}`, {
+        method: "DELETE",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return res.ok;
+    } catch (err) {
+      console.log("UNLIKE error:", err);
+      return false;
+    }
+  };
+
+  const handleToggleLike = async (postId: string) => {
+    if (!post) return;
+
+    const currentlyLiked = post.isLiked;
     setPost((prev: any) => ({
       ...prev,
       isLiked: !prev.isLiked,
       likes: prev.isLiked ? prev.likes - 1 : prev.likes + 1,
     }));
+
+    let ok = false;
+    
+    if (!currentlyLiked) {
+      ok = await likePost(postId);
+    } else {
+      ok = await unlikePost(postId);
+    }
+
+    if (!ok) {
+      setPost((prev: any) => ({
+        ...prev,
+        isLiked: currentlyLiked,
+        likes: currentlyLiked ? prev.likes + 1 : prev.likes - 1,
+      }));
+    }
   };
 
   const handleReport = (content: string) => {
@@ -237,8 +304,8 @@ export default function CommentScreen() {
           <View className="p-4 bg-white rounded-2xl border border-[#EEEEEE]">
             <View className="flex-row justify-between items-center">
               <PostHeader
-                username={post.is_anonymous ? "Anonymous" : post.author_name}
-                createdAt={formatUTCtoLocal(post.created_at)}
+                username={post.username}
+                createdAt={formatUTCtoLocal(post.createdAt)}
                 isAnonymous={post.is_anonymous}
               />
               {post.hashtags?.[0] && ( 
@@ -266,7 +333,7 @@ export default function CommentScreen() {
             <View className="flex-row mt-3 gap-6">
               {/* LIKE */}
               <View className="flex-row items-center gap-1">
-                <TouchableOpacity onPress={handleToggleLike}>
+                <TouchableOpacity onPress={() => handleToggleLike(post.id)}>
                   <Heart
                     width={18}
                     height={18}

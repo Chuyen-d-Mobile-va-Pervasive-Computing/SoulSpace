@@ -128,10 +128,52 @@ export default function CommunityScreen() {
     setSelectedPost(null);
   };
 
-  const handleToggleLike = (id: string) => {
-    setPosts((prev) =>
-      prev.map((p) =>
-        p.id === id
+  const likePost = async (postId: string) => {
+    try {
+      const token = await AsyncStorage.getItem("access_token");
+      const res = await fetch(`${API_BASE}/api/v1/anon-likes/${postId}`, {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) return false;
+
+      return true;
+    } catch (err) {
+      console.log("LIKE error:", err);
+      return false;
+    }
+  };
+
+  const unlikePost = async (postId: string) => {
+    try {
+      const token = await AsyncStorage.getItem("access_token");
+      const res = await fetch(`${API_BASE}/api/v1/anon-likes/${postId}`, {
+        method: "DELETE",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return res.ok;
+    } catch (err) {
+      console.log("UNLIKE error:", err);
+      return false;
+    }
+  };
+
+  const handleToggleLike = async (postId: string) => {
+    const target = posts.find(p => p.id === postId);
+    if (!target) return;
+
+    const currentlyLiked = target.isLiked;
+    setPosts(prev =>
+      prev.map(p =>
+        p.id === postId
           ? {
               ...p,
               isLiked: !p.isLiked,
@@ -140,6 +182,28 @@ export default function CommunityScreen() {
           : p
       )
     );
+
+    let ok = false;
+
+    if (!currentlyLiked) {
+      ok = await likePost(postId);
+    } else {
+      ok = await unlikePost(postId);
+    }
+
+    if (!ok) {
+      setPosts(prev =>
+        prev.map(p =>
+          p.id === postId
+            ? {
+                ...p,
+                isLiked: currentlyLiked,
+                likes: currentlyLiked ? p.likes + 1 : p.likes - 1,
+              }
+            : p
+        )
+      );
+    }
   };
 
   return (
@@ -207,13 +271,9 @@ export default function CommunityScreen() {
                 {post.topic && (
                   <TouchableOpacity
                     onPress={() => {
-                      const filteredPosts = posts.filter(p => p.topic === post.topic);
                       router.push({
                         pathname: "/(tabs)/community/topic",
-                        params: {
-                          topic: post.topic,
-                          posts: JSON.stringify(filteredPosts),
-                        },
+                        params: { topic: post.topic },
                       });
                     }}
                     className="border border-[#7F56D9] px-4 rounded-full flex-row items-center mb-4 mr-8"
