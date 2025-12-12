@@ -47,6 +47,7 @@ export default function TopicScreen() {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [reportVisible, setReportVisible] = useState(false);
+  const [reportingTargetId, setReportingTargetId] = useState<string>("");
   const [likeListVisible, setLikeListVisible] = useState(false);
   const [likedUsers, setLikedUsers] = useState<any[]>([]);
   const [topicPickerVisible, setTopicPickerVisible] = useState(false);
@@ -404,7 +405,15 @@ export default function TopicScreen() {
                   <Text className="text-red-500 text-center text-lg font-[Poppins-Bold]">Delete</Text>
                 </Pressable>
               ) : (
-                <Pressable onPress={() => { setReportVisible(true); setMenuVisible(false); }}>
+                <Pressable
+                  onPress={() => {
+                    if (selectedPost) {
+                      setReportingTargetId(selectedPost.id);
+                      setReportVisible(true);
+                      setMenuVisible(false);
+                    }
+                  }}
+                >
                   <Text className="text-red-500 text-center text-lg font-[Poppins-Regular]">Report</Text>
                 </Pressable>
               )}
@@ -436,7 +445,7 @@ export default function TopicScreen() {
         </TouchableWithoutFeedback>
       </Modal>
 
-      <ReportModal visible={reportVisible} onClose={() => setReportVisible(false)} onSubmit={handleReport} />
+      <ReportModal visible={reportVisible} onClose={() => setReportVisible(false)} targetId={reportingTargetId} />
       <LikeListModal visible={likeListVisible} onClose={() => setLikeListVisible(false)} users={likedUsers} currentUserId={currentUserId} />
       <TopicPickerModal
         visible={topicPickerVisible}

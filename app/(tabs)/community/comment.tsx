@@ -45,6 +45,7 @@ export default function CommentScreen() {
   const [likeListVisible, setLikeListVisible] = useState(false);
   const [likedUsers, setLikedUsers] = useState<User[]>([]);
   const [reportVisible, setReportVisible] = useState(false);
+  const [reportingTargetId, setReportingTargetId] = useState<string>("");
   const [menuVisible, setMenuVisible] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -471,7 +472,7 @@ export default function CommentScreen() {
                   <Text className="text-red-500 text-lg font-[Poppins-Bold] text-center">Delete</Text>
                 </Pressable>
               ) : (
-                <Pressable onPress={() => { setReportVisible(true); setMenuVisible(false); }}>
+                <Pressable onPress={() => { setReportingTargetId(post.id); setReportVisible(true); setMenuVisible(false); }}>
                   <Text className="text-lg text-center font-[Poppins-Regular] text-red-500">Report</Text>
                 </Pressable>
               )}
@@ -508,12 +509,8 @@ export default function CommentScreen() {
 
         <ReportModal
           visible={reportVisible}
-          onClose={() => { setReportVisible(false); setMenuVisible(false); }}
-          onSubmit={(text) => {
-            console.log("Report:", text);
-            setReportVisible(false);
-            setMenuVisible(false);
-          }}
+          onClose={() => setReportVisible(false)}
+          targetId={reportingTargetId}
         />
 
         <LikeListModal

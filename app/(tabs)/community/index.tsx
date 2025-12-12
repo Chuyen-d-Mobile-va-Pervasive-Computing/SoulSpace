@@ -45,6 +45,7 @@ export default function CommunityScreen() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [reportVisible, setReportVisible] = useState(false);
+  const [reportingTargetId, setReportingTargetId] = useState<string>("");
   const [likeListVisible, setLikeListVisible] = useState(false);
   const [likedUsers, setLikedUsers] = useState<User[]>([]);
   const user = {
@@ -414,8 +415,9 @@ export default function CommunityScreen() {
                 </Text>
               </Pressable>
             ) : (
-              <Pressable 
+            <Pressable 
               onPress={() => {
+                setReportingTargetId(selectedPost.id)
                 setReportVisible(true);
                 setMenuVisible(false);
               }}
@@ -470,12 +472,8 @@ export default function CommunityScreen() {
 
       <ReportModal
         visible={reportVisible}
-        onClose={() => {
-          setReportVisible(false);
-          setMenuVisible(false);
-          setSelectedPost(null);
-        }}
-        onSubmit={handleReport}
+        onClose={() => setReportVisible(false)}
+        targetId={reportingTargetId}
       />
 
       <LikeListModal
