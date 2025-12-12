@@ -52,7 +52,10 @@ export default function ConfirmScreen() {
 
   const handleConfirm = () => {
     if (selectedOption === "online") {
-      router.push("/(tabs)/home/consult/payment");
+      router.push({
+        pathname: "/(tabs)/home/consult/payment",
+        params: { appointment_id, total: appointment.total_amount }
+      })
     } else {
       router.push("/(tabs)/home/consult/success");
     }
@@ -176,7 +179,7 @@ export default function ConfirmScreen() {
             </Text>
 
             <Text className="text-[18px] font-[Poppins-Bold] text-[#007BFF]">
-              ${appointment.total_amount ?? Number(params.total)}
+              ${appointment.total_amount}
             </Text>
           </View>
         </View>

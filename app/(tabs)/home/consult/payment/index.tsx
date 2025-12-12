@@ -1,38 +1,61 @@
-import dayjs from "dayjs";
 import { router, useLocalSearchParams } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import React, { useState } from "react";
 import { Image, Text, TextInput, TouchableOpacity, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
 export default function PaymentScreen() {
-  const { id } = useLocalSearchParams();
+  const params = useLocalSearchParams();
+  const appointment_id = params.appointment_id;
+  const total = Number(params.total);
+  const [selectedMethod, setSelectedMethod] = useState("card"); 
 
-  const [selectedMethod, setSelectedMethod] = useState("card");
+  const handlePayment = async () => {
+    try {
+      const token = await AsyncStorage.getItem("access_token");
 
-  const today = dayjs();
-  const [selectedMonth, setSelectedMonth] = useState(today.month());
-  const [selectedYear, setSelectedYear] = useState(today.year());
-  const [selectedDate, setSelectedDate] = useState(today.date());
-  const [selectedTime, setSelectedTime] = useState(null);
+      const res = await fetch(`${API_BASE}/api/v1/payments/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          appointment_id,
+          method: selectedMethod === "card" ? "card" : "cash",
+        }),
+      });
 
-  const daysInMonth = dayjs()
-    .year(selectedYear)
-    .month(selectedMonth)
-    .daysInMonth();
+      const data = await res.json();
 
-  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1).filter(
-    (d) => {
-      const checkDate = dayjs().year(selectedYear).month(selectedMonth).date(d);
-      return checkDate.isAfter(today.subtract(1, "day"));
+      if (!res.ok) {
+        console.log("Payment failed:", data);
+        alert("Payment failed");
+        return;
+      }
+
+      router.push({
+        pathname: "/(tabs)/home/consult/success",
+        params: {
+          payment_id: data.payment_id,
+          status: data.status,
+        }
+      });
+
+    } catch (err) {
+      console.error("Payment error:", err);
+      alert("Payment error");
     }
-  );
+  };
 
   return (
     <View className="flex-1 bg-[#7F56D9]">
       {/* HEADER */}
       <View className="w-full py-4 px-4 mt-9 relative justify-center items-center">
         <TouchableOpacity
-          onPress={() => router.push("/(tabs)/home")}
+          onPress={() => router.push("/(tabs)/home/consult/confirm")}
           className="absolute left-4 bg-white p-1 rounded-lg"
         >
           <ArrowLeft width={32} height={32} color="#000000" />
@@ -42,7 +65,7 @@ export default function PaymentScreen() {
 
       {/* TOP PRICE */}
       <View className="px-4 mt-16 w-full items-center justify-center">
-        <Text className="text-white text-6xl font-[Poppins-Bold]">$120.00</Text>
+        <Text className="text-white text-6xl font-[Poppins-Bold]">${total}</Text>
       </View>
 
       {/* WHITE CONTAINER */}
@@ -139,7 +162,7 @@ export default function PaymentScreen() {
 
         {/* Button */}
         <TouchableOpacity
-          onPress={() => router.push("/(tabs)/home/consult/success")}
+          onPress={handlePayment}
           className="bg-[#7F56D9] py-4 rounded-xl mt-4"
         >
           <Text className="text-center text-white text-lg font-[Poppins-SemiBold]">
