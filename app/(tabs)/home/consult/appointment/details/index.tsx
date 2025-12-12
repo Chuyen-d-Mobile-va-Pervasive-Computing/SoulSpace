@@ -74,7 +74,7 @@ export default function AppointDetailScreen() {
       {/* HEADER */}
       <View className="w-full py-4 px-4 border-b border-gray-200 mt-9 relative justify-center items-center">
         <TouchableOpacity
-          onPress={() => router.push("/(tabs)/home")}
+          onPress={() => router.push("/(tabs)/home/consult/appointment")}
           className="absolute left-4"
         >
           <ArrowLeft width={32} height={32} />

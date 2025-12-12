@@ -6,7 +6,7 @@ import {
   SlidersHorizontal,
   Star,
 } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Image,
   Modal,
@@ -18,78 +18,84 @@ import {
   View,
 } from "react-native";
 
-const mockExperts = [
-  {
-    id: 1,
-    name: "Dr. Ahmed Khan",
-    experience: "2 years",
-    rating: 4.8,
-    price: 500,
-    image: "https://i.pravatar.cc/40?img=26",
-    online: true,
-  },
-  {
-    id: 2,
-    name: "Dr. Peter Smith",
-    experience: "3 years",
-    rating: 4.9,
-    price: 500,
-    image: "https://i.pravatar.cc/40?img=25",
-    online: false,
-  },
-  {
-    id: 3,
-    name: "Dr. Taylor Swift",
-    experience: "10 years",
-    rating: 5.0,
-    price: 500,
-    image: "https://i.pravatar.cc/40?img=10",
-    online: true,
-  },
-];
+const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
+
+interface Expert {
+  id: string;
+  name: string;
+  image: string;
+  experience: string;
+  rating: number;
+  price: number;
+  online: boolean;
+}
 
 export default function ExpertScreen() {
+  const [experts, setExperts] = useState<Expert[]>([]);
+  const [filtered, setFiltered] = useState<Expert[]>([]);
   const [search, setSearch] = useState("");
-  const [filtered, setFiltered] = useState(mockExperts);
-
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchExperts = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/experts/`, {
+          headers: { accept: "application/json" },
+        });
+
+        const json = await res.json();
+        const mapped: Expert[] = json.data.map((item: any, index: number) => ({
+          id: item._id,
+          name: item.full_name,
+          image: item.avatar_url,
+          experience: `${item.years_of_experience} years`,
+          rating: 5.0,
+          price: item.consultation_price,
+          online: Math.random() > 0.5,
+        }));
+        setExperts(mapped);
+        setFiltered(mapped);
+      } catch (err) {
+        console.log("API ERROR:", err);
+      }
+    };
+    fetchExperts();
+  }, []);
 
   const handleSearch = (text: string) => {
     setSearch(text);
     setFiltered(
-      mockExperts.filter((item) =>
+      experts.filter((item) =>
         item.name.toLowerCase().includes(text.toLowerCase())
       )
     );
   };
 
-  // FILTER HANDLER
   const applyFilter = (type: string | null) => {
     setSelectedFilter(type);
     setFilterOpen(false);
 
     switch (type) {
       case "online":
-        return setFiltered(mockExperts.filter((item) => item.online));
+        return setFiltered(experts.filter((item) => item.online));
 
       case "rating":
-        return setFiltered(
-          [...mockExperts].sort((a, b) => b.rating - a.rating)
-        );
+        return setFiltered([...experts].sort((a, b) => b.rating - a.rating));
 
       case "experience":
         return setFiltered(
-          [...mockExperts].sort(
-            (a, b) => parseInt(b.experience) - parseInt(a.experience) // sort số năm kinh nghiệm
+          [...experts].sort(
+            (a, b) =>
+              parseInt(b.experience) - parseInt(a.experience)
           )
         );
 
       case "price":
-        return setFiltered([...mockExperts].sort((a, b) => a.price - b.price));
+        return setFiltered([...experts].sort((a, b) => a.price - b.price));
 
       default:
-        return setFiltered(mockExperts);
+        return setFiltered(experts);
     }
   };
 
@@ -101,7 +107,7 @@ export default function ExpertScreen() {
           <TouchableOpacity onPress={() => router.push("/(tabs)/home")}>
             <ArrowLeft width={32} height={32} />
           </TouchableOpacity>
-          <Text className="ml-3 text-2xl text-[#7F56D9] font-bold">
+          <Text className="ml-3 text-2xl text-[#7F56D9] font-[Poppins-Bold]">
             Experts
           </Text>
         </View>
@@ -118,7 +124,6 @@ export default function ExpertScreen() {
           />
         </View>
 
-        {/* Filter Button */}
         <TouchableOpacity
           onPress={() => setFilterOpen(true)}
           className="bg-white p-3 rounded-2xl shadow"
@@ -127,18 +132,19 @@ export default function ExpertScreen() {
         </TouchableOpacity>
       </View>
       {filtered.length === 0 && (
-        <Text className="text-center text-gray-500 mt-4 font-[Poppins-Regular]">No expert found.</Text>
+        <Text className="text-center text-gray-500 mt-4 font-[Poppins-Regular]">
+          No expert found.
+        </Text>
       )}
       {/* List */}
       <ScrollView
         className="flex-1 px-4 pt-4"
         contentContainerStyle={{ paddingBottom: 120 }}
       >
-        {filtered.map((item) => (
+        {filtered.map((item: any) => (
           <View key={item.id} className="bg-white rounded-2xl p-4 mb-4 shadow">
             {/* TOP SECTION */}
             <View className="flex-row">
-              {/* Avatar */}
               <View>
                 <Image
                   source={{ uri: item.image }}
@@ -155,36 +161,32 @@ export default function ExpertScreen() {
 
                 <View className="flex-row gap-4 items-center w-full mt-1">
                   <View className="flex-row gap-2 items-center">
-                    <BriefcaseBusiness
-                      color="#71717A"
-                      size={16}
-                      strokeWidth={2}
-                    />
+                    <BriefcaseBusiness color="#71717A" size={16} />
                     <Text className="text-[#71717A] font-[Poppins-Regular]">
                       {item.experience}
                     </Text>
                   </View>
 
                   <View className="flex-row gap-2 items-center">
-                    <Star color="#71717A" size={16} strokeWidth={2} />
+                    <Star color="#71717A" size={16} />
                     <Text className="text-[#71717A]">{item.rating}</Text>
                   </View>
                 </View>
               </View>
             </View>
 
-            {/* SEPARATOR */}
+            {/* Line */}
             <View className="w-full h-[1px] bg-gray-200 my-3" />
 
-            {/* BOTTOM SECTION */}
+            {/* Bottom */}
             <View className="flex-row items-center justify-between w-full">
-              <Text className="text-xl font-bold">
-                ৳ {item.price.toFixed(2)}
+              <Text className="text-xl font-[Poppins-Bold]">
+                ৳ {item.price}
               </Text>
 
               <View className="flex-row items-center">
-                <TouchableOpacity 
-                  onPress={() => router.push("/(tabs)/home/consult/chat")} 
+                <TouchableOpacity
+                  onPress={() => router.push("/(tabs)/home/consult/chat")}
                   className="mr-3 px-4 py-2 bg-transparent rounded-xl"
                 >
                   <Text className="text-[#7F56D9] font-[Poppins-Medium]">

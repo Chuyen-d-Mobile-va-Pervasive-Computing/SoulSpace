@@ -1,11 +1,31 @@
 import dayjs from "dayjs";
 import { router, useLocalSearchParams } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
+
+interface ExpertDetail {
+  full_name: string;
+  avatar_url: string;
+  phone: string;
+  email: string;
+  bio: string;
+  years_of_experience: number;
+  total_patients: number;
+  clinic_name: string;
+  clinic_address: string;
+  consultation_price: number;
+}
 
 export default function DetailsScreen() {
   const { id } = useLocalSearchParams();
+  const [expert, setExpert] = useState<ExpertDetail | null>(null);
+  const [availableSlots, setAvailableSlots] = useState<
+    { schedule_id: string; start_time: string; end_time: string }[]
+  >([]);
 
   // Calendar states
   const today = dayjs();
@@ -13,15 +33,6 @@ export default function DetailsScreen() {
   const [selectedYear, setSelectedYear] = useState(today.year());
   const [selectedDate, setSelectedDate] = useState(today.date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-
-  const timeSlots = [
-    "09:00 AM",
-    "10:00 AM",
-    "11:00 AM",
-    "02:00 PM",
-    "03:00 PM",
-    "04:00 PM",
-  ];
 
   const daysInMonth = dayjs()
     .year(selectedYear)
@@ -46,12 +57,95 @@ export default function DetailsScreen() {
     setSelectedDate(newDate.date());
   };
 
+  useEffect(() => {
+    const fetchExpert = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/experts/${id}`, {
+          headers: { accept: "application/json" }
+        });
+        const data = await res.json();
+        setExpert(data);
+      } catch (err) {
+        console.error("Failed to load expert", err);
+      } 
+    };
+
+    if (id) fetchExpert();
+  }, [id]);
+
+  const fetchAvailableTimes = async (date: string) => {
+    try {
+      const res = await fetch(
+        `${API_BASE}/api/v1/experts/${id}/available-times?date=${date}`, {
+          headers: { accept: "application/json" }
+        });
+
+      const data = await res.json();
+      setAvailableSlots(data.slots || []);
+    } catch (err) {
+      console.error("Failed to load available times:", err);
+      setAvailableSlots([]);
+    }
+  };
+
+  useEffect(() => {
+    const todayFormatted = dayjs().format("YYYY-MM-DD");
+    fetchAvailableTimes(todayFormatted);
+  }, []);
+
+  const createAppointment = async () => {
+  if (!selectedTime) {
+    alert("Please select a time slot before booking.");
+    return;
+  }
+
+  try {
+    const token = await AsyncStorage.getItem("access_token");
+    const res = await fetch(`${API_BASE}/api/v1/appointments/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        expert_profile_id: id,
+        schedule_id: selectedTime,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Booking failed", data);
+      alert("Booking failed");
+      return;
+    }
+
+    router.push({
+      pathname: "/(tabs)/home/consult/confirm",
+      params: {
+        appointment_id: data._id,
+        expert_phone: expert?.phone,
+        price: data.price,
+        vat: data.vat,
+        total: data.total_amount,
+        start: data.start_time,
+        end: data.end_time,
+        date: data.appointment_date,
+      },
+    });
+  } catch (err) {
+    console.error("Booking error:", err);
+    alert("An error occurred while booking.");
+  }
+};
+
   return (
     <View className="flex-1 bg-[#FAF9FF]">
       {/* HEADER */}
       <View className="w-full py-4 px-4 border-b border-gray-200 mt-9 relative justify-center items-center">
         <TouchableOpacity
-          onPress={() => router.push("/(tabs)/home")}
+          onPress={() => router.push("/(tabs)/home/consult")}
           className="absolute left-4"
         >
           <ArrowLeft width={32} height={32} />
@@ -70,18 +164,18 @@ export default function DetailsScreen() {
         {/* DOCTOR CARD */}
         <View className="bg-white rounded-[10px] p-4 mt-6 shadow">
           <Image
-            source={{ uri: "https://i.pravatar.cc/200?img=11" }}
+            source={{ uri: expert?.avatar_url }}
             className="w-full h-56 rounded-[10px]"
-            resizeMode="cover"
+            resizeMode="contain"
           />
 
           <View className="flex-row justify-between items-center mt-4">
             <Text className="text-lg font-[Poppins-SemiBold] text-black">
-              Dr. John Smith
+              {expert?.full_name}
             </Text>
 
             <Text className="text-lg text-gray-600 font-[Poppins-Regular]">
-              +1 234 567 890
+              {expert?.phone}
             </Text>
           </View>
         </View>
@@ -93,7 +187,7 @@ export default function DetailsScreen() {
               Experience
             </Text>
             <Text className="text-[#007BFF] font-[Poppins-SemiBold] text-lg">
-              10+ years
+              {expert?.years_of_experience} years
             </Text>
           </View>
 
@@ -102,7 +196,7 @@ export default function DetailsScreen() {
               Patients
             </Text>
             <Text className="text-[#007BFF] font-[Poppins-SemiBold] text-lg">
-              900+
+              {expert?.total_patients}
             </Text>
           </View>
         </View>
@@ -113,15 +207,7 @@ export default function DetailsScreen() {
             Bio
           </Text>
           <Text className="text-[14px] font-[Poppins-Regular] text-[#878787] mt-2">
-            Dr. Riya Singhal is the top most physician with the experience of
-            more than 10 years. She has received several awards for her
-            wonderful contribution in the field of Gas lightning Dr. Riya
-            Singhal is the top most physician with the experience of more than
-            10 years. She has received several awards for her wonderful
-            contribution in the field of Gas lightningDr. Riya Singhal is the
-            top most physician with the experience of more than 10 years. She
-            has received several awards for her wonderful contribution in the
-            field of Gas lightning
+            {expert?.bio}
           </Text>
         </View>
 
@@ -131,8 +217,7 @@ export default function DetailsScreen() {
             Clinic Address
           </Text>
           <Text className="text-[14px] font-[Poppins-Regular] text-[#878787] mt-2">
-            Healthy Life Wellness Clinic - 456, Sunshine Avenue, Raja Park,
-            Tilak Nagar - Jaipur, Rajasthan, 302004
+            {expert?.clinic_name} - {expert?.clinic_address}
           </Text>
         </View>
 
@@ -175,7 +260,16 @@ export default function DetailsScreen() {
               return (
                 <TouchableOpacity
                   key={d}
-                  onPress={() => setSelectedDate(d)}
+                  onPress={() => {
+                    setSelectedDate(d);
+                    const formatted = dayjs()
+                      .year(selectedYear)
+                      .month(selectedMonth)
+                      .date(d)
+                      .format("YYYY-MM-DD");
+
+                    fetchAvailableTimes(formatted);
+                  }}
                   className={`w-16 h-20 mr-3 rounded-xl items-center justify-center ${
                     isSelected ? "bg-[#7F56D9]" : "bg-white"
                   } shadow`}
@@ -206,26 +300,32 @@ export default function DetailsScreen() {
           </Text>
 
           <View className="flex-row flex-wrap mt-3 px-2">
-            {timeSlots.map((t) => {
-              const isSelected = selectedTime === t;
-              return (
-                <TouchableOpacity
-                  key={t}
-                  onPress={() => setSelectedTime(t)}
-                  className={`px-4 py-2 rounded-xl mr-3 mb-3 font-[Poppins-Regular] shadow ${
-                    isSelected ? "bg-[#7F56D9]" : "bg-white"
-                  }`}
-                >
-                  <Text
-                    className={`text-base font-[Poppins-Regular] ${
-                      isSelected ? "text-white" : "text-gray-400"
+            {availableSlots.length === 0 ? (
+              <Text className="text-gray-500 ml-2 mt-2">No available times.</Text>
+            ) : (
+              availableSlots.map((slot) => {
+                const label = `${slot.start_time} - ${slot.end_time}`;
+                const isSelected = selectedTime === slot.schedule_id;
+                
+                return (
+                  <TouchableOpacity
+                    key={slot.schedule_id}
+                    onPress={() => setSelectedTime(slot.schedule_id)}
+                    className={`px-4 py-2 rounded-xl mr-3 mb-3 font-[Poppins-Regular] shadow ${
+                      isSelected ? "bg-[#7F56D9]" : "bg-white"
                     }`}
                   >
-                    {t}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
+                    <Text
+                      className={`text-base font-[Poppins-Regular] ${
+                        isSelected ? "text-white" : "text-gray-400"
+                      }`}
+                    >
+                      {label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })
+            )}
           </View>
 
           {/* Button */}
@@ -239,7 +339,7 @@ export default function DetailsScreen() {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => router.push("/(tabs)/home/consult/confirm")}
+              onPress={createAppointment}
               className="bg-[#7F56D9] rounded-[10px] px-6 py-3 mx-4 mt-4 items-center w-1/3"
             >
               <Text className="text-white font-[Poppins-SemiBold] text-lg">
