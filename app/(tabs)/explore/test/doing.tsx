@@ -66,24 +66,60 @@ export default function TestDoingScreen() {
   }, 2000);
 
   useEffect(() => {
-    const fetchQuestions = async () => {
+    const fetchQuestionsAndProgress = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/v1/tests/${test_code}/questions`);
-        const data = await res.json();
-        if (!Array.isArray(data)) throw new Error("Invalid response format");
+        const token = await AsyncStorage.getItem("access_token");
+        const qRes = await fetch(
+          `${API_BASE}/api/v1/tests/${test_code}/questions`
+        );
+        const qData = await qRes.json();
 
-        const sorted = data.sort((a, b) => a.question_order - b.question_order);
-        setAnswers(sorted.map((q: any) => ({ question_id: q._id, chosen_option_id: null })));
+        if (!Array.isArray(qData)) throw new Error("Invalid questions");
+
+        const sorted = [...qData].sort(
+          (a, b) => a.question_order - b.question_order
+        );
+
+        let progressAnswers: any[] = [];
+
+        if (token) {
+          const pRes = await fetch(
+            `${API_BASE}/api/v1/tests/${test_code}/progress`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (pRes.ok) {
+            const progress = await pRes.json();
+            progressAnswers = progress.answers ?? [];
+          }
+        }
+
+        const mergedAnswers = sorted.map((q) => {
+          const found = progressAnswers.find(
+            (a) => a.question_id === q._id
+          );
+
+          return {
+            question_id: q._id,
+            chosen_option_id: found ? found.option_id : null,
+          };
+        });
+
         setQuestions(sorted);
+        setAnswers(mergedAnswers);
       } catch (err) {
         console.error(err);
-        Alert.alert("Error", "Cannot load test questions");
+        Alert.alert("Error", "Cannot load test");
       } finally {
         setLoading(false);
       }
     };
 
-    if (test_code) fetchQuestions();
+    if (test_code) fetchQuestionsAndProgress();
   }, [test_code]);
 
   const handleSelect = (question_id: string, option_id: string) => {
@@ -91,8 +127,6 @@ export default function TestDoingScreen() {
       a.question_id === question_id ? { ...a, chosen_option_id: option_id } : a
     );
     setAnswers(updated);
-
-    // debounce 2 giây sau khi chọn mới gọi API progress
     saveProgress(updated);
   };
 
@@ -101,7 +135,7 @@ export default function TestDoingScreen() {
     for (const ans of answers) {
       if (!ans.chosen_option_id) continue;
       const q = questions.find((q) => q._id === ans.question_id);
-      const opt = q?.options.find((o: any) => o.option_id === ans.chosen_option_id);
+      const opt = q?.options.find((o: any) => o._id === ans.chosen_option_id);
       if (opt) sum += opt.score_value ?? 0;
     }
     return sum;
@@ -239,11 +273,11 @@ export default function TestDoingScreen() {
         </Text>
 
         {currentQ.options.map((opt: any) => {
-          const selected = currentAnswer === opt.option_id;
+          const selected = currentAnswer === opt._id;
           return (
             <Pressable
-              key={opt.option_id}
-              onPress={() => handleSelect(currentQ._id, opt.option_id)}
+              key={opt._id}
+              onPress={() => handleSelect(currentQ._id, opt._id)}
               className={`flex-row justify-between items-center rounded-xl border px-4 py-3 mb-4 ${
                 selected
                   ? "border-[#7F56D9] bg-[#EFE9FB]"

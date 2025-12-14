@@ -35,7 +35,7 @@ export default function TestInfoScreen() {
     useCallback(() => {
       const fetchTestList = async () => {
         try {
-          const token = await AsyncStorage.getItem("token");
+          const token = await AsyncStorage.getItem("access_token");
 
           const res = await fetch(`${API_BASE}/api/v1/tests`, {
             headers: {
