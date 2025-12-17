@@ -3,59 +3,111 @@
 import Heading from "@/components/Heading";
 import { router } from "expo-router";
 import { Search } from "lucide-react-native";
-import { useState } from "react";
-import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  Alert,
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
+
+interface Partner {
+  id: string;
+  full_name: string;
+  avatar_url: string;
+  online_status: boolean;
+  last_seen_at: string | null;
+}
+
+interface ChatItem {
+  chat_id: string;
+  partner: Partner;
+  last_message: string;
+  last_message_at: string;
+  unread_count: number;
+}
 
 export default function ChatScreen() {
   const [search, setSearch] = useState("");
+  const [chats, setChats] = useState<ChatItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const experts = [
-    {
-      id: 1,
-      name: "Dr.A",
-      message: "Worem consectetur adipiscing elit.",
-      avatar: "https://i.pravatar.cc/100",
-      unread: true,
-    },
-    {
-      id: 2,
-      name: "Dr.B",
-      message: "Worem consectetur adipiscing elit.",
-      avatar: "https://i.pravatar.cc/101",
-      unread: false,
-    },
-    {
-      id: 3,
-      name: "Dr.C",
-      message: "Worem consectetur adipiscing elit.",
-      avatar: "https://i.pravatar.cc/100",
-      unread: true,
-    },
-    {
-      id: 4,
-      name: "Dr.D",
-      message: "Worem consectetur adipiscing elit.",
-      avatar: "https://i.pravatar.cc/101",
-      unread: false,
-    },
-  ];
+  const fetchChats = async () => {
+    try {
+      const token = await AsyncStorage.getItem("access_token");
+      const response = await fetch(`${API_BASE}/api/v1/chat/chats`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      });
 
-  const filteredCollections = experts.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
-  );
+      if (!response.ok) throw new Error("Failed to fetch chats");
 
-  const handleSelectExpert = (expertId: number) => {
-    const expert = experts.find((expert) => expert.id === expertId);
-    if (expert) {
-      router.push({ pathname: "/(tabs)/home/consult/chat/[id]", params: { id: String(expert.id), name: expert.name, message: expert.message, avatar: expert.avatar } });
+      const result = await response.json();
+      setChats(result.data || []);
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Lỗi", "Không tải được danh sách chat");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
   };
+
+  useEffect(() => {
+    fetchChats();
+  }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchChats();
+  };
+
+  const filteredChats = chats.filter((chat) =>
+    chat.partner.full_name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const handleSelectChat = (chat: ChatItem) => {
+    router.push({
+      pathname: "/(tabs)/home/consult/chat/[chat_id]",
+      params: {
+        chat_id: chat.chat_id,
+        name: chat.partner.full_name,
+        avatar: chat.partner.avatar_url,
+        status: chat.partner.online_status ? "online" : "offline",
+      },
+    });
+  }
+
+  if (loading) {
+    return (
+      <View className="flex-1 bg-[#FAF9FF] justify-center items-center">
+        <ActivityIndicator size="large" color="#7F56D9" />
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 bg-[#FAF9FF]">
       <Heading title="Chat" />
 
-      <ScrollView className="px-4 mt-4" contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView
+        className="px-4 mt-4"
+        contentContainerStyle={{ paddingBottom: 40 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View className="w-full bg-white rounded-full flex-row items-center px-4 py-3 mb-6 shadow-sm">
           <Search color="#696674" size={20} />
           <TextInput
@@ -67,42 +119,60 @@ export default function ChatScreen() {
           />
         </View>
 
-        {/* Danh sách expert */}
-        <View>
-          {filteredCollections.length === 0 && (
-            <Text className="text-center text-gray-500 font-[Poppins-Regular]">No expert found.</Text>
-          )}
-          {filteredCollections.map((item) => (
+        {filteredChats.length === 0 ? (
+          <Text className="text-center text-gray-500 font-[Poppins-Regular]">
+            {search ? "No chats found." : "You have no chats."}
+          </Text>
+        ) : (
+          filteredChats.map((chat) => (
             <TouchableOpacity
-              key={item.id}
-              onPress={() => handleSelectExpert(item.id)}
-              className="flex-row items-center justify-between p-3 mb-4 rounded-[16px]"
+              key={chat.chat_id}
+              onPress={() => handleSelectChat(chat)}
+              className="flex-row items-center justify-between p-3 mb-4 bg-white rounded-[16px] shadow-sm"
             >
               <View className="flex-row items-center flex-1">
                 <Image
-                  source={{ uri: item.avatar }}
+                  source={{
+                    uri:
+                      chat.partner.avatar_url || "https://i.pravatar.cc/100",
+                  }}
                   className="w-12 h-12 rounded-full mr-3"
                 />
-                <View className="flex-col flex-1">
-                  <Text
+                <View className="flex-1">
+                  {/* <Text
                     className={`text-black ${
-                      item.unread ? "font-[Poppins-Bold]" : "font-[Poppins-Regular]"
+                      chat.unread_count > 0
+                        ? "font-[Poppins-Bold]"
+                        : "font-[Poppins-Regular]"
                     }`}
-                  >
-                    {item.name}
+                  > */}
+                  <Text className="font-[Poppins-Bold]">
+                    {chat.partner.full_name}
                   </Text>
                   <Text
-                    className={`text-black ${
-                      item.unread ? "font-[Poppins-Bold]" : "font-[Poppins-Regular]"
+                    numberOfLines={1}
+                    className={`text-[#666] ${
+                      chat.unread_count > 0
+                        ? "font-[Poppins-Bold]"
+                        : "font-[Poppins-Regular]"
                     }`}
                   >
-                    {item.message}
+                    {chat.last_message || "No messages yet."}
                   </Text>
                 </View>
               </View>
+
+              {chat.unread_count > 0 && (
+                <View className="bg-[#7F56D9] rounded-full px-2 py-1 min-w-[20px] items-center">
+                  <Text className="text-white text-xs font-[Poppins-Bold]">
+                    {chat.unread_count}
+                  </Text>
+                </View>
+              )}
+              
             </TouchableOpacity>
-          ))}
-        </View>
+          ))
+        )}
       </ScrollView>
     </View>
   );

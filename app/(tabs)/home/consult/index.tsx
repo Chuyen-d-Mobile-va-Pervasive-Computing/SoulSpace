@@ -16,7 +16,9 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Alert,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
@@ -96,6 +98,46 @@ export default function ExpertScreen() {
 
       default:
         return setFiltered(experts);
+    }
+  };
+
+  const handleStartOrOpenChat = async (expert: Expert) => {
+    try {
+      const token = await AsyncStorage.getItem("access_token");
+      if (!token) {
+        Alert.alert("Lỗi", "Bạn chưa đăng nhập");
+        return;
+      }
+
+      const response = await fetch(
+        `${API_BASE}/api/v1/chat/start/${expert.id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Không thể bắt đầu chat: ${response.status}`);
+      }
+
+      const result = await response.json();
+      router.push({
+        pathname: "/(tabs)/home/consult/chat/[chat_id]",
+        params: {
+          chat_id: result.chat_id,
+          name: expert.name,
+          avatar: expert.image || "https://i.pravatar.cc/100",
+          status: expert.online ? "online" : "offline",
+        },
+      });
+    } catch (err: any) {
+      console.error("Start chat error:", err);
+      Alert.alert("Lỗi", err.message || "Không thể bắt đầu cuộc trò chuyện");
     }
   };
 
@@ -186,7 +228,7 @@ export default function ExpertScreen() {
 
               <View className="flex-row items-center">
                 <TouchableOpacity
-                  onPress={() => router.push("/(tabs)/home/consult/chat")}
+                  onPress={() => handleStartOrOpenChat(item)}
                   className="mr-3 px-4 py-2 bg-transparent rounded-xl"
                 >
                   <Text className="text-[#7F56D9] font-[Poppins-Medium]">
