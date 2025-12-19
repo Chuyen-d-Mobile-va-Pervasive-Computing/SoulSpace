@@ -1,11 +1,10 @@
-import { Modal, View, Text, TouchableWithoutFeedback, FlatList, TouchableOpacity } from "react-native";
+import { Modal, View, Text, TouchableWithoutFeedback, FlatList, TouchableOpacity, Image } from "react-native";
 import { X } from "lucide-react-native";
-import SvgAvatar from "./SvgAvatar";
-import Logo from "@/assets/images/logo.svg";
 
 interface User {
     userId: string;
     username: string;
+    avatarUrl?: string | null;
 }
 
 interface LikeListModalProps {
@@ -18,14 +17,15 @@ interface LikeListModalProps {
 export default function LikeListModal({ visible, onClose, users, currentUserId }: LikeListModalProps) {
     const renderItem = ({ item }: { item: User }) => (
         <View className="flex-row items-center py-3 px-5">
-            {item.userId === "anonymous" ? (
-                <SvgAvatar size={40}>
-                    <Logo width={40} height={40} />
-                </SvgAvatar>
+            {item.avatarUrl ? (
+                <Image
+                    source={{ uri: item.avatarUrl }}
+                    className="w-10 h-10 rounded-full"
+                />
             ) : (
                 <View className="w-10 h-10 bg-gray-300 rounded-full items-center justify-center">
                     <Text className="text-white font-bold text-sm">
-                        {item.username[0].toUpperCase()}
+                        {item.username?.[0]?.toUpperCase()}
                     </Text>
                 </View>
             )}

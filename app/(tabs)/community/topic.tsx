@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, Modal, Pressable, TouchableWithoutFeedback, ScrollView, Image, ActivityIndicator, Alert } from "react-native";
-import { ChevronLeft, EllipsisVertical, Heart, MessageCircle } from "lucide-react-native";
+import { ChevronLeft, EllipsisVertical, Heart, MessageCircle, Star } from "lucide-react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -14,6 +14,8 @@ interface Post {
   id: string;
   username: string;
   avatar: string | null;
+  role: string;
+  title: string;
   image_url?: string | null;
   content: string;
   is_anonymous: boolean;
@@ -102,7 +104,7 @@ export default function TopicScreen() {
           return;
         }
 
-        const res = await fetch(`${API_BASE}/api/v1/anon-posts/?limit=50`, {
+        const res = await fetch(`${API_BASE}/api/v1/anon-posts/`, {
           headers: {
             Accept: "application/json",
             Authorization: `Bearer ${token}`,
@@ -139,6 +141,8 @@ export default function TopicScreen() {
         id: item._id,
         username: isAnonymous ? "Anonymous" : item.author_name || "Unknown",
         avatar: isAnonymous ? null : item.author_avatar || null,
+        role: item.author_role,
+        title: item.title,
         image_url: item.image_url || null,
         content: item.content || "",
         is_anonymous: isAnonymous,
@@ -332,13 +336,19 @@ export default function TopicScreen() {
               className="p-4 bg-white rounded-2xl border border-[#EEEEEE]"
             >
               <View className="flex-row justify-between items-start">
-                <PostHeader
-                  username={post.username}
-                  avatarUrl={post.avatar || undefined}
-                  createdAt={post.created_at}
-                  isAnonymous={post.is_anonymous}
-                />
-
+                <View className="relative">
+                  <PostHeader
+                    username={post.username}
+                    avatarUrl={post.avatar || undefined}
+                    createdAt={post.created_at}
+                    isAnonymous={post.is_anonymous}
+                  />
+                  {post.role === "expert" && (
+                    <View className="absolute -top-1 left-8 bg-[#F59E0B] p-1 rounded-full">
+                      <Star size={10} color="white" fill="white" />
+                    </View>
+                  )}
+                </View>
                 {post.topic && (
                   <TouchableOpacity
                     onPress={() =>
@@ -370,7 +380,9 @@ export default function TopicScreen() {
               </View>
 
               <Text className="mt-3 text-base font-[Poppins-Regular]">{post.content}</Text>
-
+              {post.title && (
+                <Text className="mt-3 font-[Poppins-Bold]">{post.title}</Text>
+              )}
               {post.image_url && (
                 <Image
                   source={{ uri: post.image_url }}

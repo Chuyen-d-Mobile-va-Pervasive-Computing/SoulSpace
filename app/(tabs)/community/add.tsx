@@ -24,7 +24,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
+interface Me {
+  id: string;
+  username: string;
+  email: string;
+  avatar_url: string;
+}
+
 export default function AddScreen() {
+  const [me, setMe] = useState<Me | null>(null);
   const textInputRef = useRef<TextInput>(null);
   const [postContent, setPostContent] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
@@ -54,16 +62,34 @@ export default function AddScreen() {
     "Healing",
   ];
 
-  const user = {
-    avatar: "https://i.pravatar.cc/300",
-  };
-
   useEffect(() => {
     const loadUsername = async () => {
       const savedUsername = await AsyncStorage.getItem("username");
       if (savedUsername) setUsername(savedUsername);
     };
     loadUsername();
+  }, []);
+
+  useEffect(() => {
+    const fetchMe = async () => {
+      try {
+        const token = await AsyncStorage.getItem("access_token");
+        if (!token) return;
+        const res = await fetch(`${API_BASE}/api/v1/auth/me`, {
+          method: "GET",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!res.ok) throw new Error("Failed to fetch me");
+        const data = await res.json();
+        setMe(data);
+      } catch (err) {
+        console.error("Fetch me error:", err);
+      }
+    };
+    fetchMe();
   }, []);
 
   const createPost = async () => {
@@ -159,7 +185,7 @@ export default function AddScreen() {
               <Logo width={48} height={48} />
             </SvgAvatar>
           ) : (
-            <Image source={{ uri: user.avatar }} className="w-12 h-12 rounded-full" />
+            <Image source={{ uri: me?.avatar_url }} className="w-12 h-12 rounded-full" />
           )}
           <Text className="text-lg font-[Poppins-SemiBold]">
             {isAnonymous ? "Anonymous" : username}

@@ -1,29 +1,15 @@
 import Heading from "@/components/Heading";
-import TagSelector from "@/components/TagSelector";
 import PostHeader from "@/components/PostHeader";
 import { useRouter } from "expo-router";
-import {
-  EllipsisVertical,
-  Heart,
-  MessageCircle,
-  SlidersHorizontal,
-} from "lucide-react-native";
+import { EllipsisVertical, Heart, MessageCircle, SlidersHorizontal, Star } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-  Image,
-  Alert,
-} from "react-native";
+import { Modal, Pressable, ScrollView, Text, TouchableOpacity, TouchableWithoutFeedback, View, Image, Alert } from "react-native";
 import ReportModal from "@/components/ReportModal";
 import Logo from "@/assets/images/logo.svg";
 import SvgAvatar from "@/components/SvgAvatar";
 import LikeListModal from "@/components/LikeListModal";
+import PostFilterModal from "@/components/PostFilterModal";
+import type {SortOption, FilterTopic} from "@/components/PostFilterModal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
@@ -31,6 +17,7 @@ const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 interface User {
   userId: string;
   username: string;
+  avatar_url?: string | null;
 }
 
 interface Me {
@@ -55,6 +42,10 @@ export default function CommunityScreen() {
   const [reportingTargetId, setReportingTargetId] = useState<string>("");
   const [likeListVisible, setLikeListVisible] = useState(false);
   const [likedUsers, setLikedUsers] = useState<User[]>([]);
+  const [sortBy, setSortBy] = useState<SortOption>("latest");
+  const [selectedTopic, setSelectedTopic] = useState<FilterTopic>("all");
+  const [expertOnly, setExpertOnly] = useState(false);
+  const availableTopics = Array.from(new Set(posts.map(p => p.topic).filter(Boolean)));
 
   const formatToVNTime = (utcString: string) => {
     const safeUtc = utcString.endsWith("Z") ? utcString : utcString + "Z";
@@ -76,6 +67,28 @@ export default function CommunityScreen() {
       pad(local.getUTCSeconds())
     );
   };
+
+  useEffect(() => {
+    const fetchMe = async () => {
+      try {
+        const token = await AsyncStorage.getItem("access_token");
+        if (!token) return;
+        const res = await fetch(`${API_BASE}/api/v1/auth/me`, {
+          method: "GET",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!res.ok) throw new Error("Failed to fetch me");
+        const data = await res.json();
+        setMe(data);
+      } catch (err) {
+        console.error("Fetch me error:", err);
+      }
+    };
+    fetchMe();
+  }, []);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -104,6 +117,8 @@ export default function CommunityScreen() {
             userId: item.author_id || "",
             username: isAnonymous ? "Anonymous" : item.author_name,
             avatar: item.author_avatar || null,
+            role: item.author_role,
+            title: item.title,
             content: item.content,
             image_url: item.image_url || null,
             topic: topic,
@@ -153,6 +168,32 @@ export default function CommunityScreen() {
       return;
     }
     setPosts(prev => prev.filter(p => p.id !== id));
+  };
+
+  const openLikeList = async (postId: string) => {
+    try {
+      const token = await AsyncStorage.getItem("access_token");
+      const res = await fetch(`${API_BASE}/api/v1/anon-likes/${postId}/users`, {
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to fetch like list");
+      const data: User[] = await res.json();
+
+      const mappedUsers: User[] = data.map((u) => ({
+        userId: u.userId,
+        username: u.username,
+        avatarUrl: u.avatar_url,
+      }));
+      setLikedUsers(mappedUsers);
+      setLikeListVisible(true);
+    } catch (e) {
+      console.error("openLikeList error:", e);
+    }
   };
 
   const likePost = async (postId: string) => {
@@ -215,6 +256,31 @@ export default function CommunityScreen() {
     }
   };
 
+  const filteredAndSortedPosts = React.useMemo(() => {
+    let result = [...posts];
+    if (selectedTopic !== "all") {
+      result = result.filter(p => p.topic === selectedTopic);
+    }
+    if (expertOnly) {
+      result = result.filter(p => p.role === "expert");
+    }
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case "latest":
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case "oldest":
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case "most-liked":
+          return b.likes - a.likes;
+        case "most-commented":
+          return b.comments - a.comments;
+        default:
+          return 0;
+      }
+    });
+    return result;
+  }, [posts, sortBy, selectedTopic, expertOnly]);
+
   return (
     <View className="flex-1 bg-[#FAF9FF]">
       <Heading title="Forum" />
@@ -233,7 +299,7 @@ export default function CommunityScreen() {
                 </SvgAvatar>
               ) : (
                 <Image
-                  source={{ uri: "https://i.pravatar.cc/300" }}
+                  source={{ uri: me?.avatar_url }}
                   className="w-12 h-12 rounded-full"
                 />
               )}
@@ -256,7 +322,7 @@ export default function CommunityScreen() {
           </View>
 
           {/* Danh sách bài viết */}
-          {posts.map((post) => (
+          {filteredAndSortedPosts.map((post) => (
             <TouchableOpacity
               key={post.id}
               activeOpacity={0.8}
@@ -270,13 +336,19 @@ export default function CommunityScreen() {
             >
               {/* Header */}
               <View className="flex-row justify-between items-start">
-                <PostHeader
-                  username={post.username}
-                  avatarUrl={post.avatar}
-                  createdAt={post.created_at}
-                  isAnonymous={!post.avatar && post.username === "Anonymous"}
-                />
-
+                <View className="relative">
+                  <PostHeader
+                    username={post.username}
+                    avatarUrl={post.avatar}
+                    createdAt={post.created_at}
+                    isAnonymous={!post.avatar && post.username === "Anonymous"}
+                  />
+                  {post.role === "expert" && (
+                    <View className="absolute -top-1 left-8 bg-[#F59E0B] p-1 rounded-full">
+                      <Star size={10} color="white" fill="white" />
+                    </View>
+                  )}
+                </View>
                 {post.topic && (
                   <TouchableOpacity
                     onPress={() => {
@@ -301,7 +373,9 @@ export default function CommunityScreen() {
                   <EllipsisVertical width={20} height={20} color="black" />
                 </TouchableOpacity>
               </View>
-
+              {post.title && (
+                <Text className="mt-3 font-[Poppins-Bold]">{post.title}</Text>
+              )}
               {/* Ảnh bài viết */}
               {post.image_url && (
                 <Image
@@ -331,10 +405,7 @@ export default function CommunityScreen() {
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                      onPress={() => {
-                        setLikedUsers(post.likedBy || []);
-                        setLikeListVisible(true);
-                      }}
+                      onPress={() => openLikeList(post.id)}
                       className="flex-row items-center gap-1"
                     >
                       <Text className="text-sm font-[Poppins-SemiBold] text-gray-700">
@@ -367,32 +438,17 @@ export default function CommunityScreen() {
       </View>
 
       {/* Filter */}
-      <Modal visible={filterVisible} transparent animationType="slide">
-        <TouchableWithoutFeedback onPress={() => setFilterVisible(false)}>
-          <View className="flex-1 bg-black/50 justify-center items-center">
-            <View className="w-80 bg-white p-6 rounded-2xl">
-              <Text className="text-lg font-[Poppins-Bold] mb-4">Sort</Text>
-              <TagSelector
-                options={[
-                  { id: 2025, name: "2025" },
-                  { id: 2024, name: "2024" },
-                  { id: 2023, name: "2023" },
-                ]}
-                multiSelect={false}
-                onChange={() => {}}
-              />
-              <Pressable
-                className="mt-4 bg-[#7F56D9] py-2 rounded-xl"
-                onPress={() => setFilterVisible(false)}
-              >
-                <Text className="text-center text-white font-[Poppins-Bold]">
-                  Apply
-                </Text>
-              </Pressable>
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+      <PostFilterModal
+        visible={filterVisible}
+        onClose={() => setFilterVisible(false)}
+        sortBy={sortBy}
+        onSortChange={setSortBy}
+        selectedTopic={selectedTopic}
+        onTopicChange={setSelectedTopic}
+        availableTopics={availableTopics}
+        showExpertOnly={expertOnly}
+        onExpertOnlyChange={setExpertOnly}
+      />
 
       <Modal visible={menuVisible} transparent animationType="slide">
         <View className="flex-1 justify-end bg-black/50">

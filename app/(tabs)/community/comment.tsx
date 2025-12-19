@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
-import { ArrowUp, EllipsisVertical, Heart, MessageCircle, ArrowLeft } from "lucide-react-native";
+import { ArrowUp, EllipsisVertical, Heart, MessageCircle, ArrowLeft, Star } from "lucide-react-native";
 import { ScrollView, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Platform, Keyboard, ToastAndroid, 
         Alert, Modal, TouchableWithoutFeedback, Pressable, Image } from "react-native";
 import ReportModal from "@/components/ReportModal";
@@ -113,7 +113,9 @@ export default function CommentScreen() {
         const formatted = {
           id: data._id,
           username: isAnonymous ? "Anonymous" : data.author_name || "Unknown",
-          avatar: isAnonymous ? null : data.author_avatar || me?.avatar_url || null,
+          avatar: isAnonymous ? null : data.author_avatar || null,
+          role: data.author_role,
+          title: data.title,
           image_url: data.image_url || null,
           content: data.content,
           createdAt: data.created_at,
@@ -425,13 +427,19 @@ export default function CommentScreen() {
           {/* POST */}
           <View className="p-4 bg-white rounded-2xl border border-[#EEEEEE] mb-4">
             <View className="flex-row justify-between items-center">
-              <PostHeader
-                username={post.username}
-                avatarUrl={post.avatar}
-                createdAt={formatUTCtoLocal(post.createdAt)}
-                isAnonymous={post.isAnonymous}
-              />
-
+              <View className="relative">
+                <PostHeader
+                  username={post.username}
+                  avatarUrl={post.avatar}
+                  createdAt={post.created_at}
+                  isAnonymous={!post.avatar && post.username === "Anonymous"}
+                />
+                {post.role === "expert" && (
+                  <View className="absolute -top-1 left-8 bg-[#F59E0B] p-1 rounded-full">
+                    <Star size={10} color="white" fill="white" />
+                  </View>
+                )}
+              </View>
               {post.topic && (
                 <TouchableOpacity
                   onPress={() =>
@@ -454,6 +462,9 @@ export default function CommentScreen() {
             </View>
 
             <Text className="mt-3 text-base font-[Poppins-Regular]">{post.content}</Text>
+            {post.title && (
+              <Text className="mt-3 font-[Poppins-Bold]">{post.title}</Text>
+            )}
             {post.image_url && (
               <Image
                 source={{ uri: post.image_url }}
