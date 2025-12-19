@@ -14,15 +14,21 @@ import Worried from "@/assets/images/worried.svg";
 import MoodTrends from "@/components/MoodTrends";
 import { router } from "expo-router";
 import { ArrowBigRight, Bell } from "lucide-react-native";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { ScrollView, Text, TouchableOpacity, View, Image } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
+
+interface Me {
+  id: string;
+  username: string;
+  avatar_url: string;
+  created_at: string;
+}
 
 export default function HomeScreen() {
-  const user = {
-    username: "minh",
-    avatar: "https://i.pravatar.cc/300",
-    created_at: "2024-01-10",
-  };
+  const [me, setMe] = useState<Me | null>(null);
   const totalSteps = 10;
   const currentStep = 7.5; // mock progress
   const progressPercent = (currentStep / totalSteps) * 100;
@@ -35,6 +41,29 @@ export default function HomeScreen() {
   const handleExploreMore = () => {
     scrollRef.current?.scrollTo({ y: activitiesY - 5, animated: true });
   };
+
+  useEffect(() => {
+    const fetchMe = async () => {
+      try {
+        const token = await AsyncStorage.getItem("access_token");
+        if (!token) return;
+        const res = await fetch(`${API_BASE}/api/v1/auth/me`, {
+          method: "GET",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!res.ok) throw new Error("Failed to fetch me");
+        const data = await res.json();
+        setMe(data);
+      } catch (err) {
+        console.error("Fetch me error:", err);
+      }
+    };
+    fetchMe();
+  }, []);
+
   return (
     <View className="flex-1 bg-[#FAF9FF]">
       {/* Heading */}
@@ -51,7 +80,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
           <TouchableOpacity onPress={() => router.push("/(tabs)/home/wall")}>
             <Image
-              source={{ uri: user.avatar }}
+              source={{ uri: me?.avatar_url }}
               className="w-10 h-10 rounded-full"
             />
           </TouchableOpacity> 
