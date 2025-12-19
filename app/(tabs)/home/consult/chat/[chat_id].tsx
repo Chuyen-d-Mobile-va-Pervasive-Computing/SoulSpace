@@ -17,17 +17,21 @@ interface Message {
 
 export default function ChatDetailScreen() {
   const router = useRouter();
-  const { chat_id, name, avatar, status: initialStatus } = useLocalSearchParams<{
+  const { chat_id, name, avatar, status: initialStatus, last_seen_at } = useLocalSearchParams<{
     chat_id: string;
     name: string;
     avatar?: string;
     status?: string;
+    last_seen_at?: string;
   }>();
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
   const [text, setText] = useState("");
   const [onlineStatus, setOnlineStatus] = useState(initialStatus || "offline");
+  const [lastSeenAt, setLastSeenAt] = useState<string | null>(
+    typeof last_seen_at === "string" ? last_seen_at : null
+  );
   const flatListRef = useRef<FlatList>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const pingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -127,6 +131,9 @@ export default function ChatDetailScreen() {
           setOnlineStatus("online");
         } else if (data.event === "presence.leave") {
           setOnlineStatus("offline");
+          if (data.payload?.last_seen_at) {
+            setLastSeenAt(data.payload.last_seen_at);
+          }
         } else if (data.event === "pong") {
           console.log("Pong received");
         }
@@ -147,6 +154,17 @@ export default function ChatDetailScreen() {
 
     wsRef.current = ws;
   }, [chat_id, pendingReadReceipts]);
+
+  const formatLastSeen = (utc?: string | null) => {
+    if (!utc) return "offline";
+    const d = new Date(utc);
+    return `last seen ${d.toLocaleString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      day: "2-digit",
+      month: "short",
+    })}`;
+  };
 
   // Gửi tin nhắn
   const handleSend = () => {
@@ -255,7 +273,9 @@ export default function ChatDetailScreen() {
                   onlineStatus === "online" ? "text-[#10B981]" : "text-[#9CA3AF]"
                 }`}
               >
-                {onlineStatus === "online" ? "online" : "offline"}
+                {onlineStatus === "online"
+                  ? "online"
+                  : formatLastSeen(lastSeenAt)}
               </Text>
             </View>
           </View>

@@ -85,6 +85,7 @@ export default function ChatScreen() {
         name: chat.partner.full_name,
         avatar: chat.partner.avatar_url,
         status: chat.partner.online_status ? "online" : "offline",
+        last_seen_at: chat.partner.last_seen_at,
       },
     });
   }
@@ -131,13 +132,18 @@ export default function ChatScreen() {
               className="flex-row items-center justify-between p-3 mb-4 bg-white rounded-[16px] shadow-sm"
             >
               <View className="flex-row items-center flex-1">
-                <Image
-                  source={{
-                    uri:
-                      chat.partner.avatar_url || "https://i.pravatar.cc/100",
-                  }}
-                  className="w-12 h-12 rounded-full mr-3"
-                />
+                <View className="relative mr-3">
+                  <Image
+                    source={{
+                      uri: chat.partner.avatar_url || "https://i.pravatar.cc/100",
+                    }}
+                    className="w-12 h-12 rounded-full"
+                  />
+
+                  {chat.partner.online_status && (
+                    <View className="w-3 h-3 bg-green-500 rounded-full absolute bottom-0 right-0 border-2 border-white" />
+                  )}
+                </View>
                 <View className="flex-1">
                   {/* <Text
                     className={`text-black ${

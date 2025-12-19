@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useLocalSearchParams, useRouter, useFocusEffect } from "expo-router";
 import { ArrowUp, EllipsisVertical, Heart, MessageCircle, ArrowLeft } from "lucide-react-native";
 import { ScrollView, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Platform, Keyboard, ToastAndroid, 
-        Alert, Modal, TouchableWithoutFeedback, Pressable } from "react-native";
+        Alert, Modal, TouchableWithoutFeedback, Pressable, Image } from "react-native";
 import ReportModal from "@/components/ReportModal";
 import PostHeader from "@/components/PostHeader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -15,11 +15,19 @@ interface User {
   username: string;
 }
 
+interface Me {
+  id: string;
+  username: string;
+  email: string;
+  avatar_url: string;
+}
+
 export default function CommentScreen() {
   const router = useRouter();
   const { postId, focusInput } = useLocalSearchParams();
   const [hasCommentedAnonymous, setHasCommentedAnonymous] = useState(false);
-  const currentUserId = "u1";
+  const [me, setMe] = useState<Me | null>(null);
+  const currentUserId = me ? me.id : "";
   const [post, setPost] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [comments, setComments] = useState<
@@ -27,14 +35,16 @@ export default function CommentScreen() {
       id: string;
       userId: string;
       username: string;
+      avatar?: string | null;
       createdAt: string;
       content: string;
       visibility: "public" | "anonymous";
     }[]
   >([]);
-
+  const [selectedComment, setSelectedComment] = useState<any>(null);
   const [commentMode, setCommentMode] = useState<"public" | "anonymous">("public");
   const [visibilityModalVisible, setVisibilityModalVisible] = useState(false);
+  const [menuTarget, setMenuTarget] = useState<"post" | "comment" | null>(null);
 
   const scrollRef = useRef<ScrollView | null>(null);
   const inputRef = useRef<TextInput | null>(null);
@@ -63,11 +73,34 @@ export default function CommentScreen() {
   );
 
   useEffect(() => {
-    const fetchPost = async () => {
+    const fetchMe = async () => {
       try {
         const token = await AsyncStorage.getItem("access_token");
-        const res = await fetch(`${API_BASE}/api/v1/anon-posts/${postId}`, {
+        if (!token) return;
+        const res = await fetch(`${API_BASE}/api/v1/auth/me`, {
           method: "GET",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!res.ok) throw new Error("Failed to fetch me");
+        const data = await res.json();
+        setMe(data);
+      } catch (err) {
+        console.error("Fetch me error:", err);
+      }
+    };
+    fetchMe();
+  }, []);
+
+  useEffect(() => {
+    const fetchPost = async () => {
+      if (!postId) return;
+      try {
+        setLoading(true);
+        const token = await AsyncStorage.getItem("access_token");
+        const res = await fetch(`${API_BASE}/api/v1/anon-posts/${postId}`, {
           headers: {
             Accept: "application/json",
             Authorization: `Bearer ${token}`,
@@ -75,28 +108,32 @@ export default function CommentScreen() {
         });
         if (!res.ok) throw new Error("Failed to load post");
         const data = await res.json();
+
+        const isAnonymous = data.is_anonymous || !data.author_name;
         const formatted = {
           id: data._id,
-          username: data.is_anonymous ? "Anonymous" : data.author_name,
+          username: isAnonymous ? "Anonymous" : data.author_name || "Unknown",
+          avatar: isAnonymous ? null : data.author_avatar || me?.avatar_url || null,
+          image_url: data.image_url || null,
           content: data.content,
           createdAt: data.created_at,
-          topic: data.hashtags?.[0],
-          likes: data.like_count ?? 0,
-          comments: data.comment_count ?? 0,
-          isLiked: data.is_liked ?? false,
-          isAnonymous: data.is_anonymous ?? false,
-          likedBy: data.liked_by ?? [],
-          isOwner: data.is_owner ?? false,
+          topic: data.hashtags?.[0] || null,
+          likes: data.like_count || 0,
+          comments: data.comment_count || 0,
+          isLiked: data.is_liked || false,
+          isAnonymous,
+          isOwner: data.is_owner || false,
         };
         setPost(formatted);
       } catch (err) {
         console.error("Error fetching post:", err);
+        Alert.alert("Error", "Could not load post");
       } finally {
         setLoading(false);
       }
     };
     fetchPost();
-  }, [postId]);
+  }, [postId, me]);
 
   useEffect(() => {
     const loadComments = async () => {
@@ -204,11 +241,15 @@ export default function CommentScreen() {
     const serverComment = result.data;
     const newComment = {
       id: serverComment._id,
-      userId: currentUserId,
-      username: post.username,
-      createdAt: new Date(serverComment.created_at).toLocaleString().replace("T", " "),
+      userId: me?.id ?? "",
+      username: commentMode === "anonymous" ? "Anonymous" : me?.username ?? "Unknown",
+      avatar: commentMode === "anonymous" ? null : me?.avatar_url ?? null,
+      createdAt: new Date(serverComment.created_at)
+        .toLocaleString("sv-SE")
+        .replace("T", " "),
       content: serverComment.content,
       visibility: commentMode,
+      isOwner: true,
     };
     setComments((prev) => [...prev, newComment]);
 
@@ -246,7 +287,9 @@ export default function CommentScreen() {
       return data.map((c: any) => ({
         id: c._id,
         userId: c.user_id ?? "",
-        username: c.is_anonymous ? "Anonymous" : c.author_name ?? "Unknown",
+        username: c.is_anonymous ? "Anonymous" : c.username ?? "Unknown",
+        avatar: c.is_anonymous ? null : c.avatar_url ?? null,
+        isOwner: c.is_owner ?? false,
         content: c.content,
         visibility: c.is_anonymous ? "anonymous" : "public",
         createdAt: new Date(c.created_at).toLocaleString("sv-SE").replace("T", " "),
@@ -287,7 +330,45 @@ export default function CommentScreen() {
     }
 
     ToastAndroid.show("Post deleted", ToastAndroid.SHORT);
-    router.back();
+    router.replace("/(tabs)/community");
+  };
+
+  const deleteCommentOnServer = async (commentId: string): Promise<{ ok: boolean; message: string }> => {
+    try {
+      const token = await AsyncStorage.getItem("access_token");
+      if (!token) {
+        return { ok: false, message: "No authentication token" };
+      }
+      const res = await fetch(`${API_BASE}/api/v1/anon-comments/${commentId}`, {
+        method: "DELETE",
+        headers: {
+          accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.ok) {
+        return { ok: true, message: "Comment deleted" };
+      }
+      const err = await res.json().catch(() => ({}));
+      return { ok: false, message: err.detail || "Delete failed" };
+    } catch (err) {
+      console.error("Delete comment error:", err);
+      return { ok: false, message: "Network error" };
+    }
+  };
+
+  const handleDeleteComment = async () => {
+    if (!selectedComment) return;
+    setMenuVisible(false);
+    const result = await deleteCommentOnServer(selectedComment.id);
+    if (!result.ok) {
+      Alert.alert("Error", result.message);
+      return;
+    }
+    setComments((prev) => prev.filter((c) => c.id !== selectedComment.id));
+    setPost((prev: any) => ({ ...prev, comments: prev.comments - 1 }));
+    ToastAndroid.show("Comment deleted", ToastAndroid.SHORT);
+    setSelectedComment(null);
   };
 
   const formatUTCtoLocal = (utcString: string) => {
@@ -345,6 +426,7 @@ export default function CommentScreen() {
             <View className="flex-row justify-between items-center">
               <PostHeader
                 username={post.username}
+                avatarUrl={post.avatar}
                 createdAt={formatUTCtoLocal(post.createdAt)}
                 isAnonymous={post.isAnonymous}
               />
@@ -365,12 +447,19 @@ export default function CommentScreen() {
                 </TouchableOpacity>
               )}
 
-              <TouchableOpacity onPress={() => setMenuVisible(true)}>
+              <TouchableOpacity onPress={() => { setMenuTarget("post"); setMenuVisible(true); }} >
                 <EllipsisVertical width={20} height={20} color="black" />
               </TouchableOpacity>
             </View>
 
             <Text className="mt-3 text-base font-[Poppins-Regular]">{post.content}</Text>
+            {post.image_url && (
+              <Image
+                source={{ uri: post.image_url }}
+                className="w-full h-64 rounded-xl mt-3"
+                resizeMode="cover"
+              />
+            )}
 
             <View className="flex-row mt-3 gap-6 items-center">
               <TouchableOpacity onPress={() => handleToggleLike(post.id)} className="flex-row items-center gap-1">
@@ -400,12 +489,25 @@ export default function CommentScreen() {
             ) : null}
             {comments.map((c) => (
               <View key={c.id} className="mt-3 p-3 rounded-xl border border-[#EEEEEE] bg-white">
-                <PostHeader
-                  username={c.username}
-                  createdAt={formatUTCtoLocal(c.createdAt)}
-                  isAnonymous={c.visibility === "anonymous"}
-                  size="sm"
-                />
+                <View className="flex-row justify-between">
+                  <PostHeader
+                    username={c.visibility === "anonymous" ? undefined : c.username}
+                    avatarUrl={c.visibility === "anonymous" ? undefined : c.avatar ?? undefined}
+                    createdAt={formatUTCtoLocal(c.createdAt)}
+                    isAnonymous={c.visibility === "anonymous"}
+                    size="sm"
+                  />
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      setSelectedComment(c);
+                      setMenuTarget("comment");
+                      setMenuVisible(true);
+                    }}
+                  >
+                    <EllipsisVertical size={18} color="#000" />
+                  </TouchableOpacity>
+                </View>
                 <Text className="mt-2.5 font-[Poppins-Regular] text-base ml-10">
                   {c.content}
                 </Text>
@@ -425,7 +527,7 @@ export default function CommentScreen() {
               className="w-10 h-10 bg-gray-300 rounded-full items-center justify-center mr-2"
             >
               <Text className="text-white font-[Poppins-Bold]">
-                {commentMode === "anonymous" ? "?" : currentUserId.charAt(0).toUpperCase()}
+                {commentMode === "anonymous" ? "?" : me?.username?.charAt(0).toUpperCase() ?? "U"}
               </Text>
             </TouchableOpacity>
 
@@ -460,57 +562,88 @@ export default function CommentScreen() {
           </View>
         </View>
 
-        {/* MENU: Delete / Report */}
-        <Modal visible={menuVisible} transparent animationType="slide">
-          <View className="flex-1 justify-end bg-black/50">
-            <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
-              <View className="flex-1" />
-            </TouchableWithoutFeedback>
-            <View className="bg-white rounded-t-2xl p-4">
-              {post.isOwner ? (
-                <Pressable onPress={() => setShowConfirm(true)} className="py-2">
-                  <Text className="text-red-500 text-lg font-[Poppins-Bold] text-center">Delete</Text>
-                </Pressable>
-              ) : (
-                <Pressable onPress={() => { setReportingTargetId(post.id); setReportVisible(true); setMenuVisible(false); }}>
-                  <Text className="text-lg text-center font-[Poppins-Regular] text-red-500">Report</Text>
-                </Pressable>
-              )}
-            </View>
-          </View>
-        </Modal>
-
-        {/* CONFIRM DELETE */}
-        <Modal visible={showConfirm} transparent>
-          <TouchableWithoutFeedback onPress={() => { setShowConfirm(false); }}>
-            <View className="flex-1 bg-black/60 justify-center items-center">
-              <View className="bg-white w-4/5 rounded-2xl p-6 items-center">
-                <Text className="text-lg font-[Poppins-SemiBold] mb-6 text-gray-800">
-                  Are you sure you want to delete this post?
-                </Text>
-                <View className="flex-row gap-4">
-                  <TouchableOpacity
-                    onPress={() => setShowConfirm(false)}
-                    className="bg-gray-300 px-8 py-4 rounded-xl"
-                  >
-                    <Text className="text-base font-[Poppins-SemiBold] text-gray-800">No</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={handleDelete}
-                    className="bg-red-500 px-8 py-4 rounded-xl"
-                  >
-                    <Text className="text-base font-[Poppins-SemiBold] text-white">Yes</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
+       {/* MENU: Delete / Report */}
+        <Modal visible={menuVisible} transparent animationType="fade">
+          <TouchableWithoutFeedback onPress={() => {
+            setMenuVisible(false);
+            setMenuTarget(null);
+            setSelectedComment(null);
+          }}>
+            <View className="flex-1 bg-black/50" />
           </TouchableWithoutFeedback>
+
+          <View className="bg-white rounded-t-3xl p-2">
+            {/* POST */}
+            {menuTarget === "post" && (
+              <>
+                {post.isOwner ? (
+                  <Pressable
+                    onPress={() => {
+                      setMenuVisible(false);
+                      setShowConfirm(true);
+                      handleDelete();
+                    }}
+                    className="py-3"
+                  >
+                    <Text className="text-red-500 text-lg font-[Poppins-Bold] text-center">
+                      Delete Post
+                    </Text>
+                  </Pressable>
+                ) : (
+                  <Pressable
+                    onPress={() => {
+                      setReportingTargetId(post.id);
+                      setReportVisible(true);
+                      setMenuVisible(false);
+                    }}
+                    className="py-3"
+                  >
+                    <Text className="text-red-500 text-lg font-[Poppins-Regular] text-center">
+                      Report Post
+                    </Text>
+                  </Pressable>
+                )}
+              </>
+            )}
+            {/* COMMENT */}
+            {menuTarget === "comment" && selectedComment && (
+              <>
+                {selectedComment.isOwner ? (
+                  <Pressable
+                    onPress={() => {
+                      setMenuVisible(false);
+                      handleDeleteComment();
+                    }}
+                    className="py-3"
+                  >
+                    <Text className="text-red-500 text-lg font-[Poppins-Bold] text-center">
+                      Delete Comment
+                    </Text>
+                  </Pressable>
+                ) : (
+                  <Pressable
+                    onPress={() => {
+                      setReportingTargetId(selectedComment.id);
+                      setReportVisible(true);
+                      setMenuVisible(false);
+                    }}
+                    className="py-3"
+                  >
+                    <Text className="text-red-500 text-lg font-[Poppins-Regular] text-center">
+                      Report Comment
+                    </Text>
+                  </Pressable>
+                )}
+              </>
+            )}
+          </View>
         </Modal>
 
         <ReportModal
           visible={reportVisible}
           onClose={() => setReportVisible(false)}
           targetId={reportingTargetId}
+          targetType={menuTarget === "post" ? "post" : "comment"}
         />
 
         <LikeListModal
@@ -536,9 +669,11 @@ export default function CommentScreen() {
                 className="flex-row items-center gap-4 py-3"
               >
                 <View className="w-10 h-10 bg-gray-300 rounded-full justify-center items-center">
-                  <Text className="text-white font-[Poppins-Bold]">{currentUserId.charAt(0).toUpperCase()}</Text>
+                  <Text className="text-white font-[Poppins-Bold]">
+                    {me?.username?.charAt(0).toUpperCase() ?? "U"}
+                  </Text>
                 </View>
-                <Text className={`text-lg ${commentMode === "public" ? "font-[Poppins-Bold]" : "font-[Poppins-Regular]"}`}>Public</Text>
+                <Text className={`text-lg ${commentMode === "public" ? "font-[Poppins-Bold]" : "font-[Poppins-Regular]"}`}>{me?.username ?? "Public"}</Text>
               </Pressable>
               <Pressable
                 onPress={() => {

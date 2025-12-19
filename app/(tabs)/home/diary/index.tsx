@@ -84,13 +84,15 @@ export default function Calendar() {
   
   const entryMap = useMemo(() => {
     const map: Record<number, any> = {};
-    (sortedEntries || []).reverse().forEach((e) => {
-      const d = dayjs(e.created_at);
-      if (d.isValid() && d.year() === year && d.month() === month) {
-        const day = d.date();
-        if (!map[day]) {
-          map[day] = e;
-        }
+
+    entries.forEach((e) => {
+      const d = dayjs(e.created_at).locale("vi");
+      if (!d.isValid() || d.year() !== year || d.month() !== month) return;
+
+      const day = d.date();
+
+      if (!map[day] || dayjs(e.created_at).isAfter(map[day].created_at)) {
+        map[day] = e;
       }
     });
 

@@ -15,6 +15,7 @@ import {
   FlatList,
   Keyboard,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import CustomSwitch from "@/components/CustomSwitch";
 import Logo from "@/assets/images/logo.svg";
@@ -30,15 +31,14 @@ export default function AddScreen() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showTagModal, setShowTagModal] = useState(false);
   const [tagSearch, setTagSearch] = useState("");
+  const [isPosting, setIsPosting] = useState(false);
+  const [username, setUsername] = useState("");
   const params = useLocalSearchParams();
   const initialTag = params.tag as string | undefined;
   const [selectedTags, setSelectedTags] = useState<string[]>(
     initialTag ? [initialTag] : []
   );
-  const [isPosting, setIsPosting] = useState(false);
-  const [username, setUsername] = useState<string>("");
 
-  // Danh sách tất cả tag có thể có (gợi ý + đã tạo)
   const allAvailableTags = [
     "Family",
     "Lover",
@@ -67,36 +67,45 @@ export default function AddScreen() {
   }, []);
 
   const createPost = async () => {
-    if (isPosting) return;
+    if (isPosting || !postContent.trim()) return;
+
     try {
       setIsPosting(true);
       const token = await AsyncStorage.getItem("access_token");
-      const payload = {
-        content: postContent.trim(),
-        is_anonymous: isAnonymous,
-        hashtags: selectedTags,
-      };
+      if (!token) throw new Error("No token");
+
+      const formData = new FormData();
+      formData.append("content", postContent.trim());
+      formData.append("is_anonymous", String(isAnonymous));
+
+      if (selectedTags.length > 0) {
+        formData.append("hashtags", selectedTags.join(","));
+      }
+      // formData.append("image", {
+      //   uri: imageUri,
+      //   name: "image.jpg",
+      //   type: "image/jpeg",
+      // } as any);
 
       const res = await fetch(`${API_BASE}/api/v1/anon-posts/`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(payload),
+        body: formData,
       });
 
       const data = await res.json();
       console.log("POST RESULT:", data);
 
       if (!res.ok) {
-        alert("Lỗi đăng bài");
+        Alert.alert("Lỗi", data?.detail || "An error occurred while posting");
         return;
       }
       router.push("/(tabs)/community");
     } catch (err) {
-      console.log("POST ERROR:", err);
-      alert("Không thể đăng bài");
+      console.error("POST ERROR:", err);
+      Alert.alert("Lỗi", "An error occurred while posting");
     } finally {
       setIsPosting(false);
     }
@@ -108,12 +117,8 @@ export default function AddScreen() {
 
   const addNewTag = () => {
     const trimmed = tagSearch.trim();
-    if (trimmed && !selectedTags.includes(trimmed) && !allAvailableTags.includes(trimmed)) {
-      setSelectedTags([...selectedTags, trimmed]);
-    }
-    if (trimmed && !selectedTags.includes(trimmed)) {
-      toggleTag(trimmed);
-    }
+    if (!trimmed) return;
+    toggleTag(trimmed);
     setTagSearch("");
     setShowTagModal(false);
   };
@@ -130,17 +135,15 @@ export default function AddScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       {/* Header */}
-      <View className="w-full px-6 py-2 mt-8 flex-row items-center justify-between bg-[#FAF9FF]">
+      <View className="w-full px-6 py-2 mt-8 flex-row items-center justify-between">
         <TouchableOpacity
-          onPress={() => {
-            if (postContent.trim().length === 0) {
-              router.push("/(tabs)/community");
-            } else {
-              setShowConfirm(true);
-            }
-          }}
+          onPress={() =>
+            postContent.trim()
+              ? setShowConfirm(true)
+              : router.push("/(tabs)/community")
+          }
         >
-          <X size={28} color="#000" />
+          <X size={28} />
         </TouchableOpacity>
       </View>
 
@@ -156,10 +159,7 @@ export default function AddScreen() {
               <Logo width={48} height={48} />
             </SvgAvatar>
           ) : (
-            <Image
-              source={{ uri: user.avatar }}
-              className="w-12 h-12 rounded-full"
-            />
+            <Image source={{ uri: user.avatar }} className="w-12 h-12 rounded-full" />
           )}
           <Text className="text-lg font-[Poppins-SemiBold]">
             {isAnonymous ? "Anonymous" : username}
@@ -188,7 +188,7 @@ export default function AddScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Nội dung bài viết */}
+        {/* Content */}
         <TextInput
           ref={textInputRef}
           value={postContent}
@@ -256,7 +256,7 @@ export default function AddScreen() {
         </TouchableWithoutFeedback>
       </Modal>
 
-      {/* Modal chọn/thêm tag - có tìm kiếm */}
+      {/* Tag modal */}
       <Modal transparent visible={showTagModal} animationType="slide">
         <TouchableWithoutFeedback onPress={() => setShowTagModal(false)}>
           <View className="flex-1 bg-black/40 justify-end">

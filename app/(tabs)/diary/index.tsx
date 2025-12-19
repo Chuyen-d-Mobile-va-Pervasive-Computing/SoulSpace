@@ -1,14 +1,17 @@
 import EmotionPicker from "@/components/EmotionPicker";
 import Heading from "@/components/Heading";
 import React, { useState } from "react";
-import { router } from "expo-router";
-import { ScrollView, View, Text, TouchableOpacity } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { View, Text, TouchableOpacity } from "react-native";
 
 export default function DiaryScreen() {
   const [selectedEmotion, setSelectedEmotion] = useState<{
     label: string;
     emoji: any;
   } | null>(null);
+
+  const params = useLocalSearchParams();
+  const date = params.date as string | undefined;
 
   return (
     <View className="flex-1 bg-[#FAF9FF]">
@@ -29,11 +32,17 @@ export default function DiaryScreen() {
           </View>
 
           <TouchableOpacity
-            onPress={() => router.push({ 
-              pathname: "/(tabs)/diary/next",
-              params: { emotion: selectedEmotion?.label || "Neutral" }
-            })}
+            onPress={() => {
+              router.push({
+                pathname: "/(tabs)/diary/next",
+                params: {
+                  emotion: selectedEmotion?.label || "Neutral",
+                  ...(date && { date }),
+                },
+              });
+            }}
             className="bg-[#7F56D9] h-16 rounded-xl items-center justify-center"
+            disabled={!selectedEmotion}
           >
             <Text className="text-white text-base font-[Poppins-Bold]">Next</Text>
           </TouchableOpacity>

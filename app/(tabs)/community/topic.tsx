@@ -12,28 +12,33 @@ const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
 interface Post {
   id: string;
-  userId: string;
   username: string;
+  avatar: string | null;
+  image_url?: string | null;
   content: string;
   is_anonymous: boolean;
-  topic: string;
+  topic: string | null;
   created_at: string;
-  moderation_status: string;
-  ai_scan_result: string;
-  flagged_reason: string;
-  detected_keywords: string;
   like_count: number;
   is_liked: boolean;
-  // likedBy?: { userId: string; username: string }[];
   comment_count: number;
   is_owner: boolean;
 }
 
+interface Me {
+  id: string;
+  username: string;
+  email: string;
+  avatar_url: string;
+}
+
 export default function TopicScreen() {
-  const currentUserId = "u1";
+  const [me, setMe] = useState<Me | null>(null);
+  const currentUserId = me ? me.id : "";
   const { topic: initialTopic, posts: postsParam } = useLocalSearchParams();
   const topicParam = Array.isArray(initialTopic) ? initialTopic[0] : initialTopic;
   const safeTopic = topicParam?.trim() || "";
+  const [menuTarget, setMenuTarget] = useState<"post" | "comment" | null>(null);
 
   const preloadedPosts: Post[] = postsParam
     ? JSON.parse(postsParam as string)
@@ -74,26 +79,30 @@ export default function TopicScreen() {
     const loadPosts = async () => {
       try {
         setLoading(true);
-        setSelectedTopic(safeTopic);
+        setSelectedTopic(safeTopic || "All");
 
-        // Truyền từ trang Index
-        if (preloadedPosts.length > 0) {
-          const filtered = preloadedPosts.filter(
-            (p) => p.topic?.trim() === safeTopic
-          );
-          setPostList(filtered);
-          setLoading(false);
-          return;
+        if (postsParam && typeof postsParam === "string") {
+          try {
+            const parsed = JSON.parse(postsParam);
+            if (Array.isArray(parsed)) {
+              const formatted = parsed.map(formatPost).filter(p => p.topic === safeTopic);
+              setPostList(formatted);
+              setLoading(false);
+              return;
+            }
+          } catch (err) {
+            console.warn("Failed to parse preloaded posts, falling back to API");
+          }
         }
 
-        // Truyền từ trang Comment
         const token = await AsyncStorage.getItem("access_token");
         if (!token) {
+          setPostList([]);
           setLoading(false);
           return;
         }
 
-        const res = await fetch(`${API_BASE}/api/v1/anon-posts/`, {
+        const res = await fetch(`${API_BASE}/api/v1/anon-posts/?limit=50`, {
           headers: {
             Accept: "application/json",
             Authorization: `Bearer ${token}`,
@@ -102,6 +111,7 @@ export default function TopicScreen() {
 
         if (!res.ok) {
           console.error("Fetch posts failed:", res.status);
+          setPostList([]);
           setLoading(false);
           return;
         }
@@ -109,34 +119,36 @@ export default function TopicScreen() {
         const data = await res.json();
         const list = Array.isArray(data) ? data : [];
 
-        const formatted: Post[] = list.map((item: any) => ({
-          id: item._id,
-          userId: item.user_id,
-          username: item.is_anonymous ? "Anonymous" : item.author_name,
-          content: item.content,
-          is_anonymous: item.is_anonymous,
-          topic: item.hashtags?.[0]?.trim() || null,
-          created_at: formatToVNTime(item.created_at),
-          moderation_status: item.moderation_status,
-          ai_scan_result: item.ai_scan_result, 
-          flagged_reason: item.flagged_reason, 
-          detected_keywords: item.detected_keywords[0],
-          like_count: item.like_count || 0,
-          is_liked: item.is_liked || false,
-          comment_count: item.comment_count || 0,
-          is_owner: item.is_owner || false,
-        }));
-
-        const filtered = formatted.filter(
-          (p) => p.topic && p.topic === safeTopic
-        );
+        const formatted = list.map(formatPost);
+        const filtered = safeTopic
+          ? formatted.filter(p => p.topic === safeTopic)
+          : formatted;
 
         setPostList(filtered);
       } catch (err: any) {
-        console.error("Error loading topic posts:", err.message || err);
+        console.error("Error loading topic posts:", err);
+        setPostList([]);
       } finally {
         setLoading(false);
       }
+    };
+
+    const formatPost = (item: any): Post => {
+      const isAnonymous = item.is_anonymous || item.author_name === "Anonymous" || !item.author_name;
+      return {
+        id: item._id,
+        username: isAnonymous ? "Anonymous" : item.author_name || "Unknown",
+        avatar: isAnonymous ? null : item.author_avatar || null,
+        image_url: item.image_url || null,
+        content: item.content || "",
+        is_anonymous: isAnonymous,
+        topic: item.hashtags?.[0]?.trim() || null,
+        created_at: formatToVNTime(item.created_at),
+        like_count: item.like_count || 0,
+        is_liked: item.is_liked || false,
+        comment_count: item.comment_count || 0,
+        is_owner: item.is_owner || false,
+      };
     };
 
     loadPosts();
@@ -254,12 +266,6 @@ export default function TopicScreen() {
     setPostList(prev => prev.filter(p => p.id !== id));
   };
 
-  const handleReport = (text: string) => {
-    console.log("Report:", text);
-    setReportVisible(false);
-    setMenuVisible(false);
-  };
-
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center bg-[#FAF9FF]">
@@ -328,6 +334,7 @@ export default function TopicScreen() {
               <View className="flex-row justify-between items-start">
                 <PostHeader
                   username={post.username}
+                  avatarUrl={post.avatar || undefined}
                   createdAt={post.created_at}
                   isAnonymous={post.is_anonymous}
                 />
@@ -354,6 +361,7 @@ export default function TopicScreen() {
                 <TouchableOpacity
                   onPress={() => {
                     setSelectedPost(post);
+                    setMenuTarget("post");
                     setMenuVisible(true);
                   }}
                 >
@@ -362,6 +370,14 @@ export default function TopicScreen() {
               </View>
 
               <Text className="mt-3 text-base font-[Poppins-Regular]">{post.content}</Text>
+
+              {post.image_url && (
+                <Image
+                  source={{ uri: post.image_url }}
+                  className="w-full h-64 rounded-xl mt-3"
+                  resizeMode="cover"
+                />
+              )}
 
               <View className="flex-row items-center mt-4 gap-8">
                 <View className="flex-row items-center gap-2">
@@ -445,7 +461,7 @@ export default function TopicScreen() {
         </TouchableWithoutFeedback>
       </Modal>
 
-      <ReportModal visible={reportVisible} onClose={() => setReportVisible(false)} targetId={reportingTargetId} />
+      <ReportModal visible={reportVisible} onClose={() => setReportVisible(false)} targetId={reportingTargetId} targetType={menuTarget === "post" ? "post" : "comment"} />
       <LikeListModal visible={likeListVisible} onClose={() => setLikeListVisible(false)} users={likedUsers} currentUserId={currentUserId} />
       <TopicPickerModal
         visible={topicPickerVisible}

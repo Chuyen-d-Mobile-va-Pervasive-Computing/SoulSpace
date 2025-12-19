@@ -22,6 +22,7 @@ interface ReportModalProps {
   visible: boolean;
   onClose: () => void;
   targetId: string;
+  targetType: 'post' | 'comment';
 }
 
 const REASON_SUGGESTIONS = [
@@ -34,7 +35,7 @@ const REASON_SUGGESTIONS = [
   "Other",
 ];
 
-export default function ReportModal({ visible, onClose, targetId }: ReportModalProps) {
+export default function ReportModal({ visible, onClose, targetId, targetType }: ReportModalProps) {
   const [text, setText] = useState('');
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -68,13 +69,13 @@ export default function ReportModal({ visible, onClose, targetId }: ReportModalP
         },
         body: JSON.stringify({
           target_id: targetId,
-          target_type: 'post',
+          target_type: targetType,
           reason: reason,
         }),
       });
 
       if (res.ok) {
-        ToastAndroid.show('You have reported this post', ToastAndroid.SHORT);
+        ToastAndroid.show('You have reported this ' + targetType, ToastAndroid.SHORT);
         handleClose();
       } else {
         const err = await res.json().catch(() => ({}));
@@ -102,14 +103,16 @@ export default function ReportModal({ visible, onClose, targetId }: ReportModalP
                 <View className="justify-between" style={{ minHeight: 420 }}>
                   <View>
                     <View className="flex-row justify-between items-center mb-3">
-                      <Text className="text-lg font-[Poppins-Bold]">Report</Text>
+                      <Text className="text-lg font-[Poppins-Bold]">
+                        Report this {targetType === 'post' ? 'post' : 'comment'}
+                      </Text>
                       <TouchableOpacity onPress={handleClose} disabled={loading}>
                         <X size={24} color="black" />
                       </TouchableOpacity>
                     </View>
 
                     <Text className="text-base mb-2 font-[Poppins-Bold]">
-                      Why do you report this post?
+                      Why do you report this {targetType === 'post' ? 'post' : 'comment'}?
                     </Text>
 
                     <View className="mb-4">

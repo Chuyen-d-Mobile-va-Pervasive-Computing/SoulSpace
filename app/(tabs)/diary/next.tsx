@@ -26,6 +26,7 @@ const iconMap: { [key: string]: React.FC<{ width: number; height: number }> } =
 
 export default function DiaryNextScreen() {
   const params = useLocalSearchParams();
+  const date = params.date as string;
   const emotionLabel = (params.emotion as string) || "Neutral";
   const [saving, setSaving] = useState(false);
   const [tags, setTags] = useState<{ tag_id: string; tag_name: string }[]>([]);
@@ -135,8 +136,9 @@ export default function DiaryNextScreen() {
   const handleSave = async () => {
     if (saving) return;
     setSaving(true);
-    if (!thoughts) {
-      Alert.alert("Error", "Please fill in required fields");
+
+    if (!thoughts.trim()) {
+      Alert.alert("Error", "Please write something about your thoughts");
       setSaving(false);
       return;
     }
@@ -144,13 +146,17 @@ export default function DiaryNextScreen() {
     const token = await getToken();
     if (!token) {
       Alert.alert("Error", "Invalid token. Please login again.");
+      setSaving(false);
       return;
     }
 
-    const formData = new FormData();
-    formData.append("text_content", thoughts);
-    formData.append("tags", JSON.stringify(tags));
+    const formData = new FormData();    
+    formData.append("text_content", thoughts.trim());
     formData.append("emotion_label", emotionLabel);
+    formData.append("tags", JSON.stringify(tags));
+    if (date) {
+      formData.append("journal_date", date);
+    }
 
     if (audioUri) {
       formData.append("audio", {
@@ -170,22 +176,18 @@ export default function DiaryNextScreen() {
       });
 
       if (res.ok) {
-        const data = await res.json();
-        Alert.alert("Success", "Diary saved!");
-        console.log("Response data:", data);
+        Alert.alert("Success", "Diary saved successfully!");
         router.push("/(tabs)/home/diary");
       } else {
-        const errorData = await res.json();
-        const errorMessage = errorData.error || `Error ${res.status}`;
-        Alert.alert("Error", errorMessage);
-        if (res.status === 400) {
-          console.log("Validation error:", errorData);
-        } else if (res.status === 401) {
-        }
+        const errorData = await res.json().catch(() => ({}));
+        const errorMessage = errorData.detail || errorData.error || `Error ${res.status}`;
+        Alert.alert("Save failed", errorMessage);
       }
     } catch (err) {
       console.error("Fetch error:", err);
-      Alert.alert("Error", "Failed to save diary. Check network or server.");
+      Alert.alert("Error", "Cannot connect to server. Check your internet connection.");
+    } finally {
+      setSaving(false);
     }
   };
 

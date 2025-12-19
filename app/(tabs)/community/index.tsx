@@ -33,10 +33,17 @@ interface User {
   username: string;
 }
 
+interface Me {
+  id: string;
+  username: string;
+  email: string;
+  avatar_url: string;
+}
+
 export default function CommunityScreen() {
   const router = useRouter();
-  const currentUserId = "u1";
-
+  const [me, setMe] = useState<Me | null>(null);
+  const currentUserId = me ? me.id : "";
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterVisible, setFilterVisible] = useState(false);
@@ -48,16 +55,11 @@ export default function CommunityScreen() {
   const [reportingTargetId, setReportingTargetId] = useState<string>("");
   const [likeListVisible, setLikeListVisible] = useState(false);
   const [likedUsers, setLikedUsers] = useState<User[]>([]);
-  const user = {
-    username: "SoulSpace",
-    avatar: "https://i.pravatar.cc/300",
-  };
 
   const formatToVNTime = (utcString: string) => {
     const safeUtc = utcString.endsWith("Z") ? utcString : utcString + "Z";
     const d = new Date(safeUtc);
     const pad = (n: number) => String(n).padStart(2, "0");
-    // +7 giờ -> giờ Việt Nam
     const local = new Date(d.getTime() + 7 * 60 * 60 * 1000);
 
     return (
@@ -87,25 +89,31 @@ export default function CommunityScreen() {
             Authorization: `Bearer ${token}`,
           },
         });
+        if (!res.ok) {
+          console.log("API error:", res.status);
+          return;
+        }
         const data = await res.json();
+        console.log("Dữ liệu từ API:", data);
 
-        const formatted = data.map((item: any) => ({
-          id: item._id,
-          userId: item.user_id,
-          username: item.is_anonymous ? "Anonymous" : item.author_name,
-          content: item.content,
-          topic: item.hashtags?.[0],
-          created_at: formatToVNTime(item.created_at),
-          moderationStatus: item.moderation_status,
-          scanResult: item.ai_scan_result, 
-          flag: item.flagged_reason, 
-          detectedKeywords: item.detected_keywords[0],
-          likes: item.like_count,
-          isLiked: item.is_liked,
-          // likedBy: [],
-          comments: item.comment_count,
-          isOwner: item.is_owner,
-        }));
+        const formatted = data.map((item: any) => {
+          const isAnonymous = !item.author_name || item.author_name === "Anonymous";
+          const topic = item.hashtags?.[0] || (item.title ? "Article" : null);
+          return {
+            id: item._id,
+            userId: item.author_id || "",
+            username: isAnonymous ? "Anonymous" : item.author_name,
+            avatar: item.author_avatar || null,
+            content: item.content,
+            image_url: item.image_url || null,
+            topic: topic,
+            created_at: formatToVNTime(item.created_at),
+            likes: item.like_count || 0,
+            isLiked: item.is_liked || false,
+            comments: item.comment_count || 0,
+            isOwner: item.is_owner || false,
+          };
+        });
 
         setPosts(formatted);
       } catch (error) {
@@ -120,7 +128,6 @@ export default function CommunityScreen() {
   const deletePostOnServer = async (postId: string): Promise<{ ok: boolean; message: string }> => {
     try {
       const token = await AsyncStorage.getItem("access_token");
-
       const res = await fetch(`${API_BASE}/api/v1/anon-posts/${postId}`, {
         method: "DELETE",
         headers: {
@@ -129,9 +136,7 @@ export default function CommunityScreen() {
         },
       });
 
-      if (res.ok) {
-        return { ok: true, message: "Deleted" };
-      }
+      if (res.ok) return { ok: true, message: "Deleted" };
       const error = await res.json();
       return { ok: false, message: error.detail || "Delete failed" };
     } catch (err) {
@@ -142,20 +147,12 @@ export default function CommunityScreen() {
   const handleDelete = async (id: string) => {
     setShowConfirm(false);
     setMenuVisible(false);
-    
     const result = await deletePostOnServer(id);
     if (!result.ok) {
       Alert.alert("Error", result.message);
       return;
     }
     setPosts(prev => prev.filter(p => p.id !== id));
-  };
-
-  const handleReport = (content: string) => {
-    console.log("Nội dung báo cáo:", content);
-    setReportVisible(false);
-    setMenuVisible(false);
-    setSelectedPost(null);
   };
 
   const likePost = async (postId: string) => {
@@ -168,10 +165,7 @@ export default function CommunityScreen() {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      if (!res.ok) return false;
-
-      return true;
+      return res.ok;
     } catch (err) {
       console.log("LIKE error:", err);
       return false;
@@ -188,7 +182,6 @@ export default function CommunityScreen() {
           Authorization: `Bearer ${token}`,
         },
       });
-
       return res.ok;
     } catch (err) {
       console.log("UNLIKE error:", err);
@@ -204,32 +197,18 @@ export default function CommunityScreen() {
     setPosts(prev =>
       prev.map(p =>
         p.id === postId
-          ? {
-              ...p,
-              isLiked: !p.isLiked,
-              likes: p.isLiked ? p.likes - 1 : p.likes + 1,
-            }
+          ? { ...p, isLiked: !p.isLiked, likes: p.isLiked ? p.likes - 1 : p.likes + 1 }
           : p
       )
     );
 
-    let ok = false;
-
-    if (!currentlyLiked) {
-      ok = await likePost(postId);
-    } else {
-      ok = await unlikePost(postId);
-    }
+    const ok = currentlyLiked ? await unlikePost(postId) : await likePost(postId);
 
     if (!ok) {
       setPosts(prev =>
         prev.map(p =>
           p.id === postId
-            ? {
-                ...p,
-                isLiked: currentlyLiked,
-                likes: currentlyLiked ? p.likes + 1 : p.likes - 1,
-              }
+            ? { ...p, isLiked: currentlyLiked, likes: currentlyLiked ? p.likes + 1 : p.likes - 1 }
             : p
         )
       );
@@ -245,8 +224,8 @@ export default function CommunityScreen() {
           contentContainerStyle={{ paddingBottom: 40, gap: 12 }}
           showsVerticalScrollIndicator={false}
         >
+          {/* Input box */}
           <View className="flex-row items-center justify-between w-full mb-3">
-            {/* Avatar */}
             <View className="mr-3">
               {isAnonymous ? (
                 <SvgAvatar size={48}>
@@ -254,12 +233,11 @@ export default function CommunityScreen() {
                 </SvgAvatar>
               ) : (
                 <Image
-                  source={{ uri: user.avatar }}
+                  source={{ uri: "https://i.pravatar.cc/300" }}
                   className="w-12 h-12 rounded-full"
                 />
               )}
             </View>
-            {/* Input */}
             <TouchableOpacity
               onPress={() => router.push("/(tabs)/community/add")}
               className="flex-1 flex-row items-center px-4 py-3 rounded-2xl border border-gray-300 bg-white"
@@ -269,7 +247,6 @@ export default function CommunityScreen() {
                 Write something...
               </Text>
             </TouchableOpacity>
-            {/* Filter */}
             <TouchableOpacity
               onPress={() => setFilterVisible(true)}
               className="ml-2"
@@ -278,8 +255,10 @@ export default function CommunityScreen() {
             </TouchableOpacity>
           </View>
 
+          {/* Danh sách bài viết */}
           {posts.map((post) => (
             <TouchableOpacity
+              key={post.id}
               activeOpacity={0.8}
               onPress={() =>
                 router.push({
@@ -287,15 +266,15 @@ export default function CommunityScreen() {
                   params: { postId: post.id, focusInput: "false" },
                 })
               }
-              key={post.id}
               className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#EEEEEE]"
             >
               {/* Header */}
-              <View className="flex-row justify-between">
+              <View className="flex-row justify-between items-start">
                 <PostHeader
                   username={post.username}
+                  avatarUrl={post.avatar}
                   createdAt={post.created_at}
-                  isAnonymous={false}
+                  isAnonymous={!post.avatar && post.username === "Anonymous"}
                 />
 
                 {post.topic && (
@@ -322,12 +301,22 @@ export default function CommunityScreen() {
                   <EllipsisVertical width={20} height={20} color="black" />
                 </TouchableOpacity>
               </View>
-              {/* Content */}
+
+              {/* Ảnh bài viết */}
+              {post.image_url && (
+                <Image
+                  source={{ uri: post.image_url }}
+                  className="w-full h-64 rounded-xl mt-3"
+                  resizeMode="cover"
+                />
+              )}
+
+              {/* Nội dung */}
               <Text className="text-base mt-3 font-[Poppins-Regular]">
                 {post.content}
               </Text>
               {/* Interaction */}
-              <View className="flex-row mt-3 gap-6">
+              <View className="flex-row mt-4 gap-6">
                 <View className="flex-row items-center gap-6">
                   {/* LIKE */}
                   <View className="flex-row items-center gap-1">
@@ -360,7 +349,12 @@ export default function CommunityScreen() {
                   {/* COMMENT */}
                   <TouchableOpacity
                     className="flex-row items-center gap-1"
-                    onPress={() => router.push({ pathname: "/(tabs)/community/comment", params: { postId: post.id, focusInput: "true" } })}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/(tabs)/community/comment",
+                        params: { postId: post.id, focusInput: "true" },
+                      })
+                    }
                   >
                     <MessageCircle width={18} height={18} color="#374151" />
                     <Text className="text-sm text-gray-700">{post.comments}</Text>
@@ -387,7 +381,6 @@ export default function CommunityScreen() {
                 multiSelect={false}
                 onChange={() => {}}
               />
-
               <Pressable
                 className="mt-4 bg-[#7F56D9] py-2 rounded-xl"
                 onPress={() => setFilterVisible(false)}
@@ -401,7 +394,6 @@ export default function CommunityScreen() {
         </TouchableWithoutFeedback>
       </Modal>
 
-      {/* Menu */}
       <Modal visible={menuVisible} transparent animationType="slide">
         <View className="flex-1 justify-end bg-black/50">
           <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
@@ -415,30 +407,24 @@ export default function CommunityScreen() {
                 </Text>
               </Pressable>
             ) : (
-            <Pressable 
-              onPress={() => {
-                setReportingTargetId(selectedPost.id)
-                setReportVisible(true);
-                setMenuVisible(false);
-              }}
-            >
-              <Text className="text-lg text-center font-[Poppins-Regular] text-red-500">
-                Report
-              </Text>
-            </Pressable>
+              <Pressable
+                onPress={() => {
+                  setReportingTargetId(selectedPost.id);
+                  setReportVisible(true);
+                  setMenuVisible(false);
+                }}
+              >
+                <Text className="text-lg text-center font-[Poppins-Regular] text-red-500">
+                  Report
+                </Text>
+              </Pressable>
             )}
           </View>
         </View>
       </Modal>
 
-      {/* Confirm delete */}
       <Modal transparent visible={showConfirm}>
-        <TouchableWithoutFeedback
-          onPress={() => {
-            setShowConfirm(false);
-            setMenuVisible(false);
-          }}
-        >
+        <TouchableWithoutFeedback onPress={() => { setShowConfirm(false); setMenuVisible(false); }}>
           <View className="flex-1 bg-black/60 justify-center items-center">
             <View className="bg-white w-4/5 rounded-2xl p-6 items-center">
               <Text className="text-lg font-[Poppins-SemiBold] mb-6">
@@ -446,23 +432,16 @@ export default function CommunityScreen() {
               </Text>
               <View className="flex-row gap-4">
                 <TouchableOpacity
-                  onPress={() => {
-                    setShowConfirm(false);
-                    setMenuVisible(false);
-                  }}
+                  onPress={() => { setShowConfirm(false); setMenuVisible(false); }}
                   className="bg-gray-300 px-8 py-4 rounded-xl"
                 >
-                  <Text className="text-base font-[Poppins-SemiBold]">
-                    No
-                  </Text>
+                  <Text className="text-base font-[Poppins-SemiBold]">No</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => handleDelete(selectedPost.id)}
                   className="bg-red-500 px-8 py-4 rounded-xl"
                 >
-                  <Text className="text-base font-[Poppins-SemiBold] text-white">
-                    Yes
-                  </Text>
+                  <Text className="text-base font-[Poppins-SemiBold] text-white">Yes</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -474,6 +453,7 @@ export default function CommunityScreen() {
         visible={reportVisible}
         onClose={() => setReportVisible(false)}
         targetId={reportingTargetId}
+        targetType="post"
       />
 
       <LikeListModal
