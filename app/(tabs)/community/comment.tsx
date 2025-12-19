@@ -217,6 +217,7 @@ export default function CommentScreen() {
           post_id: postId,
           content,
           is_preset: false,
+          is_anonymous: commentMode === "anonymous",
         }),
       });
       if (!res.ok) {
@@ -524,11 +525,22 @@ export default function CommentScreen() {
                 if (hasCommentedAnonymous) return;
                 setVisibilityModalVisible(true);
               }}
-              className="w-10 h-10 bg-gray-300 rounded-full items-center justify-center mr-2"
             >
-              <Text className="text-white font-[Poppins-Bold]">
-                {commentMode === "anonymous" ? "?" : me?.username?.charAt(0).toUpperCase() ?? "U"}
-              </Text>
+              <View className="w-10 h-10 rounded-full mr-1 mb-2 justify-center items-center bg-gray-300 overflow-hidden">
+                {commentMode === "anonymous" ? (
+                  <Text className="text-white text-xl font-[Poppins-Bold]">?</Text>
+                ) : me?.avatar_url ? (
+                  <Image
+                    source={{ uri: me.avatar_url }}
+                    className="w-full h-full"
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <Text className="text-white text-xl font-[Poppins-Bold]">
+                    {me?.username?.charAt(0).toUpperCase() ?? "U"}
+                  </Text>
+                )}
+              </View>
             </TouchableOpacity>
 
             <TextInput
@@ -668,11 +680,11 @@ export default function CommentScreen() {
                 }}
                 className="flex-row items-center gap-4 py-3"
               >
-                <View className="w-10 h-10 bg-gray-300 rounded-full justify-center items-center">
-                  <Text className="text-white font-[Poppins-Bold]">
-                    {me?.username?.charAt(0).toUpperCase() ?? "U"}
-                  </Text>
-                </View>
+                <Image
+                  source={{ uri: me?.avatar_url ?? me?.username?.charAt(0).toUpperCase() ?? "U" }}
+                  className="w-10 h-10 rounded-full mt-3"
+                  resizeMode="cover"
+                />
                 <Text className={`text-lg ${commentMode === "public" ? "font-[Poppins-Bold]" : "font-[Poppins-Regular]"}`}>{me?.username ?? "Public"}</Text>
               </Pressable>
               <Pressable
