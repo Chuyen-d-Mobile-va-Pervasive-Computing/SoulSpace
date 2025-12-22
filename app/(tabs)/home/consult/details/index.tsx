@@ -125,13 +125,13 @@ export default function DetailsScreen() {
       pathname: "/(tabs)/home/consult/confirm",
       params: {
         appointment_id: data._id,
-        expert_phone: expert?.phone,
-        price: data.price,
-        vat: data.vat,
-        total: data.total_amount,
-        start: data.start_time,
-        end: data.end_time,
-        date: data.appointment_date,
+        // expert_phone: expert?.phone,
+        // price: data.price,
+        // vat: data.vat,
+        // total: data.total_amount,
+        // start: data.start_time,
+        // end: data.end_time,
+        // date: data.appointment_date,
       },
     });
   } catch (err) {
@@ -251,32 +251,38 @@ export default function DetailsScreen() {
             className="mt-4 px-2"
           >
             {days.map((d) => {
-              const isSelected = d === selectedDate;
               const dateObj = dayjs()
                 .year(selectedYear)
                 .month(selectedMonth)
                 .date(d);
+              const isPast = dateObj.isBefore(dayjs(), "day");
+              const isSelected = d === selectedDate;
 
               return (
                 <TouchableOpacity
                   key={d}
+                  disabled={isPast}
                   onPress={() => {
+                    if (isPast) return;
                     setSelectedDate(d);
-                    const formatted = dayjs()
-                      .year(selectedYear)
-                      .month(selectedMonth)
-                      .date(d)
-                      .format("YYYY-MM-DD");
-
+                    const formatted = dateObj.format("YYYY-MM-DD");
                     fetchAvailableTimes(formatted);
                   }}
-                  className={`w-16 h-20 mr-3 rounded-xl items-center justify-center ${
-                    isSelected ? "bg-[#7F56D9]" : "bg-white"
-                  } shadow`}
+                  className={`w-16 h-20 mr-3 rounded-xl items-center justify-center shadow ${
+                    isPast
+                      ? "bg-gray-200"
+                      : isSelected
+                      ? "bg-[#7F56D9]"
+                      : "bg-white"
+                  }`}
                 >
                   <Text
                     className={`text-sm font-[Poppins-Regular] ${
-                      isSelected ? "text-white" : "text-gray-600"
+                      isPast
+                        ? "text-gray-400"
+                        : isSelected
+                        ? "text-white"
+                        : "text-gray-600"
                     }`}
                   >
                     {dateObj.format("ddd")}
@@ -284,7 +290,11 @@ export default function DetailsScreen() {
 
                   <Text
                     className={`text-xl font-[Poppins-Bold] ${
-                      isSelected ? "text-white" : "text-black"
+                      isPast
+                        ? "text-gray-400"
+                        : isSelected
+                        ? "text-white"
+                        : "text-black"
                     }`}
                   >
                     {d}

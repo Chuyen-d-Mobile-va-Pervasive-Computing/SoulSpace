@@ -200,12 +200,22 @@ export default function Calendar() {
             const dateObj = dayjs(new Date(year, month, day));
             const isToday = dayjs().isSame(dateObj, "day");
             const isFuture = dateObj.isAfter(dayjs(), "day");
+            const goDetail = (entryId: string | number) => {
+              router.push(`/(tabs)/home/diary/detail?id=${entryId}`);
+            };
 
             return (
               <TouchableOpacity
                 key={day}
                 disabled={isFuture}
-                onPress={() => !emotion && !isFuture && goCreate(day)}
+                onPress={() => {
+                  if (isFuture) return;
+                  if (emotion && entryMap[day]) {
+                    goDetail(entryMap[day].id || entryMap[day]._id);
+                  } else {
+                    goCreate(day);
+                  }
+                }}
                 className="items-center justify-center"
                 style={{ width: cellWidth, height: 60 }}
                 activeOpacity={0.8}

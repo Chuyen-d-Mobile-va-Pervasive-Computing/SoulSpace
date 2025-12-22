@@ -11,14 +11,29 @@ const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 export default function ConfirmScreen() {
   const params = useLocalSearchParams();
   const appointment_id = params.appointment_id;
-  const expert_phone = params.expert_phone;
-  const { price: p, vat: v, start: s, end: e, date: d } = params;
   const [appointment, setAppointment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  // const [selectedOption, setSelectedOption] = useState<
+  //   "clinic" | "online" | null
+  // >(null);
   const [selectedOption, setSelectedOption] = useState<"clinic" | "online">(
     "clinic"
   );
+  type ApiPaymentMethod = "cash" | "card";
+  type UIPaymentOption = "clinic" | "online";
+
+  const apiToUIMap: Record<ApiPaymentMethod, UIPaymentOption> = {
+    cash: "clinic",
+    card: "online",
+  };
+
+  useEffect(() => {
+    const method = appointment?.payment?.method as ApiPaymentMethod | undefined;
+    if (method && method in apiToUIMap) {
+      setSelectedOption(apiToUIMap[method]);
+    }
+  }, [appointment]);
 
   useEffect(() => {
     if (!appointment_id) return;
@@ -51,11 +66,15 @@ export default function ConfirmScreen() {
   }, [appointment_id]);
 
   const handleConfirm = () => {
+    if (!selectedOption) {
+      alert("Please select a payment method");
+      return;
+    }
     if (selectedOption === "online") {
       router.push({
         pathname: "/(tabs)/home/consult/payment",
-        params: { appointment_id, total: appointment.total_amount }
-      })
+        params: { appointment_id, total: appointment.pricing.total_amount },
+      });
     } else {
       router.push("/(tabs)/home/consult/success");
     }
@@ -68,16 +87,6 @@ export default function ConfirmScreen() {
       </View>
     );
   }
-
-  const finalPrice = appointment?.price ?? Number(p) ?? 0;
-  const finalVat = appointment?.vat ?? Number(v) ?? 0;
-  const finalStart = appointment?.start_time ?? s ?? "";
-  const finalEnd = appointment?.end_time ?? e ?? "";
-  const finalDate =
-    appointment?.date ??
-    appointment?.appointment_date ??
-    d ??
-    "";
 
   return (
     <View className="flex-1 bg-[#FAF9FF]">
@@ -103,7 +112,7 @@ export default function ConfirmScreen() {
             </Text>
 
             <Text className="text-lg text-gray-600 font-[Poppins-Regular]">
-              {expert_phone}
+              {appointment.expert.phone}
             </Text>
           </View>
         </View>
@@ -116,13 +125,13 @@ export default function ConfirmScreen() {
           <View className="flex-row gap-4 items-center mt-4 ml-1">
             <Calendar color="#71717A" size={20} strokeWidth={2} />
             <Text className="text-[#71717A] font-[Poppins-Regular] leading-none text-[16px]">
-              {dayjs(finalDate).format("ddd, DD MMM")}
+              {dayjs(appointment.date).format("ddd, DD MMM")}
             </Text>
           </View>
           <View className="flex-row gap-4 items-center mt-4 ml-1">
             <Clock color="#71717A" size={20} strokeWidth={2} />
             <Text className="text-[#71717A] font-[Poppins-Regular] leading-none text-[16px]">
-              {finalStart} - {finalEnd}
+              {appointment.start_time} - {appointment.end_time}
             </Text>
           </View>
         </View>
@@ -155,7 +164,7 @@ export default function ConfirmScreen() {
               Price
             </Text>
             <Text className="text-[16px] font-[Poppins-SemiBold] text-[#333]">
-              ${finalPrice}
+              ${appointment.pricing.price}
             </Text>
           </View>
 
@@ -165,10 +174,21 @@ export default function ConfirmScreen() {
               VAT
             </Text>
             <Text className="text-[16px] font-[Poppins-SemiBold] text-[#333]">
-              ${finalVat}
+              ${appointment.pricing.vat}
             </Text>
           </View>
-
+          <View className="flex-row justify-between items-center py-2">
+            <Text className="text-[16px] font-[Poppins-Regular] text-[#333]">After Hours Fee</Text>
+            <Text className="text-[16px] font-[Poppins-SemiBold] text-[#333]">
+              {appointment.pricing.after_hours_fee}
+            </Text>
+          </View>
+          <View className="flex-row justify-between items-center py-2">
+            <Text className="text-[16px] font-[Poppins-Regular] text-[#333]">Discount</Text>
+            <Text className="text-[16px] font-[Poppins-SemiBold] text-[#333]">
+              {appointment.pricing.discount}
+            </Text>
+          </View>
           {/* Separator */}
           <View className="h-[1px] bg-[#E5E5E5] my-3" />
 
@@ -179,7 +199,7 @@ export default function ConfirmScreen() {
             </Text>
 
             <Text className="text-[18px] font-[Poppins-Bold] text-[#007BFF]">
-              ${appointment.total_amount}
+              ${appointment.pricing.total_amount}
             </Text>
           </View>
         </View>

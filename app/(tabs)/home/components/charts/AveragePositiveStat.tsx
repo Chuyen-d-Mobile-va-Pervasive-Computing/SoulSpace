@@ -2,20 +2,18 @@ import StatCard from "./StatCard";
 
 export default function AveragePositiveStat({
   period,
-  value,
-  percent,
+  percentage = 0,
   trend,
 }: {
-  period: string; // "week" | "month" | "year"
-  value: string;
-  percent: string;
+  period: "week" | "month" | "year";
+  percentage?: number;
   trend: "up" | "down" | "equal";
 }) {
   return (
     <StatCard
       title="Average Positive Emotion"
-      value={value}
-      percent={percent}
+      value={percentage.toFixed(0)}
+      suffix="%"
       change={trend}
       bg="bg-[#ffffff]"
       compareText={`compare to last ${period}`}

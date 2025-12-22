@@ -8,12 +8,41 @@ import AveragePositiveStat from "./components/charts/AveragePositiveStat";
 import NegativeEmotionStat from "./components/charts/NegativeEmotionStat";
 import PositiveEmotionStat from "./components/charts/PositiveEmotionStat";
 import TotalDiaryStat from "./components/charts/TotalDiaryStat";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import dayjs from "dayjs";
+import { ChartItem } from "@/constants/types";
+
+const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
+
+interface AnalyticsStats {
+  total_entries: number;
+  positive_percentage: number;
+  negative_percentage: number;
+  average_positive: number;
+  trend_positive: "up" | "down" | "equal";
+  trend_negative: "up" | "down" | "equal";
+  trend_entries: "up" | "down" | "equal";
+}
+
+interface AnalyticsResponse {
+  period: "week" | "month" | "year";
+  range: {
+    start: string;
+    end: string;
+  };
+  chart_data: ChartItem[];
+  stats: AnalyticsStats;
+}
 
 export default function AnalyticScreen() {
   const { tab: initialTab } = useLocalSearchParams<{
     tab?: "week" | "month" | "year";
   }>();
   const [tab, setTab] = useState<"week" | "month" | "year">("week");
+  const [range, setRange] = useState<{ start: string; end: string } | null>(null);
+  const [data, setData] = useState<AnalyticsResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     if (
       initialTab === "week" ||
@@ -23,6 +52,33 @@ export default function AnalyticScreen() {
       setTab(initialTab);
     }
   }, [initialTab]);
+
+  const fetchAnalytics = async (
+    period: "week" | "month" | "year",
+    start: string,
+    end: string
+  ) => {
+    try {
+      setLoading(true);
+      const token = await AsyncStorage.getItem("access_token");
+      const res = await fetch(
+        `${API_BASE}/api/v1/journal/analytics?period=${period}&start_date=${start}&end_date=${end}`,
+        {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const json: AnalyticsResponse = await res.json();
+      setData(json);
+    } catch (err) {
+      console.error("Fetch analytics error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <View className="flex-1 bg-[#FAF9FF]">
       <Heading title="Analytic" />
@@ -54,57 +110,84 @@ export default function AnalyticScreen() {
 
         <WeekMonthYearSelector
           mode={tab}
-          onChange={(range) => {
-            console.log(`Selected ${tab}:`, range);
+          onChange={(r) => {
+            const start = dayjs(r.startDate).format("YYYY-MM-DD");
+            const end = dayjs(r.endDate).format("YYYY-MM-DD");
+
+            setRange({ start, end });
+            fetchAnalytics(tab, start, end);
           }}
         />
 
         {/* Chart */}
         <View className="mb-6">
-          <EmotionChartWrapper type={tab} />
+          <EmotionChartWrapper type={tab}  data={data?.chart_data ?? []} />
         </View>
 
         {/* Stats */}
         <View className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {tab === "week" && (
+          {tab === "week" && data && (
             <>
               <PositiveEmotionStat
                 period="week"
-                value="65"
-                percent="5%"
-                trend="up"
+                percentage={data.stats.positive_percentage}
+                trend={data.stats.trend_positive}
               />
               <NegativeEmotionStat
                 period="week"
-                value="35"
-                percent="15%"
-                trend="down"
+                percentage={data.stats.negative_percentage}
+                trend={data.stats.trend_negative}
+              />
+              <TotalDiaryStat
+                period="week"
+                percentage={data.stats.total_entries}
+                trend={data.stats.trend_entries}
               />
             </>
           )}
-          {tab === "month" && (
+          {tab === "month" && data && (
             <>
               <PositiveEmotionStat
                 period="month"
-                value="70"
-                percent="2%"
-                trend="up"
+                percentage={data.stats.positive_percentage}
+                trend={data.stats.trend_positive}
+              />
+              <NegativeEmotionStat
+                period="month"
+                percentage={data.stats.negative_percentage}
+                trend={data.stats.trend_negative}
               />
               <TotalDiaryStat
                 period="month"
-                value="10"
-                percent="2%"
-                trend="up"
+                percentage={data.stats.total_entries}
+                trend={data.stats.trend_entries}
               />
             </>
           )}
-          {tab === "year" && (
-            <AveragePositiveStat
-              period="year"
-              value="65%"
-              percent="-"
-              trend="equal"
-            />
+
+          {tab === "year" && data && (
+            <>
+              <PositiveEmotionStat
+                period="year"
+                percentage={data.stats.positive_percentage}
+                trend={data.stats.trend_positive}
+              />
+              <NegativeEmotionStat
+                period="year"
+                percentage={data.stats.negative_percentage}
+                trend={data.stats.trend_negative}
+              />
+              <TotalDiaryStat
+                period="year"
+                percentage={data.stats.total_entries}
+                trend={data.stats.trend_entries}
+              />
+              <AveragePositiveStat
+                period="year"
+                percentage={data.stats.average_positive}
+                trend={data.stats.trend_positive}
+              />
+            </>
           )}
         </View>
       </ScrollView>

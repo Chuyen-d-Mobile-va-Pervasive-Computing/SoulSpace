@@ -17,6 +17,8 @@ import { ArrowBigRight, Bell } from "lucide-react-native";
 import { useRef, useState, useEffect } from "react";
 import { ScrollView, Text, TouchableOpacity, View, Image } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ChartItem } from "@/constants/types";
+import { getPreviousWeekRange } from "@/constants/currentWeek";
 
 const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
@@ -32,7 +34,7 @@ export default function HomeScreen() {
   const totalSteps = 10;
   const currentStep = 7.5; // mock progress
   const progressPercent = (currentStep / totalSteps) * 100;
-
+  const [chartData, setChartData] = useState<ChartItem[]>([]);
   const icons = [Angry, Worried, Confused, Happy, Excited];
 
   const scrollRef = useRef<ScrollView>(null);
@@ -62,6 +64,34 @@ export default function HomeScreen() {
       }
     };
     fetchMe();
+  }, []);
+
+  useEffect(() => {
+    const fetchMoodTrend = async () => {
+      try {
+        const token = await AsyncStorage.getItem("access_token");
+        if (!token) return;
+
+        const { startDate, endDate } = getPreviousWeekRange();
+
+        const res = await fetch(
+          `${API_BASE}/api/v1/journal/analytics` +
+            `?period=week&start_date=${startDate}&end_date=${endDate}`,
+          {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (!res.ok) return;
+        const json = await res.json();
+        setChartData(json.chart_data ?? []);
+      } catch (err) {
+        console.error("Fetch mood trend error:", err);
+      }
+    };
+    fetchMoodTrend();
   }, []);
 
   return (
@@ -148,7 +178,7 @@ export default function HomeScreen() {
                 ))}
               </View>
             </TouchableOpacity>
-            <MoodTrends />
+            <MoodTrends data={chartData} />
           </View>
 
           <View onLayout={(e) => setActivitiesY(e.nativeEvent.layout.y)}>

@@ -46,17 +46,43 @@ export default function DiaryListScreen() {
         fetchDetail();
     }, [id]);
 
-    const handleConfirmCancel = () => {
-        setShowConfirm(false);
-        router.push("/(tabs)/home/diary");
-    };
-
     const playRecording = async () => {
-        if (!detail?.audio_url) return;
+        if (!detail?.voice_note_path) return;
 
-        const { sound } = await Audio.Sound.createAsync({ uri: detail.audio_url });
+        const { sound } = await Audio.Sound.createAsync({ uri: detail.voice_note_path });
         setSound(sound);
         await sound.playAsync();
+    };
+
+    useEffect(() => {
+        return () => {
+            sound?.unloadAsync();
+        };
+    }, [sound]);
+
+    const deleteJournal = async () => {
+        try {
+            const token = await getToken();
+            const res = await fetch(`${API_BASE}/api/v1/journal/${id}`, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (!res.ok) {
+                console.warn("Delete failed", res.status);
+                return;
+            }
+            router.replace("/(tabs)/home/diary");
+        } catch (err) {
+            console.log("ERROR DELETE JOURNAL:", err);
+        }
+    };
+
+    const handleConfirmCancel = async () => {
+        setShowConfirm(false);
+        await deleteJournal();
     };
 
     if (loading) {
@@ -105,8 +131,16 @@ export default function DiaryListScreen() {
                         {detail?.text_content}
                     </Text>
 
+                    {detail?.voice_text && (
+                        <View className="mt-2 px-4 py-3 bg-[#F5F3FF] rounded-xl">
+                            <Text className="text-sm text-[#6B7280] italic text-center">
+                            “{detail.voice_text}”
+                            </Text>
+                        </View>
+                    )}
+
                     {/* Audio */}
-                    {detail?.audio_url && (
+                    {detail?.voice_note_path && (
                         <TouchableOpacity
                             className="h-[60px] px-6 rounded-lg flex-row items-center justify-center gap-2 mt-3"
                             onPress={playRecording}
@@ -116,6 +150,12 @@ export default function DiaryListScreen() {
                                 Play Recording
                             </Text>
                         </TouchableOpacity>
+                    )}
+
+                    {detail?.sentiment_label && (
+                        <Text className="text-xs text-gray-500 mt-1">
+                            Sentiment: {detail.sentiment_label} ({Math.round(detail.sentiment_score * 100)}%)
+                        </Text>
                     )}
                 </View>
             </ScrollView>

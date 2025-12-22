@@ -2,20 +2,18 @@ import StatCard from "./StatCard";
 
 export default function TotalDiaryStat({
   period,
-  value,
-  percent,
+  percentage,
   trend,
 }: {
-  period: string; // "week" | "month" | "year"
-  value: string;
-  percent: string;
+  period: "week" | "month" | "year";
+  percentage: number;
   trend: "up" | "down" | "equal";
 }) {
   return (
     <StatCard
       title="Total Diary Entries"
-      value={value}
-      percent={percent}
+      value={percentage.toFixed(0)}
+      suffix="entries"
       change={trend}
       bg="bg-[#ffffff]"
       compareText={`compare to last ${period}`}

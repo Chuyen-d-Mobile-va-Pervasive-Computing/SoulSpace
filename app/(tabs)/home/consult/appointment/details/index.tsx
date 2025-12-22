@@ -19,10 +19,17 @@ export default function AppointDetailScreen() {
   const [appointment, setAppointment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const fromTab = Number(tab ?? 0);
-
   const [selectedOption, setSelectedOption] = useState<"clinic" | "online">(
     "clinic"
   );
+
+  type ApiPaymentMethod = "cash" | "card";
+  type UIPaymentOption = "clinic" | "online";
+
+  const apiToUIMap: Record<ApiPaymentMethod, UIPaymentOption> = {
+    cash: "clinic",
+    card: "online",
+  };
 
   const isLocked = selectedOption !== null;
   const [showConfirm, setShowConfirm] = useState(false);
@@ -45,6 +52,11 @@ export default function AppointDetailScreen() {
           return;
         }
         setAppointment(data);
+        if (data?.payment?.method) {
+          setSelectedOption(
+            data.payment.method === "cash" ? "clinic" : "online"
+          );
+        }
       } catch (err) {
         console.error("Fetch appointment error:", err);
       } finally {
@@ -134,7 +146,7 @@ export default function AppointDetailScreen() {
             </Text>
 
             <Text className="text-lg text-gray-600 font-[Poppins-Regular]">
-              +1 234 567 890
+              {appointment.expert.phone}
             </Text>
           </View>
         </View>
@@ -184,14 +196,26 @@ export default function AppointDetailScreen() {
           <View className="flex-row justify-between items-center py-2">
             <Text className="text-[16px] font-[Poppins-Regular] text-[#333]">Price</Text>
             <Text className="text-[16px] font-[Poppins-SemiBold] text-[#333]">
-              110
+              {appointment.pricing.price}
             </Text>
           </View>
           {/* VAT */}
           <View className="flex-row justify-between items-center py-2">
             <Text className="text-[16px] font-[Poppins-Regular] text-[#333]">VAT</Text>
             <Text className="text-[16px] font-[Poppins-SemiBold] text-[#333]">
-              10
+              {appointment.pricing.vat}
+            </Text>
+          </View>
+          <View className="flex-row justify-between items-center py-2">
+            <Text className="text-[16px] font-[Poppins-Regular] text-[#333]">After Hours Fee</Text>
+            <Text className="text-[16px] font-[Poppins-SemiBold] text-[#333]">
+              {appointment.pricing.after_hours_fee}
+            </Text>
+          </View>
+          <View className="flex-row justify-between items-center py-2">
+            <Text className="text-[16px] font-[Poppins-Regular] text-[#333]">Discount</Text>
+            <Text className="text-[16px] font-[Poppins-SemiBold] text-[#333]">
+              {appointment.pricing.discount}
             </Text>
           </View>
           {/* Separator */}
@@ -201,7 +225,7 @@ export default function AppointDetailScreen() {
           <View className="flex-row justify-between items-center">
             <Text className="text-[18px] font-[Poppins-SemiBold] text-[#000]">Total payable</Text>
             <Text className="text-[18px] font-[Poppins-Bold] text-[#007BFF]">
-              ${appointment.total_amount}
+              ${appointment.pricing.total_amount}
             </Text>
           </View>
         </View>
@@ -243,12 +267,14 @@ export default function AppointDetailScreen() {
               </View>
 
               <Text className="text-lg font-[Poppins-Regular] text-[#333]">
-                {opt.label}
+                {appointment.payment.method === apiToUIMap[opt.key as ApiPaymentMethod]
+                  ? `${opt.label}`
+                  : opt.label}
               </Text>
             </TouchableOpacity>
           );
-        })}
-
+        })
+      }
         {/* CONFIRM BUTTON */}
         {canCancel && (
           <TouchableOpacity
