@@ -118,7 +118,7 @@ export default function CommentScreen() {
           title: data.title,
           image_url: data.image_url || null,
           content: data.content,
-          createdAt: data.created_at,
+          createdAt: new Date(data.created_at).toLocaleString("sv-SE").replace("T", " "),
           topic: data.hashtags?.[0] || null,
           likes: data.like_count || 0,
           comments: data.comment_count || 0,
@@ -431,7 +431,7 @@ export default function CommentScreen() {
                 <PostHeader
                   username={post.username}
                   avatarUrl={post.avatar}
-                  createdAt={post.created_at}
+                  createdAt={post.createdAt}
                   isAnonymous={!post.avatar && post.username === "Anonymous"}
                 />
                 {post.role === "expert" && (

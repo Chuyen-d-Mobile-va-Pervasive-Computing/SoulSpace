@@ -6,18 +6,11 @@ import { Sun, Share2, PenLine, ArrowLeft, MessageCircle, Heart } from "lucide-re
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import PostHeader from "@/components/PostHeader";
+import { router } from "expo-router";
+import MentalTreePlant from "@/components/MentalTreePlant";
+import CustomSwitch from "@/components/CustomSwitch";
 
 const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
-
-import Plant1 from "@/assets/images/plant1.svg";
-import Plant2 from "@/assets/images/plant2.svg";
-import Plant3 from "@/assets/images/plant3.svg";
-import Plant4 from "@/assets/images/plant4.svg";
-import Plant5 from "@/assets/images/plant5.svg";
-import Plant6 from "@/assets/images/plant6.svg";
-import Plant7 from "@/assets/images/plant7.svg";
-import Plant8 from "@/assets/images/plant8.svg";
-import { router } from "expo-router";
 
 interface Me {
   id: string;
@@ -57,19 +50,9 @@ export default function ProfileScreen() {
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [shareModalVisible, setShareModalVisible] = useState(false);
   const [shareText, setShareText] = useState("");
-
-  const PlantImages = {
-    1: Plant1,
-    2: Plant2,
-    3: Plant3,
-    4: Plant4,
-    5: Plant5,
-    6: Plant6,
-    7: Plant7,
-    8: Plant8,
-  };
-
-  const CurrentPlant = PlantImages[level as keyof typeof PlantImages] || Plant1;
+  const [sharing, setSharing] = useState(false); 
+  const [includeExcerpt, setIncludeExcerpt] = useState(true);
+  const [isAnonymous, setIsAnonymous] = useState(true);
   const progress = nextLevelXp > 0 ? (currentXp / nextLevelXp) * 100 : 0;
 
   useEffect(() => {
@@ -219,29 +202,38 @@ export default function ProfileScreen() {
 
   // Handle share action
   const handleShare = async () => {
-    try {
-      const token = await AsyncStorage.getItem("access_token");
+    setSharing(true);
+    const token = await AsyncStorage.getItem("access_token");
 
-      await fetch(`${API_BASE}/api/v1/community/post-tree`, {
+    try {
+      const body: any = {
+        custom_message: shareText.trim(),
+        is_anonymous: true,
+        include_journal_excerpt: true,
+        hashtags: ["mentalTree", "growth"],
+      };
+
+      const res = await fetch(`${API_BASE}/api/v1/tree/share`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          level,
-          content: shareText.trim(),
-        }),
+        body: JSON.stringify(body),
       });
 
-      ToastAndroid.show("You have shared your tree", ToastAndroid.SHORT);
-
-      setShareModalVisible(false);
-      setShareText("");
-
+      if (res.ok) {
+        ToastAndroid.show("Shared successfully!", ToastAndroid.SHORT);
+        setShareModalVisible(false);
+        setShareText("");
+      } else {
+        const err = await res.json();
+        ToastAndroid.show(err.detail || "Share failed", ToastAndroid.SHORT);
+      }
     } catch (error) {
-      ToastAndroid.show("Error occured", ToastAndroid.SHORT);
-      console.error(error);
+      ToastAndroid.show("Error occurred", ToastAndroid.SHORT);
+    } finally {
+      setSharing(false);
     }
   };
 
@@ -326,14 +318,13 @@ export default function ProfileScreen() {
                 </View>
                 {post.hashtags?.length > 0 && (
                   <View className="flex-row flex-wrap mb-4">
-                    {post.hashtags.map((tag) => (
-                      <View
-                        key={tag}
-                        className="border border-[#7F56D9] px-4 py-1 rounded-full mr-2 mb-2"
-                      >
-                        <Text className="text-[#7F56D9] font-[Poppins-SemiBold] text-sm">{tag}</Text>
+                    {post.hashtags?.[0] && (
+                      <View className="border border-[#7F56D9] px-4 py-1 rounded-full">
+                        <Text className="text-[#7F56D9] font-[Poppins-SemiBold] text-sm">
+                          {post.hashtags[0]}
+                        </Text>
                       </View>
-                    ))}
+                    )}
                   </View>
                 )}
                 {/* <TouchableOpacity
@@ -387,16 +378,18 @@ export default function ProfileScreen() {
             <Text className="text-lg font-[Poppins-SemiBold] text-gray-700 mb-3">🌱 Mind Tree</Text>
 
             {/* NÚT SHARE */}
-            <TouchableOpacity
-              onPress={() => setShareModalVisible(true)}
-              className="p-2 bg-[#7F56D9] rounded-full"
-            >
-              <Share2 color="white" size={18} />
-            </TouchableOpacity>
+            {!canWater && (
+              <TouchableOpacity
+                onPress={() => setShareModalVisible(true)}
+                className="p-2 bg-[#7F56D9] rounded-full"
+              >
+                <Share2 color="white" size={18} />
+              </TouchableOpacity>
+            )}
           </View>
 
           <View className="mt-10 items-center">
-            <CurrentPlant width={200} height={250} />
+            <MentalTreePlant level={level} width={200} height={250} />
           </View>
 
           <View className="w-full p-3">
@@ -438,7 +431,7 @@ export default function ProfileScreen() {
 
                 {/* Tree Image */}
                 <View className="items-center mb-4">
-                  <CurrentPlant width={180} height={220} />
+                  <MentalTreePlant level={level} width={180} height={220} />
                 </View>
 
                 {/* Input */}
@@ -451,10 +444,26 @@ export default function ProfileScreen() {
                   textAlignVertical="top"
                   className="w-full min-h-[100px] p-3 border border-gray-300 rounded-xl text-gray-800 font-[Poppins-Regular]"
                 />
-
+                <View className="mt-4 space-y-5 gap-2">
+                  <View className="flex-row items-center justify-between">
+                    <Text className="font-[Poppins-Medium] text-gray-700">Excerpt from diary</Text>
+                    <CustomSwitch
+                      value={includeExcerpt}
+                      onValueChange={setIncludeExcerpt}
+                    />
+                  </View>              
+                  <View className="flex-row items-center justify-between">
+                    <Text className="font-[Poppins-Medium] text-gray-700">Anonymous</Text>
+                    <CustomSwitch
+                      value={isAnonymous}
+                      onValueChange={setIsAnonymous}
+                    />
+                  </View>
+                </View>
                 {/* Buttons */}
                 <View className="flex-row justify-between mt-4">
                   <TouchableOpacity
+                    disabled={sharing}
                     onPress={() => setShareModalVisible(false)}
                     className="flex-1 py-3 bg-gray-300 rounded-xl mr-2"
                   >
@@ -462,10 +471,13 @@ export default function ProfileScreen() {
                   </TouchableOpacity>
 
                   <TouchableOpacity
+                    disabled={sharing}
                     onPress={handleShare}
-                    className="flex-1 py-3 bg-[#7F56D9] rounded-xl ml-2"
+                    className={`flex-1 py-3 rounded-xl ml-2 ${(sharing) ? "opacity-40 bg-[#7F56D9]" : "bg-[#7F56D9]"}`}
                   >
-                    <Text className="text-center text-white font-[Poppins-SemiBold]">Share</Text>
+                    <Text className={`text-center font-[Poppins-SemiBold] ${(sharing) ? "text-gray-300" : "text-white"}`}>
+                      {sharing ? "Sharing..." : "Share"}
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>

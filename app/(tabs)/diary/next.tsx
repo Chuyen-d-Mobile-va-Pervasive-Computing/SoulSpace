@@ -4,18 +4,12 @@ import { Audio } from "expo-av";
 import { router, useLocalSearchParams } from "expo-router";
 import { AudioLines, Mic } from "lucide-react-native";
 import React, { useState, useRef, useEffect } from "react";
-import {
-  Alert,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-  Animated,
-  Easing,
-} from "react-native";
+import { Alert, ScrollView, Text, TextInput, TouchableOpacity, View, Animated, Easing, Modal, TouchableWithoutFeedback } from "react-native";
+import Toast from "react-native-toast-message";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { emotionList } from "@/components/EmotionPicker";
+import MentalTreePlant from "@/components/MentalTreePlant";
+import CustomSwitch from "@/components/CustomSwitch";
 
 const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
@@ -31,10 +25,16 @@ export default function DiaryNextScreen() {
   const [saving, setSaving] = useState(false);
   const [tags, setTags] = useState<{ tag_id: string; tag_name: string }[]>([]);
   const [thoughts, setThoughts] = useState<string>("");
-
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [audioUri, setAudioUri] = useState<string | null>(null);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [shareModalVisible, setShareModalVisible] = useState(false);
+  const [latestJournalId, setLatestJournalId] = useState<string | null>(null);
+  const [shareMessage, setShareMessage] = useState("");
+  const [includeExcerpt, setIncludeExcerpt] = useState(true);
+  const [isAnonymous, setIsAnonymous] = useState(true);
+  const [sharing, setSharing] = useState(false);
+  const [level, setLevel] = useState(1);
 
   const getToken = async () => {
     try {
@@ -176,8 +176,20 @@ export default function DiaryNextScreen() {
       });
 
       if (res.ok) {
-        Alert.alert("Success", "Diary saved successfully!");
-        router.push("/(tabs)/home/diary");
+        const result = await res.json();
+        // Lưu journal_id nếu tưới cây thành công
+        if (result.tree_watering_result?.watered) {
+          setLatestJournalId(result.id);
+        }
+        if (result.tree_watering_result?.current_level) {
+          setLevel(result.tree_watering_result.current_level);
+        }
+        if (result.share_suggestion) {
+          setShareModalVisible(true);
+        } else {
+          Alert.alert("Success", "Diary saved successfully!");
+          router.push("/(tabs)/home/diary");
+        }
       } else {
         const errorData = await res.json().catch(() => ({}));
         const errorMessage = errorData.detail || errorData.error || `Error ${res.status}`;
@@ -189,6 +201,72 @@ export default function DiaryNextScreen() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleShareTree = async () => {
+    if (sharing || !latestJournalId && includeExcerpt) return;
+    setSharing(true);
+
+    const token = await getToken();
+    if (!token) {
+      Alert.alert("Error", "Please login again");
+      setSharing(false);
+      return;
+    }
+
+    try {
+      const body: any = {
+        include_journal_excerpt: includeExcerpt,
+        is_anonymous: isAnonymous,
+        custom_message: shareMessage.trim(),
+        hashtags: ["mentalTree", "growth"],
+      };
+
+      if (includeExcerpt && latestJournalId) {
+        body.journal_id = latestJournalId;
+      }
+
+      const res = await fetch(`${API_BASE}/api/v1/tree/share`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        Toast.show({
+          type: "success",
+          text1: "Shared successfully!",
+        });
+        setShareModalVisible(false);
+        router.push("/(tabs)/home/diary");
+      } else {
+        const error = await res.json();
+        let msg = error.detail || "Share failed";
+        if (error.detail === "NO_TREE_ACTION_TODAY") msg = "You need to water your tree today first!";
+        Alert.alert("Share failed", msg);
+      }
+    } catch (err) {
+      Alert.alert("Error", "Cannot connect to server");
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  const closeShareModalAndNavigate = () => {
+    setShareModalVisible(false);
+    Toast.show({
+      type: "info",
+      text1: "Diary saved!",
+      text2: "You can share your tree progress later from the tree page.",
+      visibilityTime: 3000,
+    });  
+    setTimeout(() => {
+      router.push("/(tabs)/home/diary");
+    }, 300);
   };
 
   const IconComponent = iconMap[emotionLabel];
@@ -309,6 +387,63 @@ export default function DiaryNextScreen() {
             </Text>
           </TouchableOpacity>
         </View>
+
+        <Modal transparent visible ={shareModalVisible} animationType="slide">
+          <TouchableWithoutFeedback onPress={() => !sharing && closeShareModalAndNavigate()}>
+            <View className="flex-1 bg-black/50 justify-center items-center">
+              <View className="bg-white rounded-2xl p-6 w-11/12 max-w-sm">
+                <Text className="text-xl font-[Poppins-Bold] text-center mb-4">
+                  Share your tree 🌱
+                </Text>
+                <View className="items-center">
+                  <MentalTreePlant level={level} width={180} height={220} />
+                </View> 
+                <TextInput
+                  placeholder="Add message (optional)..."
+                  value={shareMessage}
+                  onChangeText={setShareMessage}
+                  multiline
+                  className="border border-gray-300 rounded-xl p-4 mt-4 min-h-[100px] font-[Poppins-Regular]"
+                />
+                <View className="mt-4 space-y-5 gap-2">
+                  <View className="flex-row items-center justify-between">
+                    <Text className="font-[Poppins-Medium] text-gray-700">Excerpt from diary</Text>
+                    <CustomSwitch
+                      value={includeExcerpt}
+                      onValueChange={setIncludeExcerpt}
+                    />
+                  </View>
+                  <View className="flex-row items-center justify-between">
+                    <Text className="font-[Poppins-Medium] text-gray-700">Anonymous</Text>
+                    <CustomSwitch
+                      value={isAnonymous}
+                      onValueChange={setIsAnonymous}
+                    />
+                  </View>
+                </View>
+                <View className="flex-row mt-6 gap-3">
+                  <TouchableOpacity
+                    disabled={sharing}
+                    onPress={closeShareModalAndNavigate}
+                    className="flex-1 py-4 bg-gray-300 rounded-xl"
+                  >
+                    <Text className="text-center font-[Poppins-SemiBold]">Cancel</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    disabled={sharing}
+                    onPress={handleShareTree}
+                    className={`flex-1 py-4 rounded-xl ${(sharing) ? "opacity-40 bg-[#7F56D9]" : "bg-[#7F56D9]"}`}
+                  >
+                    <Text className={`text-center font-[Poppins-SemiBold] ${(sharing) ? "text-gray-300" : "text-white"}`}>
+                      {sharing ? "Sharing..." : "Share"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
       </ScrollView>
     </View>
   );
