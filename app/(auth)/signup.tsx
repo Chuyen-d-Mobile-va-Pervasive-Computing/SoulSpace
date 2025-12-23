@@ -1,9 +1,7 @@
 "use client";
-import { useFonts } from "expo-font";
 import { useRouter } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
 import { ChevronLeft, Eye, EyeOff } from "lucide-react-native";
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import {
   Pressable,
   Text,
@@ -12,8 +10,10 @@ import {
   View,
   ActivityIndicator,
   Alert,
+  Image,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import * as ImagePicker from "expo-image-picker";
 
 const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
@@ -24,38 +24,122 @@ export default function RegisterScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null); // local uri
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null); // url từ server
   const [loading, setLoading] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const [errors, setErrors] = useState({
     email: "",
     password: "",
     confirmPassword: "",
+    phone: "",
+    avatarUrl: "",
   });
 
-  const [fontsLoaded] = useFonts({
-    "Poppins-Regular": require("@/assets/fonts/Poppins-Regular.ttf"),
-    "Poppins-Bold": require("@/assets/fonts/Poppins-Bold.ttf"),
-    "Poppins-SemiBold": require("@/assets/fonts/Poppins-SemiBold.ttf"),
-    "Poppins-Medium": require("@/assets/fonts/Poppins-Medium.ttf"),
-    "Poppins-Light": require("@/assets/fonts/Poppins-Light.ttf"),
-  });
+  const validateFields = (field: string, value: string) => {
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      if (field === "email") {
+        if (!value.trim()) {
+          newErrors.email = "Email is required";
+        } else if (!value.includes("@")) {
+          newErrors.email = "Invalid email format";
+        } else {
+          newErrors.email = "";
+        }
+      }
 
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
+      if (field === "password") {
+        if (value.length < 8) {
+          newErrors.password = "Password must be at least 8 characters";
+        } else if (!/[A-Z]/.test(value)) {
+          newErrors.password = "Password must contain at least 1 uppercase letter";
+        } else if (!/[0-9]/.test(value)) {
+          newErrors.password = "Password must contain at least 1 number";
+        } else {
+          newErrors.password = "";
+        }
+      }
+
+      if (field === "confirmPassword") {
+        if (value !== password) {
+          newErrors.confirmPassword = "Passwords do not match";
+        } else {
+          newErrors.confirmPassword = "";
+        }
+      }
+
+      if (field === "phone") {
+        if (value.trim() === "") {
+          newErrors.phone = "";
+        } else if (!/^\d{10}$/.test(value.trim())) {
+          newErrors.phone = "Phone must be exactly 10 digits";
+        } else {
+          newErrors.phone = "";
+        }
+      }
+
+      return newErrors;
+    });
+  };
+
+  const pickAndUploadAvatar = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.8,
+      allowsEditing: true,
+      aspect: [1, 1],
+    });
+
+    if (result.canceled) return;
+
+    const uri = result.assets[0].uri;
+    setSelectedAvatar(uri);
+    setUploadingAvatar(true);
+    setErrors((prev) => ({ ...prev, avatarUrl: "" }));
+
+    try {
+      const formData = new FormData();
+      formData.append("file", {
+        uri,
+        name: "avatar.jpg",
+        type: "image/jpeg",
+      } as any);
+
+      const res = await fetch(`${API_BASE}/api/v1/upload/public/avatar`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || "Upload failed");
+      }
+      const data = await res.json();
+      setAvatarUrl(data.url);
+    } catch (err: any) {
+      console.error(err);
+      Alert.alert("Upload error", err.message || "Failed to upload avatar");
+      setSelectedAvatar(null);
+    } finally {
+      setUploadingAvatar(false);
     }
-  }, [fontsLoaded]);
-
-  if (!fontsLoaded) return null;
+  };
 
   const handleRegister = async () => {
-    if (!email || !password || !confirmPassword) {
-      Alert.alert("Missing fields", "Please fill out all fields.");
+    validateFields("email", email);
+    validateFields("password", password);
+    validateFields("confirmPassword", confirmPassword);
+    validateFields("phone", phone);
+
+    if (!avatarUrl) {
+      setErrors((prev) => ({ ...prev, avatarUrl: "Please select and upload an avatar" }));
       return;
     }
 
-    if (password !== confirmPassword) {
-      Alert.alert("Password mismatch", "Passwords do not match.");
+    if (errors.email || errors.password || errors.confirmPassword || errors.phone) {
       return;
     }
 
@@ -68,9 +152,11 @@ export default function RegisterScreen() {
           Accept: "application/json",
         },
         body: JSON.stringify({
-          email,
+          email: email.trim(),
           password,
           role: "user",
+          phone: phone.trim() || null,
+          avatar_url: avatarUrl,
         }),
       });
 
@@ -89,10 +175,9 @@ export default function RegisterScreen() {
         setLoading(false);
         return;
       }
-
       Alert.alert(
         "Success",
-        `Welcome ${data.username}! Your account has been created.`,
+        `Welcome ${data.username || email}! Your account has been created.`,
         [{ text: "OK", onPress: () => router.replace("/(auth)/login") }]
       );
     } catch (error) {
@@ -101,29 +186,6 @@ export default function RegisterScreen() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const validateFields = (field: string, value: string) => {
-    setErrors((prev) => {
-      const newErrors = { ...prev };
-
-      if (field === "email") {
-        if (!value.includes("@")) newErrors.email = "Invalid email format";
-        else newErrors.email = "";
-      }
-
-      if (field === "password") {
-        if (value.length < 8 || !/[A-Z]/.test(value) || !/[0-9]/.test(value)) newErrors.password = "Password must be at least 8 characters with 1 uppercase and 1 number";
-        else newErrors.password = "";
-      }
-
-      if (field === "confirmPassword") {
-        if (value !== password) newErrors.confirmPassword = "Passwords do not match";
-        else newErrors.confirmPassword = "";
-      }
-
-      return newErrors;
-    });
   };
 
   return (
@@ -135,7 +197,6 @@ export default function RegisterScreen() {
       enableOnAndroid
     >
       <View className="flex-1 bg-[#FAF9FF] pt-12">
-        {/* Nút Back */}
         <View className="mt-8 ml-4">
           <TouchableOpacity
             onPress={() => router.back()}
@@ -144,8 +205,7 @@ export default function RegisterScreen() {
             <ChevronLeft size={30} color="#000000" />
           </TouchableOpacity>
         </View>
-        {/* Title */}
-        <View className="px-6 mt-24">
+        <View className="px-6 mt-4">
           <Text className="text-black text-3xl font-[Poppins-Bold]">
             Welcome back! Glad
           </Text>
@@ -153,7 +213,26 @@ export default function RegisterScreen() {
             to see you, Again!
           </Text>
         </View>
-        <View className="px-6 mt-12">
+        {/* Avatar */}
+        <View className="px-6">
+          <View className="mb-6 items-center">
+            <TouchableOpacity
+              onPress={pickAndUploadAvatar}
+              disabled={uploadingAvatar}
+              className="w-28 h-28 bg-gray-100 rounded-full items-center justify-center border border-dashed border-[#DADADA]"
+            >
+              {uploadingAvatar ? (
+                <ActivityIndicator size="large" color="#7F56D9" />
+              ) : selectedAvatar ? (
+                <Image source={{ uri: selectedAvatar }} className="w-full h-full rounded-full" resizeMode="cover" />
+              ) : (
+                <Text className="text-center text-gray-500 font-[Poppins-Regular]">Tap to choose avatar</Text>
+              )}
+            </TouchableOpacity>
+            {errors.avatarUrl ? (
+              <Text className="text-red-500 text-xs mt-1 font-[Poppins-Regular]">{errors.avatarUrl}</Text>
+            ) : null}
+          </View>
           {/* Email */}
           <View className="mb-4">
             <Text className="text-gray-500 text-sm mb-1 font-[Poppins-Regular]">
@@ -176,7 +255,7 @@ export default function RegisterScreen() {
             {errors.email ? (
               <Text className="text-red-500 text-xs mt-1 font-[Poppins-Regular]">{errors.email}</Text>
             ) : null}
-          </View>
+          </View>             
           {/* Password */}
           <View className="mb-4">
             <Text className="text-gray-500 text-sm mb-1 font-[Poppins-Regular]">
@@ -188,7 +267,7 @@ export default function RegisterScreen() {
             >
               <TextInput
                 placeholder="Enter your password"
-                placeholderTextColor="#ccc"
+                placeholderTextColor="#9CA3AF"
                 secureTextEntry={!showPassword}
                 value={password}
                 onChangeText={(text) => {
@@ -209,7 +288,6 @@ export default function RegisterScreen() {
               <Text className="text-red-500 text-xs mt-1 font-[Poppins-Regular]">{errors.password}</Text>
             ) : null}
           </View>
-
           {/* Confirm Password */}
           <View className="mb-4">
             <Text className="text-gray-500 text-sm mb-1 font-[Poppins-Regular]">
@@ -221,7 +299,7 @@ export default function RegisterScreen() {
             >
               <TextInput
                 placeholder="Re-enter your password"
-                placeholderTextColor="#ccc"
+                placeholderTextColor="#9CA3AF"
                 secureTextEntry={!showConfirmPassword}
                 value={confirmPassword}
                 onChangeText={(text) => {
@@ -240,6 +318,29 @@ export default function RegisterScreen() {
             </View>
             {errors.confirmPassword ? (
               <Text className="text-red-500 text-xs mt-1 font-[Poppins-Regular]">{errors.confirmPassword}</Text>
+            ) : null}
+          </View>
+          {/* Phone */}
+          <View className="mb-4">
+            <Text className="text-gray-500 text-sm mb-1 font-[Poppins-Regular]">
+              Phone Number
+            </Text>
+            <TextInput
+              placeholder="Enter 10-digit phone number"
+              placeholderTextColor="#9CA3AF"
+              value={phone}
+              onChangeText={(text) => {
+                setPhone(text);
+                validateFields("phone", text);
+              }}
+              keyboardType="numeric"
+              maxLength={10}
+              className={`w-full h-16 bg-transparent rounded-[10px] px-4 border 
+                ${errors.phone ? "border-red-500" : "border-[#DADADA]"}
+                font-[Poppins-Regular]`}
+            />
+            {errors.phone ? (
+              <Text className="text-red-500 text-xs mt-1 font-[Poppins-Regular]">{errors.phone}</Text>
             ) : null}
           </View>
 
