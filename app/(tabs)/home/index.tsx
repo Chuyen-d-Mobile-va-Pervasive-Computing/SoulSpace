@@ -19,6 +19,7 @@ import { ScrollView, Text, TouchableOpacity, View, Image } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ChartItem } from "@/constants/types";
 import { getPreviousWeekRange } from "@/constants/currentWeek";
+import dayjs from "dayjs";
 
 const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
@@ -29,13 +30,26 @@ interface Me {
   created_at: string;
 }
 
+const progressIcons = [
+  { name: "Angry", icon: Angry },
+  { name: "Worried", icon: Worried },
+  { name: "Confused", icon: Confused },
+  { name: "Happy", icon: Happy },
+  { name: "Excited", icon: Excited },
+];
+
+function getEmotionIndex(score: number) {
+  const clamped = Math.max(0, Math.min(score, 1));
+  const rawIndex = clamped * (progressIcons.length - 1);
+  return Math.round(rawIndex);
+}
+
 export default function HomeScreen() {
   const [me, setMe] = useState<Me | null>(null);
-  const totalSteps = 10;
-  const currentStep = 7.5; // mock progress
-  const progressPercent = (currentStep / totalSteps) * 100;
+  const [averageScore, setAverageScore] = useState(0);
+  const activeIndex = getEmotionIndex(averageScore);
+  const progressPercent = Math.round(averageScore * 100);
   const [chartData, setChartData] = useState<ChartItem[]>([]);
-  const icons = [Angry, Worried, Confused, Happy, Excited];
 
   const scrollRef = useRef<ScrollView>(null);
   const [activitiesY, setActivitiesY] = useState(0);
@@ -92,6 +106,32 @@ export default function HomeScreen() {
       }
     };
     fetchMoodTrend();
+  }, []);
+
+  useEffect(() => {
+    const fetchDailySentiment = async () => {
+      try {
+        const token = await AsyncStorage.getItem("access_token");
+        if (!token) return;
+        const date = dayjs().format("YYYY-MM-DD");
+        const res = await fetch(
+          `${API_BASE}/api/v1/journal/daily-sentiment?date=${date}`,
+          {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (!res.ok) return;
+        const json = await res.json();
+        setAverageScore(json.average_score ?? 0);
+      } catch (err) {
+        console.error("Fetch daily sentiment error:", err);
+      }
+    };
+
+    fetchDailySentiment();
   }, []);
 
   return (
@@ -168,14 +208,21 @@ export default function HomeScreen() {
               </View>
               {/* Icon cảm xúc */}
               <View className="flex-row justify-between w-full mt-[-25] px-2">
-                {icons.map((Icon, index) => (
-                  <View
-                    key={index}
-                    className="w-10 h-10 rounded-full bg-yellow-100 items-center justify-center shadow"
-                  >
-                    <Icon width={20} height={20} />
-                  </View>
-                ))}
+                {progressIcons.map((item, index) => {
+                  const Icon = item.icon;
+                  const active = index === activeIndex;
+
+                  return (
+                    <View
+                      key={item.name}
+                      className={`w-12 h-12 rounded-full items-center justify-center shadow-lg ${
+                        active ? "bg-[#7F56D9]" : "bg-yellow-100"
+                      }`}
+                    >
+                      <Icon width={36} height={36} />
+                    </View>
+                  );
+                })}
               </View>
             </TouchableOpacity>
             <MoodTrends data={chartData} />

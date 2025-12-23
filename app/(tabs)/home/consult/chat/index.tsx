@@ -66,6 +66,10 @@ export default function ChatScreen() {
 
   useEffect(() => {
     fetchChats();
+    const interval = setInterval(() => {
+      fetchChats();
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const onRefresh = () => {

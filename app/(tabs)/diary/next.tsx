@@ -264,9 +264,7 @@ export default function DiaryNextScreen() {
       text2: "You can share your tree progress later from the tree page.",
       visibilityTime: 3000,
     });  
-    setTimeout(() => {
-      router.push("/(tabs)/home/diary");
-    }, 300);
+    router.push("/(tabs)/home/diary");
   };
 
   const IconComponent = iconMap[emotionLabel];

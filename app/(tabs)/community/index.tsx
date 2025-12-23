@@ -381,7 +381,7 @@ export default function CommunityScreen() {
                 <Image
                   source={{ uri: post.image_url }}
                   className="w-full h-64 rounded-xl mt-3"
-                  resizeMode="cover"
+                  resizeMode="contain"
                 />
               )}
 

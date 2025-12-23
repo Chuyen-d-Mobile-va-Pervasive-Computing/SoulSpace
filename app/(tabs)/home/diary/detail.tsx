@@ -110,7 +110,7 @@ export default function DiaryListScreen() {
                     </Text>
 
                     <Text className="text-[24px] text-center font-[Poppins-Regular]">
-                        {detail?.created_at ? dayjs(detail.created_at).format("HH:mm A") : ""}
+                        {detail?.created_at ? dayjs(detail.created_at).add(7, 'hour').format("HH:mm A") : "" }
                     </Text>
 
                     <Icon width={100} height={100} />
