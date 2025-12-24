@@ -1,50 +1,186 @@
-# Welcome to your Expo app 👋
+# **Hướng dẫn chạy Frontend – SoulSpace**
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Tài liệu này hướng dẫn cách chạy **Frontend App (User / Expert)** trên điện thoại bằng **Expo Go** và **Web Admin** trên trình duyệt cho người mới bắt đầu.
 
-## Get started
+---
 
-1. Install dependencies
+## **I. Yêu cầu môi trường (Cài trước)**
 
-   ```bash
-   npm install
-   ```
+Trước khi chạy project cần có:
 
-2. Start the app
+* **Node.js** (khuyến nghị ≥ 18\)
 
-   ```bash
-   npx expo start
-   ```
+Kiểm tra:
 
-In the output, you'll find options to open the app in a
+ **node \-v**
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+**npm** (đi kèm Node.js)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+ **npm \-v**
 
-## Get a fresh project
+**Git**
 
-When you're ready, run:
+ git \--version
 
-```bash
-npm run reset-project
-```
+* **Điện thoại Android** cài **Expo Go:** Tải trên Google Play hoặc chạy qua máy ảo (LD Player)
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## **II. Chạy App Mobile (User / Expert)**
 
-To learn more about developing your project with Expo, look at the following resources:
+### **1\. Chuẩn bị điện thoại Android**
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+1. Mở **Cài đặt (Settings)**
 
-## Join the community
+2. Vào **Thông tin điện thoại (About phone)**
 
-Join our community of developers creating universal apps.
+3. Tìm **Số bản dựng (Build number)**
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+4. Nhấn **7 lần liên tiếp** → Hiện thông báo *“Bạn đã là nhà phát triển”*
+
+5. Quay lại **Cài đặt**
+
+6. Vào **Tùy chọn nhà phát triển (Developer options)**
+
+7. Bật **Gỡ lỗi USB (USB Debugging)**
+
+8. Dùng **cáp USB** kết nối điện thoại với máy tính
+
+**Lưu ý:** Điện thoại và máy tính **phải chung mạng WiFi** để gọi API nội bộ.
+
+---
+
+### **2\. Clone source code**
+
+#### **App User**
+
+https://github.com/Chuyen-d-Mobile-va-Pervasive-Computing/SoulSpace.git  
+cd SoulSpace
+
+#### **App Expert**
+
+https://github.com/Chuyen-d-Mobile-va-Pervasive-Computing/SoulSpace-FE-Expert.git  
+cd SoulSpace-FE-Expert
+
+---
+
+### **3\. Cài đặt thư viện**
+
+npm install
+
+* npm install dùng để tải toàn bộ thư viện cần thiết cho project
+
+* Chỉ cần chạy **1 lần duy nhất** sau khi clone code
+
+---
+
+### **4\. Tạo file .env**
+
+Tạo file **.env** ở **thư mục gốc** của project.
+
+**Nội dung file .env:**
+
+EXPO\_PUBLIC\_API\_PATH=[http://192.168.1.100:8000](http://192.168.1.100:8000)
+
+* 192.168.1.100 là **IP LAN của máy chạy Backend**
+
+* Thay IP này bằng IP thật của máy (máy thật hoặc máy ảo đều được)  
+   (kiểm tra bằng ipconfig hoặc ifconfig)
+
+* Port 8000 là port backend đang chạy
+
+**Cách kiểm tra IP máy:**
+
+* #### **Windows:** Mở Command Prompt hoặc PowerShell và chạy:
+
+  **Ipconfig \-** Lấy địa chỉ **IPv4 Address**
+
+* #### **macOS:** Mở Terminal và chạy:
+
+  **ifconfig**
+
+* #### **Linux:** Mở Terminal và chạy:
+
+  **ip a Hoặc ifconfig**
+
+---
+
+### **5\. Chạy project**
+
+npx expo start
+
+* Lệnh này khởi động Expo Server
+
+* Màn hình sẽ hiện:
+
+  * 1 **QR Code**
+
+  * 1 **đường link**
+
+**Cách mở app trên điện thoại:**
+
+* Mở **Expo Go**
+
+* Quét **QR Code**
+
+* Hoặc nhập link thủ công
+
+---
+
+## **III. Chạy Web Admin**
+
+### **1\. Clone source code**
+
+https://github.com/Chuyen-d-Mobile-va-Pervasive-Computing/SoulSpace-FE-Admin.git  
+cd SoulSpace-FE-Admin
+
+---
+
+### **2\. Cài đặt thư viện**
+
+npm install
+
+---
+
+### **3\. Tạo file .env**
+
+Tạo file **.env** ở thư mục gốc:
+
+NEXT\_PUBLIC\_API\_PATH=http://localhost:8000
+
+* Web Admin chạy trên trình duyệt nên gọi API qua localhost
+
+* Backend cần chạy trước ở port 8000
+
+---
+
+### **4\. Chạy Web Admin**
+
+npm run dev
+
+---
+
+### **5\. Mở trình duyệt**
+
+Mở **Chrome / Cốc Cốc** và truy cập:
+
+http://localhost:3000
+
+Đây là **trang Login của Admin**
+
+---
+
+## **V. Lưu ý quan trọng**
+
+* Backend **phải chạy trước**
+
+* Điện thoại & máy tính **chung mạng**
+
+* Nếu không quét được QR:
+
+  * Kiểm tra Firewall
+
+  * Kiểm tra IP trong file .env
+
+* Khi đổi IP backend → **restart Expo**
+

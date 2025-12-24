@@ -31,7 +31,7 @@ export default function Settingscreen() {
   };
   return (
     <View className="flex-1 bg-[#FAF9FF]">
-      <Heading title="Setting" />
+      <Heading title="Setting" onBack={() => router.replace("/(tabs)/home")}/>
         
       <ScrollView className="flex-1 px-4" contentContainerStyle={{ paddingBottom: 20 }}>
         <View className="py-3 px-1 gap-4">
