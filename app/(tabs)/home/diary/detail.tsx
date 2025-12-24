@@ -17,6 +17,9 @@ export default function DiaryListScreen() {
     const [detail, setDetail] = useState<any>(null);
     const [showConfirm, setShowConfirm] = useState(false);
     const [sound, setSound] = useState<Audio.Sound | null>(null);
+    const isToday = detail?.created_at
+    ? dayjs(detail.created_at).isSame(dayjs(), "day")
+    : false;
 
     const getToken = async () => {
         try {
@@ -108,10 +111,11 @@ export default function DiaryListScreen() {
                     <Text className="text-[36px] text-center font-[Poppins-SemiBold]">
                         {detail?.created_at ? dayjs(detail.created_at).format("DD/MM/YYYY") : ""}
                     </Text>
-
-                    <Text className="text-[24px] text-center font-[Poppins-Regular]">
-                        {detail?.created_at ? dayjs(detail.created_at).format("HH:mm A") : ""}
-                    </Text>
+                    {isToday && (
+                        <Text className="text-[24px] text-center font-[Poppins-Regular]">
+                            {dayjs(detail.created_at).format("HH:mm A")}
+                        </Text>
+                    )}
 
                     <Icon width={100} height={100} />
 
