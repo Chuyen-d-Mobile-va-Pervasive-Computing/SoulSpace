@@ -10,6 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { emotionList } from "@/components/EmotionPicker";
 import MentalTreePlant from "@/components/MentalTreePlant";
 import CustomSwitch from "@/components/CustomSwitch";
+import dayjs from "dayjs";
 
 const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
@@ -35,6 +36,8 @@ export default function DiaryNextScreen() {
   const [isAnonymous, setIsAnonymous] = useState(true);
   const [sharing, setSharing] = useState(false);
   const [level, setLevel] = useState(1);
+  const today = dayjs().format("YYYY-MM-DD");
+  const isToday = !date || date === today;
 
   const getToken = async () => {
     try {
@@ -154,7 +157,7 @@ export default function DiaryNextScreen() {
     formData.append("text_content", thoughts.trim());
     formData.append("emotion_label", emotionLabel);
     formData.append("tags", JSON.stringify(tags));
-    if (date) {
+    if (date && !isToday) {
       formData.append("journal_date", date);
     }
 
@@ -177,19 +180,42 @@ export default function DiaryNextScreen() {
 
       if (res.ok) {
         const result = await res.json();
-        // Lưu journal_id nếu tưới cây thành công
-        if (result.tree_watering_result?.watered) {
-          setLatestJournalId(result.id);
+        console.log("Journal response:", result.tree_watering_result);
+
+        let message = "Diary saved successfully!";
+
+        if (isToday && result.tree_watering_result) {
+          if (result.tree_watering_result.current_level) {
+            setLevel(result.tree_watering_result.current_level);
+          }
+
+          if (result.tree_watering_result.watered) {
+            setLatestJournalId(result.id);
+          }
+
+          if (result.share_suggestion) {
+            setShareModalVisible(true);
+            return; 
+          }
+
+          if (!result.tree_watering_result.watered) {
+            const reason = result.tree_watering_result.reason || "";
+            if (reason === "ALREADY_WATERED_TODAY") {
+              message = "Diary saved! Your tree was already watered today";
+            } else if (reason.includes("NEGATIVE") || reason.includes("TOXIC")) {
+              message = "Diary saved. Keep writing to feel better";
+            } else if (reason === "NO_TEXT_CONTENT") {
+              message = "Diary saved!";
+            }
+          }
+        } else if (!isToday) {
+          message = "Diary saved for past date! (No tree watering) 📅";
         }
-        if (result.tree_watering_result?.current_level) {
-          setLevel(result.tree_watering_result.current_level);
-        }
-        if (result.share_suggestion) {
-          setShareModalVisible(true);
-        } else {
-          Alert.alert("Success", "Diary saved successfully!");
-          router.push("/(tabs)/home/diary");
-        }
+        Toast.show({
+          type: "success",
+          text1: message,
+        });
+        router.push("/(tabs)/home/diary");
       } else {
         const errorData = await res.json().catch(() => ({}));
         const errorMessage = errorData.detail || errorData.error || `Error ${res.status}`;
@@ -204,17 +230,19 @@ export default function DiaryNextScreen() {
   };
 
   const handleShareTree = async () => {
-    if (sharing || !latestJournalId && includeExcerpt) return;
+    if (sharing) return;
     setSharing(true);
-
-    const token = await getToken();
-    if (!token) {
-      Alert.alert("Error", "Please login again");
-      setSharing(false);
-      return;
-    }
+    setShareModalVisible(false);
+    router.push("/(tabs)/home/diary");
+    Toast.show({
+      type: "info",
+      text1: "Sharing your tree...",
+    });
 
     try {
+      const token = await getToken();
+      if (!token) return;
+
       const body: any = {
         include_journal_excerpt: includeExcerpt,
         is_anonymous: isAnonymous,
@@ -236,21 +264,23 @@ export default function DiaryNextScreen() {
       });
 
       if (res.ok) {
-        const data = await res.json();
         Toast.show({
           type: "success",
-          text1: "Shared successfully!",
+          text1: "Tree shared successfully",
         });
-        setShareModalVisible(false);
-        router.push("/(tabs)/home/diary");
       } else {
         const error = await res.json();
-        let msg = error.detail || "Share failed";
-        if (error.detail === "NO_TREE_ACTION_TODAY") msg = "You need to water your tree today first!";
-        Alert.alert("Share failed", msg);
+        Toast.show({
+          type: "error",
+          text1: "Share failed",
+          text2: error.detail || "Please try again later",
+        });
       }
-    } catch (err) {
-      Alert.alert("Error", "Cannot connect to server");
+    } catch {
+      Toast.show({
+        type: "error",
+        text1: "Network error while sharing",
+      });
     } finally {
       setSharing(false);
     }

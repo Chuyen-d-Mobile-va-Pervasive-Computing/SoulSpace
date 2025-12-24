@@ -159,69 +159,73 @@ export default function ProfileScreen() {
     }
   };
 
-  useEffect(() => {
-    const fetchMyPosts = async () => {
-      try {
-        setLoadingPosts(true);
-        const token = await AsyncStorage.getItem("access_token");
-        if (!token) return;
+  useFocusEffect(
+    useCallback(() => {
+      const fetchMyPosts = async () => {
+        try {
+          setLoadingPosts(true);
+          const token = await AsyncStorage.getItem("access_token");
+          if (!token) return;
 
-        const res = await fetch(`${API_BASE}/api/v1/anon-posts/my-posts`, {
-            method: "GET",
-            headers: {
-              accept: "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        if (!res.ok) throw new Error("Failed to fetch my posts");
-        const data = await res.json();
-        setMyPosts(data);
-      } catch (error) {
-        console.error("Fetch my posts error:", error);
-      } finally {
-        setLoadingPosts(false);
-      }
-    };
-    fetchMyPosts();
-  }, []);
-
-  useEffect(() => {
-    const fetchTreeStatus = async () => {
-      try {
-        const token = await AsyncStorage.getItem("access_token");
-        if (!token) return;
-
-        const res = await fetch(`${API_BASE}/api/v1/tree/status`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const data = await res.json();
-        if (!res.ok) return;
-
-        setLevel(data.current_level_calculated);
-        setCurrentXp(data.current_xp_in_level);
-        setNextLevelXp(data.xp_for_next_level);
-        setStreakDays(data.streak_days);
-        setCanWater(data.can_water_today);
-
-        if (!data.can_water_today && data.detail) {
-          setBackendMessage(data.detail);
-          Toast.show({
-            type: "info",
-            text1: data.detail,
-            position: "bottom",
-          });
+          const res = await fetch(`${API_BASE}/api/v1/anon-posts/my-posts`, {
+              method: "GET",
+              headers: {
+                accept: "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          if (!res.ok) throw new Error("Failed to fetch my posts");
+          const data = await res.json();
+          setMyPosts(data);
+        } catch (error) {
+          console.error("Fetch my posts error:", error);
+        } finally {
+          setLoadingPosts(false);
         }
-      } catch (err) {
-        console.error("Fetch tree error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+      };
+      fetchMyPosts();
+    }, [])
+  );
 
-    fetchTreeStatus();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchTreeStatus = async () => {
+        try {
+          const token = await AsyncStorage.getItem("access_token");
+          if (!token) return;
+
+          const res = await fetch(`${API_BASE}/api/v1/tree/status`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          const data = await res.json();
+          if (!res.ok) return;
+
+          setLevel(data.current_level_calculated);
+          setCurrentXp(data.current_xp_in_level);
+          setNextLevelXp(data.xp_for_next_level);
+          setStreakDays(data.streak_days);
+          setCanWater(data.can_water_today);
+
+          if (!data.can_water_today && data.detail) {
+            setBackendMessage(data.detail);
+            Toast.show({
+              type: "info",
+              text1: data.detail,
+              position: "bottom",
+            });
+          }
+        } catch (err) {
+          console.error("Fetch tree error:", err);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchTreeStatus();
+    }, [])
+  );
 
   // Handle share action
   const handleShare = async () => {
