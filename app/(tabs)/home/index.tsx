@@ -12,9 +12,9 @@ import Happy from "@/assets/images/happy.svg";
 import Logo from "@/assets/images/logo.svg";
 import Worried from "@/assets/images/worried.svg";
 import MoodTrends from "@/components/MoodTrends";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { ArrowBigRight, Bell } from "lucide-react-native";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { ScrollView, Text, TouchableOpacity, View, Image } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ChartItem } from "@/constants/types";
@@ -80,33 +80,35 @@ export default function HomeScreen() {
     fetchMe();
   }, []);
 
-  useEffect(() => {
-    const fetchMoodTrend = async () => {
-      try {
-        const token = await AsyncStorage.getItem("access_token");
-        if (!token) return;
+  useFocusEffect(
+    useCallback(() => {
+      const fetchMoodTrend = async () => {
+        try {
+          const token = await AsyncStorage.getItem("access_token");
+          if (!token) return;
 
-        const { startDate, endDate } = getPreviousWeekRange();
+          const { startDate, endDate } = getPreviousWeekRange();
 
-        const res = await fetch(
-          `${API_BASE}/api/v1/journal/analytics` +
-            `?period=week&start_date=${startDate}&end_date=${endDate}`,
-          {
-            headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        if (!res.ok) return;
-        const json = await res.json();
-        setChartData(json.chart_data ?? []);
-      } catch (err) {
-        console.error("Fetch mood trend error:", err);
-      }
-    };
-    fetchMoodTrend();
-  }, []);
+          const res = await fetch(
+            `${API_BASE}/api/v1/journal/analytics` +
+              `?period=week&start_date=${startDate}&end_date=${endDate}`,
+            {
+              headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          if (!res.ok) return;
+          const json = await res.json();
+          setChartData(json.chart_data ?? []);
+        } catch (err) {
+          console.error("Fetch mood trend error:", err);
+        }
+      };
+      fetchMoodTrend();
+    }, [])
+  );
 
   useEffect(() => {
     const fetchDailySentiment = async () => {

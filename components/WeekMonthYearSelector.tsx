@@ -35,16 +35,16 @@ export default function WeekMonthYearSelector({ mode, onChange }: Props) {
       end: dayjs.Dayjs;
     }[] = [];
 
-    let end = today.endOf("week");
+    let end = today.startOf("week").subtract(1, "day").endOf("day");
     for (let i = 0; i < 12; i++) {
       const start = end.startOf("week");
 
       result.unshift({
         label: `${start.format("DD/MM")} - ${end.format("DD/MM")}`,
         start,
-        end: clampEndDate(end),
+        end,
       });
-      end = start.subtract(1, "day").endOf("week");
+      end = start.subtract(1, "day").endOf("day");
     }
     return result;
   }, []);

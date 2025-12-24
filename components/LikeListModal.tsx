@@ -30,8 +30,9 @@ export default function LikeListModal({ visible, onClose, users, currentUserId }
                 </View>
             )}
             <Text className="ml-3 text-base font-[Poppins-Medium]">
-                {item.userId === currentUserId ? "You" : item.username}
-                {item.userId === currentUserId && " (You)"}
+                {item.username}
+                {/* {item.userId === currentUserId ? "You" : item.username} */}
+                {/* {item.userId === currentUserId && " (You)"} */}
             </Text>
         </View>
     );

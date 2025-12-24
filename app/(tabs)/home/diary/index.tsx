@@ -134,7 +134,7 @@ export default function Calendar() {
 
   return (
     <View className="flex-1 bg-[#FAF9FF]">
-      <Heading title="Diary" />
+      <Heading title="Diary" onBack={() => router.push("/(tabs)/home")}/>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         {/* header */}
         <View
@@ -260,7 +260,11 @@ export default function Calendar() {
               <SlidersHorizontal width={20} height={20} color="black" />
             </TouchableOpacity>
           </View>
-
+          {sortedEntries.length === 0 && (
+            <View className="p-10 items-center">
+              <Text className="text-gray-500 text-base font-[Poppins-Regular]">No diary entries yet.</Text>
+            </View>          
+          )}
           {sortedEntries.map((item) => {
             const emotion = normalizeEmotionLabel(item.emotion_label);
             const Icon = emotion ? (emotionMap[emotion] as any) : null;

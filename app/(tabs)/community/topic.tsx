@@ -59,11 +59,6 @@ export default function TopicScreen() {
   const [likedUsers, setLikedUsers] = useState<any[]>([]);
   const [topicPickerVisible, setTopicPickerVisible] = useState(false);
 
-  const user = {
-    username: "SoulSpace",
-    avatar: "https://i.pravatar.cc/300",
-  };
-
   const formatToVNTime = (utcString: string) => {
     const safeUtc = utcString.endsWith("Z") ? utcString : utcString + "Z";
     const d = new Date(safeUtc);
@@ -77,6 +72,28 @@ export default function TopicScreen() {
     )}`;
   };
 
+  useEffect(() => {
+    const fetchMe = async () => {
+      try {
+        const token = await AsyncStorage.getItem("access_token");
+        if (!token) return;
+        const res = await fetch(`${API_BASE}/api/v1/auth/me`, {
+          method: "GET",
+          headers: {
+            accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!res.ok) throw new Error("Failed to fetch me");
+        const data = await res.json();
+        setMe(data);
+      } catch (err) {
+        console.error("Fetch me error:", err);
+      }
+    };
+    fetchMe();
+  }, []);
+  
   useEffect(() => {
     const loadPosts = async () => {
       try {
@@ -296,7 +313,7 @@ export default function TopicScreen() {
       </View>
 
       <View className="flex-row items-center border-b border-gray-200 pb-4 mx-4">
-        <Image source={{ uri: user.avatar }} className="w-12 h-12 rounded-full mr-3" />
+        <Image source={{ uri: me?.avatar_url }} className="w-12 h-12 rounded-full mr-3" />
         <TouchableOpacity
           onPress={() =>
             router.push({

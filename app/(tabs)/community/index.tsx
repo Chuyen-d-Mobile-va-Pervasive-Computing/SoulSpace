@@ -1,8 +1,8 @@
 import Heading from "@/components/Heading";
 import PostHeader from "@/components/PostHeader";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { EllipsisVertical, Heart, MessageCircle, SlidersHorizontal, Star } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Modal, Pressable, ScrollView, Text, TouchableOpacity, TouchableWithoutFeedback, View, Image, Alert } from "react-native";
 import ReportModal from "@/components/ReportModal";
 import Logo from "@/assets/images/logo.svg";
@@ -16,6 +16,12 @@ const API_BASE = process.env.EXPO_PUBLIC_API_PATH;
 
 interface User {
   userId: string;
+  username: string;
+  avatar_url?: string | null;
+}
+
+interface ApiLikeUser {
+  user_id: string;
   username: string;
   avatar_url?: string | null;
 }
@@ -90,55 +96,57 @@ export default function CommunityScreen() {
     fetchMe();
   }, []);
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        setLoading(true);
-        const token = await AsyncStorage.getItem("access_token");
-        const res = await fetch(`${API_BASE}/api/v1/anon-posts/`, {
-          method: "GET",
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!res.ok) {
-          console.log("API error:", res.status);
-          return;
+  useFocusEffect(
+    useCallback(() => {
+      const fetchPosts = async () => {
+        try {
+          setLoading(true);
+          const token = await AsyncStorage.getItem("access_token");
+          const res = await fetch(`${API_BASE}/api/v1/anon-posts/`, {
+            method: "GET",
+            headers: {
+              accept: "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (!res.ok) {
+            console.log("API error:", res.status);
+            return;
+          }
+          const data = await res.json();
+          console.log("Dữ liệu từ API:", data);
+
+          const formatted = data.map((item: any) => {
+            const isAnonymous = !item.author_name || item.author_name === "Anonymous";
+            const topic = item.hashtags?.[0] || (item.title ? "Article" : null);
+            return {
+              id: item._id,
+              userId: item.author_id || "",
+              username: isAnonymous ? "Anonymous" : item.author_name,
+              avatar: item.author_avatar || null,
+              role: item.author_role,
+              title: item.title,
+              content: item.content,
+              image_url: item.image_url || null,
+              topic: topic,
+              created_at: formatToVNTime(item.created_at),
+              likes: item.like_count || 0,
+              isLiked: item.is_liked || false,
+              comments: item.comment_count || 0,
+              isOwner: item.is_owner || false,
+            };
+          });
+
+          setPosts(formatted);
+        } catch (error) {
+          console.log("Lỗi fetch:", error);
+        } finally {
+          setLoading(false);
         }
-        const data = await res.json();
-        console.log("Dữ liệu từ API:", data);
-
-        const formatted = data.map((item: any) => {
-          const isAnonymous = !item.author_name || item.author_name === "Anonymous";
-          const topic = item.hashtags?.[0] || (item.title ? "Article" : null);
-          return {
-            id: item._id,
-            userId: item.author_id || "",
-            username: isAnonymous ? "Anonymous" : item.author_name,
-            avatar: item.author_avatar || null,
-            role: item.author_role,
-            title: item.title,
-            content: item.content,
-            image_url: item.image_url || null,
-            topic: topic,
-            created_at: formatToVNTime(item.created_at),
-            likes: item.like_count || 0,
-            isLiked: item.is_liked || false,
-            comments: item.comment_count || 0,
-            isOwner: item.is_owner || false,
-          };
-        });
-
-        setPosts(formatted);
-      } catch (error) {
-        console.log("Lỗi fetch:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchPosts();
-  }, []);
+      };
+      fetchPosts();
+    }, [])
+  );
 
   const deletePostOnServer = async (postId: string): Promise<{ ok: boolean; message: string }> => {
     try {
@@ -182,10 +190,9 @@ export default function CommunityScreen() {
       );
 
       if (!res.ok) throw new Error("Failed to fetch like list");
-      const data: User[] = await res.json();
-
+      const data: ApiLikeUser[] = await res.json();
       const mappedUsers: User[] = data.map((u) => ({
-        userId: u.userId,
+        userId: u.user_id,
         username: u.username,
         avatarUrl: u.avatar_url,
       }));

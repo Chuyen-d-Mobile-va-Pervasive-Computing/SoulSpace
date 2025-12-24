@@ -1,12 +1,12 @@
 import { View, Text, Image, ScrollView, Modal, TextInput, TouchableOpacity, TouchableWithoutFeedback, ToastAndroid, ActivityIndicator } from "react-native";
 import Toast from "react-native-toast-message";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { FontAwesome } from "@expo/vector-icons";
 import { Sun, Share2, PenLine, ArrowLeft, MessageCircle, Heart } from "lucide-react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import PostHeader from "@/components/PostHeader";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import MentalTreePlant from "@/components/MentalTreePlant";
 import CustomSwitch from "@/components/CustomSwitch";
 
@@ -37,6 +37,27 @@ interface MyPost {
   toxic_confidence: number;
 }
 
+const formatToVNTime = (utcString: string) => {
+  const safeUtc = utcString.endsWith("Z") ? utcString : utcString + "Z";
+  const d = new Date(safeUtc);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const local = new Date(d.getTime() + 7 * 60 * 60 * 1000);
+
+  return (
+    local.getUTCFullYear() +
+      "-" +
+    pad(local.getUTCMonth() + 1) +
+      "-" +
+    pad(local.getUTCDate()) +
+      " " +
+    pad(local.getUTCHours()) +
+      ":" +
+    pad(local.getUTCMinutes()) +
+      ":" +
+    pad(local.getUTCSeconds())
+  );
+};
+
 export default function ProfileScreen() {
   const [me, setMe] = useState<Me | null>(null);
   const [level, setLevel] = useState(1);
@@ -55,27 +76,29 @@ export default function ProfileScreen() {
   const [isAnonymous, setIsAnonymous] = useState(true);
   const progress = nextLevelXp > 0 ? (currentXp / nextLevelXp) * 100 : 0;
 
-  useEffect(() => {
-    const fetchMe = async () => {
-      try {
-        const token = await AsyncStorage.getItem("access_token");
-        if (!token) return;
-        const res = await fetch(`${API_BASE}/api/v1/auth/me`, {
-          method: "GET",
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!res.ok) throw new Error("Failed to fetch me");
-        const data = await res.json();
-        setMe(data);
-      } catch (err) {
-        console.error("Fetch me error:", err);
-      }
-    };
-    fetchMe();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchMe = async () => {
+        try {
+          const token = await AsyncStorage.getItem("access_token");
+          if (!token) return;
+          const res = await fetch(`${API_BASE}/api/v1/auth/me`, {
+            method: "GET",
+            headers: {
+              accept: "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (!res.ok) throw new Error("Failed to fetch me");
+          const data = await res.json();
+          setMe(data);
+        } catch (err) {
+          console.error("Fetch me error:", err);
+        }
+      };
+      fetchMe();
+    }, [])
+  );
 
   const uploadAvatar = async (uri: string) => {
     const token = await AsyncStorage.getItem("access_token");
@@ -208,8 +231,8 @@ export default function ProfileScreen() {
     try {
       const body: any = {
         custom_message: shareText.trim(),
-        is_anonymous: true,
-        include_journal_excerpt: true,
+        is_anonymous: isAnonymous,
+        include_journal_excerpt: includeExcerpt,
         hashtags: ["mentalTree", "growth"],
       };
 
@@ -223,7 +246,7 @@ export default function ProfileScreen() {
       });
 
       if (res.ok) {
-        ToastAndroid.show("Shared successfully!", ToastAndroid.SHORT);
+        ToastAndroid.show("Shared successfully! You can see your post at the forum", ToastAndroid.SHORT);
         setShareModalVisible(false);
         setShareText("");
       } else {
@@ -307,7 +330,7 @@ export default function ProfileScreen() {
                   <PostHeader
                     username={post.author_name}
                     avatarUrl={me?.avatar_url}
-                    createdAt={new Date(post.created_at).toLocaleString()}
+                    createdAt={formatToVNTime(post.created_at)}
                     isAnonymous={!me?.avatar_url && post.author_name === "Anonymous"}
                   />
                   {/* {post.role === "expert" && (

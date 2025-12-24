@@ -1,15 +1,11 @@
 import { useFonts } from "expo-font";
-import { useRouter } from "expo-router"; // ✅ Dùng expo-router
+import { useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { ArrowLeft } from "lucide-react-native";
 import React, { useCallback } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
-type HeadingProps = {
-  title: string;
-};
-
-const Heading: React.FC<HeadingProps> = ({ title }) => {
+const Heading = ({ title, onBack }: { title: string; onBack?: () => void }) => {
   const router = useRouter();
 
   const [fontsLoaded] = useFonts({
@@ -38,8 +34,9 @@ const Heading: React.FC<HeadingProps> = ({ title }) => {
       className="w-full flex-row items-center justify-between py-4 px-4 border-b border-gray-200 bg-[#FAF9FF] mt-8"
     >
       <View className="flex-row items-center">
-        {/* Nút quay lại → quay về trang trước trong stack */}
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity
+          onPress={onBack ?? (() => router.back())}
+        >
           <ArrowLeft width={40} height={30} />
         </TouchableOpacity>
 
@@ -47,11 +44,6 @@ const Heading: React.FC<HeadingProps> = ({ title }) => {
           {title}
         </Text>
       </View>
-
-      {/* <View className="flex-row items-center gap-4">
-        <Bell strokeWidth={1.5} />
-        <Settings strokeWidth={1.5} />
-      </View> */}
     </View>
   );
 };

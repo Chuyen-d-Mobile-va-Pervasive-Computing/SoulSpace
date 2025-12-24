@@ -106,11 +106,11 @@ export default function DiaryListScreen() {
                 </TouchableOpacity>
                 <View className="flex-1 w-full gap-6 px-4 items-center">
                     <Text className="text-[36px] text-center font-[Poppins-SemiBold]">
-                        {detail?.created_at ? dayjs(detail.created_at).format("DD/MM/YYYY") : ""}
+                        {detail?.created_at ? dayjs(detail.created_at).add(7, 'hour').format("DD/MM/YYYY") : ""}
                     </Text>
 
                     <Text className="text-[24px] text-center font-[Poppins-Regular]">
-                        {detail?.created_at ? dayjs(detail.created_at).add(7, 'hour').format("HH:mm A") : "" }
+                        {detail?.created_at ? dayjs(detail.created_at).add(7, 'hour').format("HH:mm A") : ""}
                     </Text>
 
                     <Icon width={100} height={100} />
