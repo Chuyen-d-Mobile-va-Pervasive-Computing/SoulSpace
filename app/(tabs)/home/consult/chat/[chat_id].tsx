@@ -157,13 +157,24 @@ export default function ChatDetailScreen() {
 
   const formatLastSeen = (utc?: string | null) => {
     if (!utc) return "offline";
-    const d = new Date(utc);
-    return `last seen ${d.toLocaleString("en-GB", {
-      hour: "2-digit",
-      minute: "2-digit",
-      day: "2-digit",
-      month: "short",
-    })}`;
+    const safeUtc = utc.endsWith("Z") ? utc : utc + "Z";
+    const d = new Date(safeUtc);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const local = new Date(d.getTime() + 7 * 60 * 60 * 1000);
+
+    return (
+      local.getUTCFullYear() +
+      "-" +
+      pad(local.getUTCMonth() + 1) +
+      "-" +
+      pad(local.getUTCDate()) +
+      " " +
+      pad(local.getUTCHours()) +
+      ":" +
+      pad(local.getUTCMinutes()) +
+      ":" +
+      pad(local.getUTCSeconds())
+    );
   };
 
   // Gửi tin nhắn

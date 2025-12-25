@@ -171,7 +171,7 @@ export default function HomeScreen() {
             {/* Left side*/}
             <View className="flex-1 pl-4 pt-4 pb-4">
               <Text className="text-white font-[Poppins-Bold] text-2xl">
-                Hello, SE405
+                Hello {me?.username}
               </Text>
               <Text className="text-white mt-2 font-[Poppins-Regular] text-sm">
                 Hope you are enjoying your day. If not then we are here for you
